@@ -277,7 +277,7 @@ class track{ //is used to store infomation about a track in a readable way (rath
 		if(localStorage.getItem(name) != null){
 			this.bestTime = localStorage.getItem(name)
 		}else{
-			this.bestTime = 99999
+			this.bestTime = 1000
 		}
 		this.name = name;
 		this.targetTimes = targetTimes;
@@ -333,6 +333,9 @@ var currentSeries = "holiday";
 
 var maxSkids = 1000; //0, 1000, 10000
 var smokeOn = true; // false, true, true
+var graphicsSetting = 2;
+var graphicsOptions = [[0, false, "off"], [1000, true, "low"], [10000, true, "high"]];
+var showSetting = 0;
 
 function reset(){
 	boost = 1;
@@ -370,12 +373,14 @@ var seriesButtons = {"holiday" : new button(0*175*scale+10*scale, (Math.floor(0/
 "series3" : new button(2*175*scale+10*scale, (Math.floor(2/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series3"])};
 
 var carImg = new image("car1.png");
+var carShadowImg = new image("car1shadow.png");
 
 var trackButtons = [];
 for(var i = 0; i < tracks[currentSeries].length; i+=1){
 	trackButtons.push(new button((canvas.width*0.9)/tracks[currentSeries].length*i+canvas.width*0.05, 200*scale, (canvas.width*0.9)/tracks[currentSeries].length*0.9, canvas.width/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
 }
-var resetButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("reset.png"))
+var resetButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("reset.png"));
+var graphicsButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("graphics.png"))
 function update(){
 	if(gameState === "race"){
 		frames += 1;
@@ -432,7 +437,7 @@ function update(){
 		carPos[0] += carVel[0];
 		carPos[1] += carVel[1];
 
-		if(smokeOn === true){ //if not on min settings
+		if(smokeOn === true){
 			angleDif = Math.atan2(carVel[1], carVel[0]) - carAngle; //could also do dist to a vel vector to a vector thats infront of the car by the speed (this would add skidding when acceslerting and by doing two and min ing it would work backwards too)
 			if(Math.abs(angleDif+carWheelAngle) > 0.7 && Math.abs(angleDif-carWheelAngle) < 2.44){ //make it be harder to skid at low speeds
 				skidMarks.push([carPos[0]-1, carPos[1]-1]);
@@ -476,6 +481,15 @@ function update(){
 			lastColour = true;
 		}
 
+		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1] - Math.sin(carAngle)*15)][Math.floor(carPos[0] - Math.cos(carAngle)*15)];
+		if(colTemp === true){
+			reset();
+		}
+
+		if(smokeOn === true){
+			carShadowImg.drawRotatedImg((carPos[0]+2.5)*scale, (carPos[1]+2.5)*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
+		}
+
 		for(var i = 0; i < smokeList.length; i += 1){
 			smokeList[i].run();
 			//console.log(smokeList[i]);
@@ -495,34 +509,13 @@ function update(){
 		}
 
 		if(liftedEsc === true){
+			skidMarks = [];
 			gameState = "menu1";
 			lapTimes = [];
 			liftedEsc = false;
 		}
 
-		carImg.drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 20*scale, 10*scale, 1, carAngle-Math.PI, 5*scale, 5*scale)
-
-		/*
-		c.beginPath();
-		c.fillStyle = "rgb(0, 0, 0)";
-		c.fillRect((carPos[0])*scale, (carPos[1])*scale, scale, scale);
-
-		c.beginPath();
-		c.fillStyle = "rgb(0, 0, 0)";
-		c.fillRect((carPos[0] - Math.cos(carAngle)*10 - 2)*scale, (carPos[1] - Math.sin(carAngle)*10 - 2)*scale, 4*scale, 4*scale);
-		
-		c.beginPath();
-		c.moveTo(carPos[0]*scale, carPos[1]*scale);
-		c.lineTo((carPos[0] + Math.cos(carAngle+carWheelAngle/2)*10)*scale, (carPos[1] + Math.sin(carAngle+carWheelAngle/2)*10)*scale);
-		c.strokeStyle = "rgb(0, 0, 0)";
-		c.stroke();
-
-		c.beginPath();
-		c.moveTo(carPos[0]*scale, carPos[1]*scale);
-		c.lineTo((carPos[0] + Math.cos(angleDif+carAngle)*10)*scale, (carPos[1] + Math.sin(angleDif+carAngle)*10)*scale);
-		c.strokeStyle = "rgb(255, 0, 0)";
-		c.stroke();
-		*/
+		carImg.drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
 
 		for(var i = 0; i<lapTimes.length; i+=1){
 			showText(lapTimes[i], 30*scale, (30+i*10)*scale, 10*scale, "rgb(255, 255, 255)");
@@ -556,7 +549,21 @@ function update(){
 				}
 			}
 		}
-		
+		if(graphicsButton.update() === true){
+			graphicsSetting += 1;
+			if(graphicsSetting === 3){
+				graphicsSetting = 0;
+			}
+			maxSkids = graphicsOptions[graphicsSetting][0];
+			smokeOn = graphicsOptions[graphicsSetting][1];
+			showSetting = 30;
+		}
+			
+		if(showSetting >= 0){
+			showSetting -= 1;
+			showText(graphicsOptions[graphicsSetting][2], canvas.width/2, canvas.height/2, 50*scale, "rgb(0, 0, 0)");
+		}
+
 		selectBoxPos[0] += (selectBoxTarget[0] - selectBoxPos[0])*0.3;
 		selectBoxPos[1] += (selectBoxTarget[1] - selectBoxPos[1])*0.3;
 		selectBoxSize[0] += (selectBoxSizeTarget[0] - selectBoxSize[0])*0.3;
@@ -570,6 +577,8 @@ function update(){
 		//thumbs[currentSeries].drawImg(0, 0, canvas.width, canvas.height);
 		for(var i = 0; i<trackButtons.length; i+=1){
 			if(trackButtons[i].update() === true){
+				maxSkids = graphicsOptions[graphicsSetting][0];
+				smokeOn = graphicsOptions[graphicsSetting][1];
 				gameState = "race";
 				currentTrack = i;
 				tracks[currentSeries][i].start()
@@ -577,8 +586,8 @@ function update(){
 		}
 		if(resetButton.update() === true){
 			for(var i = 0; i < tracks[currentSeries].length; i+=1){
-				tracks[currentSeries][i].bestTime = 99999;
-				localStorage.setItem(tracks[currentSeries][i].name, 99999);
+				tracks[currentSeries][i].bestTime = 1000;
+				localStorage.setItem(tracks[currentSeries][i].name, 1000);
 			}
 		}	
 		if(liftedEsc === true){
