@@ -268,7 +268,7 @@ class smoke{
 }
 
 class track{ //is used to store infomation about a track in a readable way (rather than a list or dict)
-	constructor(trackImg, name, carStats, startPos, targetTimes){
+	constructor(trackImg, name, carStats, startPos, targetTimes = []){
 		this.trackImg = new image(trackImg);
 		this.collisionArray = collisionList[name];
 		this.carStats = carStats;
@@ -281,10 +281,43 @@ class track{ //is used to store infomation about a track in a readable way (rath
 		}
 		this.name = name;
 		this.targetTimes = targetTimes;
+		this.trophy = 4;
+		this.getTrophy();
 	}
 	start(){
 		upgrades = [this.carStats[0], this.carStats[1]];
 		reset();
+	}
+	getTrophy(time = null){
+		if(time === null){
+			if(this.bestTime < this.targetTimes[2]){
+				this.trophy = 1;
+			}else{
+				if(this.bestTime < this.targetTimes[1]){
+					this.trophy = 2;
+				}else{
+					if(this.bestTime < this.targetTimes[0]){
+						this.trophy = 3;
+					}else{
+						this.trophy = 4;
+					}
+				}
+			}
+		}else{
+			if(time < this.targetTimes[2]){
+				return 1;
+			}else{
+				if(time < this.targetTimes[1]){
+					return 2;
+				}else{
+					if(time < this.targetTimes[0]){
+						return 3;
+					}else{
+						return 4;
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -297,8 +330,20 @@ canvas.height = 520*scale;//trackImg.img.naturalHeight;
 canvas.width = 720*scale;//trackImg.img.naturalWidth//Math.floor(h*1.333333*0.9);
 
 
-var tracks = {"holiday":[new track("tracks/show/track1.png", "track1", [1, 0.9], [300, 410, 0]), new track("tracks/show/track2.png", "track2", [0.9, 0.8], [400, 400, 0]), new track("tracks/show/track3.png", "track3", [2.5, 0.1], [200, 400, 0]), new track("tracks/show/track4.png", "track4", [1, 10], [130, 75, Math.PI/2])],
+var tracks = {"holiday":[
+new track("tracks/show/track1.png", "track1", [1, 0.9], [300, 410, 0], [15, 12, 10]),//9.5
+new track("tracks/show/track2.png", "track2", [0.9, 0.8], [400, 400, 0], [15, 12, 10]), //9.8
+new track("tracks/show/track3.png", "track3", [2.5, 0.1], [200, 400, 0], [8, 7, 6]),
+new track("tracks/show/track4.png", "track4", [1, 10], [130, 75, Math.PI/2], [12, 11.5, 10])
+],
+"easy":[
+new track("tracks/show/track2-1.png", "track2-1", [1, 0.9], [270, 70, 0], [8.5, 7.9, 7.3]),
+new track("tracks/show/track2-2.png", "track2-2", [1,0.9], [300, 30, 0], [9.3, 9, 8.5]),
+new track("tracks/mask/track2-3.png", "track2-3", [1, 0.9], [650, 200, Math.PI/2], [10, 9.2, 8.5])
+],
+"series3":[]
 };
+
 
 var upgrades = [1, 0.9]; //speed, handeling
 // normal 1, 0.9
@@ -333,7 +378,7 @@ var currentSeries = "holiday";
 
 var maxSkids = 1000; //0, 1000, 10000
 var smokeOn = true; // false, true, true
-var graphicsSetting = 2;
+var graphicsSetting = 1;
 var graphicsOptions = [[0, false, "off"], [1000, true, "low"], [10000, true, "high"]];
 var showSetting = 0;
 
@@ -367,9 +412,9 @@ var selectBoxSizeTarget = [0, 0];
 var totalTimeTemp = 0;
 
 var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png")};
-var seriesNames = ["holiday", "series2", "series3"];
-var seriesButtons = {"holiday" : new button(0*175*scale+10*scale, (Math.floor(0/4)+1)*130*scale, 175*scale, 130*scale, thumbs["holiday"]),
-"series2" : new button(1*175*scale+10*scale, (Math.floor(1/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series2"]),
+var seriesNames = ["easy", "holiday", "series3"];
+var seriesButtons = {"holiday" : new button(1*175*scale+10*scale, (Math.floor(1/4)+1)*130*scale, 175*scale, 130*scale, thumbs["holiday"]),
+"easy" : new button(0*175*scale+10*scale, (Math.floor(0/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series2"]),
 "series3" : new button(2*175*scale+10*scale, (Math.floor(2/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series3"])};
 
 var carImg = new image("car1.png");
@@ -381,6 +426,10 @@ for(var i = 0; i < tracks[currentSeries].length; i+=1){
 }
 var resetButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("reset.png"));
 var graphicsButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("graphics.png"))
+
+var trophyImgs = [new image("trophy1.png"), new image("trophy2.png"), new image("trophy3.png")];
+
+var seriesPointsTemp = 0;
 function update(){
 	if(gameState === "race"){
 		frames += 1;
@@ -424,11 +473,13 @@ function update(){
 			carAngle -= Math.PI*2;
 		}
 
-		if(Keys["up"] === true){
-			carWheelSpeed += 0.001*upgrades[0];
-		}
-		if(Keys["down"] === true){
+		//if(Keys["up"] === true){
+		//	carWheelSpeed += 0.001*upgrades[0];
+		//}
+		if(Keys["down"] === true){ 
 			carWheelSpeed -= 0.0003*upgrades[0];
+		}else{
+			carWheelSpeed += 0.001*upgrades[0]; //goes forwards
 		}
 		carVel[0] -= carVel[0] * 0.04 * upgrades[1];
 		carVel[1] -= carVel[1] * 0.04 * upgrades[1]; // increasing drag/tire friction (besicly it makes the car move less in other directions and makes it more more in the way you are pointitng)
@@ -513,16 +564,51 @@ function update(){
 			gameState = "menu1";
 			lapTimes = [];
 			liftedEsc = false;
+			tracks[currentSeries][currentTrack].getTrophy();
 		}
+
+		/*
+		c.fillStyle = "rgb(0, 255, 255)";
+		c.fillRect(0, 0, canvas.width, canvas.height);
+		c.fillStyle = "rgb(0, 0, 0)";
+		for(var y=0; y<tracks[currentSeries][currentTrack].collisionArray.length; y+=1){
+			for(var x=0; x<tracks[currentSeries][currentTrack].collisionArray[y].length; x+=1){
+				if(tracks[currentSeries][currentTrack].collisionArray[y][x] === true){
+					c.beginPath();
+					c.fillRect(x, y, 1, 1);
+				}
+			}
+		}
+		*/
 
 		carImg.drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
 
 		for(var i = 0; i<lapTimes.length; i+=1){
-			showText(lapTimes[i], 30*scale, (30+i*10)*scale, 10*scale, "rgb(255, 255, 255)");
+			if(tracks[currentSeries][currentTrack].getTrophy(lapTimes[i]) !=4){
+				trophyImgs[tracks[currentSeries][currentTrack].getTrophy(lapTimes[i])-1].drawImg(45*scale, (23+i*15)*scale, 10*scale, 12*scale);
+			}
+			showText(lapTimes[i], 30*scale, (32+i*15)*scale, 10*scale, "rgb(255, 255, 255)");
 		}
-		showText((Math.round(((frames/60) + 0.0000001 )* 100) / 100), 30*scale, 20*scale, 10*scale, "rgb(255, 255, 255)");
+		showText((Math.round(((frames/60) + 0.0000001 )* 100) / 100), 30*scale, 20*scale, 10*scale, "rgb(255, 255, 255)"); //current lap time
+		c.beginPath();
+		c.fillStyle = "rgb(100, 100, 255)";
+		c.fillRect(100*scale, 2*scale, frames*scale*0.6, 20*scale);
 
-		showText(Math.floor(Math.sqrt((carVel[0]**2+carVel[1]**2))*70)+" k/h", 60*scale, 500*scale, 30*scale, "rgb(150, 150, 150)");
+
+		trophyImgs[0].drawImg((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale);
+		c.fillStyle = "rgb(100, 100, 100)";
+		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
+
+		trophyImgs[1].drawImg((tracks[currentSeries][currentTrack].targetTimes[1]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale);
+		c.fillStyle = "rgb(100, 100, 100)";
+		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[1]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
+
+		trophyImgs[2].drawImg((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale);
+		c.fillStyle = "rgb(100, 100, 100)";
+		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
+
+
+		showText(Math.floor(Math.sqrt((carVel[0]**2+carVel[1]**2))*70)+" k/h", 60*scale, 500*scale, 30*scale, "rgb(150, 150, 150)"); //speedo
 		c.beginPath();
 		c.fillStyle = "rgba(0, 0, 0, 0.4)";
 		c.fillRect(10*scale, 10*scale, 50*scale, (15+lapTimes.length*10)*scale);//c.fillRect(10*scale, 20*scale, 50*scale, i*10*scale);
@@ -538,7 +624,21 @@ function update(){
 		c.fillStyle = "rgb(255, 255, 255)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 		
+
 		for(var i = 0; i < seriesNames.length; i+=1){
+			seriesPointsTemp = 0;
+			for(var t = 0; t < tracks[seriesNames[i]].length; t+=1){
+				if(tracks[seriesNames[i]][t].trophy === 3){
+					seriesPointsTemp += 1;
+				}
+				if(tracks[seriesNames[i]][t].trophy === 2){
+					seriesPointsTemp += 2;
+				}
+				if(tracks[seriesNames[i]][t].trophy === 1){
+					seriesPointsTemp += 5;
+				}
+			}
+
 			if(seriesButtons[seriesNames[i]].update() === true){
 				gameState = "menu1";
 				currentSeries = seriesNames[i];
@@ -548,6 +648,7 @@ function update(){
 					trackButtons.push(new button((canvas.width*0.9)/tracks[currentSeries].length*i+canvas.width*0.05, 260*scale, (canvas.width*0.9)/tracks[currentSeries].length*0.9, canvas.width/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
 				}
 			}
+			showText(seriesPointsTemp, i*175*scale+87.5*scale, 300*scale, 20*scale);
 		}
 		if(graphicsButton.update() === true){
 			graphicsSetting += 1;
@@ -588,6 +689,7 @@ function update(){
 			for(var i = 0; i < tracks[currentSeries].length; i+=1){
 				tracks[currentSeries][i].bestTime = 1000;
 				localStorage.setItem(tracks[currentSeries][i].name, 1000);
+				tracks[currentSeries][i].getTrophy();
 			}
 		}	
 		if(liftedEsc === true){
@@ -596,10 +698,13 @@ function update(){
 		}
 		totalTimeTemp = 0;
 		for(var i = 0; i < tracks[currentSeries].length; i+=1){
+			if(tracks[currentSeries][i].trophy != 4){
+				trophyImgs[tracks[currentSeries][i].trophy-1].drawImg((canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 300*scale, 50*scale, 70*scale);
+			}
 			showText(tracks[currentSeries][i].bestTime, (canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 195*scale, 20*scale);
 			totalTimeTemp += Number(tracks[currentSeries][i].bestTime);
 		}
-		showText(Math.round(((totalTimeTemp) + 0.000000001 )* 100) / 100, canvas.width/2, canvas.height*0.3, 50*scale)
+		showText(Math.round(((totalTimeTemp) + 0.000000001 )* 100) / 100, canvas.width/2, canvas.height*0.3, 50*scale) // sometimes the rounding does weird things so if you add a tiny amount it fixes it
 		selectBoxPos[0] += (selectBoxTarget[0] - selectBoxPos[0])*0.3;
 		selectBoxPos[1] += (selectBoxTarget[1] - selectBoxPos[1])*0.3;
 		selectBoxSize[0] += (selectBoxSizeTarget[0] - selectBoxSize[0])*0.3;

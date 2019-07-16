@@ -13,7 +13,7 @@ filesTotal = len(glob.glob("*.png"))
 filesDone = 0
 for infile in glob.glob("*.png"):
 	fileName, ext = os.path.splitext(infile)
-	file.write(fileName+" : [")
+	file.write("'"+fileName+"' : [")
 	im = Image.open(infile)
 	array = np.array(im)
 	for m in range(array.shape[0]):
@@ -31,7 +31,7 @@ for infile in glob.glob("*.png"):
 			elif array[m][n][0] == 255 and array[m][n][1] == 255 and array[m][n][2] == 255:
 				file.write("false, ")
 		file.write("],")
-	file.write("], ")
+	file.write("], \n")
 	filesDone += 1
 	print(str(filesDone)+"/"+str(filesTotal))
 file.write("};")
