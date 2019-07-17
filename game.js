@@ -78,37 +78,6 @@ document.addEventListener('mouseup', function(event){
 	liftedMouse = true;
 });
 
-class button{
-	constructor(X, Y, W, H, img, outlineCol = "rgba(100, 100, 100, 0.5)"){
-		this.X = X;
-		this.Y = Y;
-		this.W = W;
-		this.H = H;
-		this.img = img;
-		this.outlineCol = outlineCol;
-	}
-	update(){
-		if(collidePoint([mousePos.x, mousePos.y], [this.X, this.Y, this.W, this.H]) === true){
-			selectBoxTarget = [this.X, this.Y];
-			selectBoxSizeTarget = [this.W, this.H];
-			if(liftedMouse === true){
-				liftedMouse = false;
-				return true
-			}
-			c.beginPath();
-			c.fillStyle = this.outlineCol;
-			c.fillRect(this.X-1, this.Y-1, this.W+2, this.H+2);
-			this.img.drawImg(this.X+3, this.Y+3, this.W-6, this.H-6, 0.9);
-		}else{
-			c.beginPath();
-			c.fillStyle = this.outlineCol;
-			c.fillRect(this.X, this.Y, this.W+1, this.H+1);
-			this.img.drawImg(this.X, this.Y, this.W, this.H, 0.7);
-		}
-		return false
-	}
-}
-
 
 function collidePoint(point, rect){
 	if(point[0] > rect[0] && point[0] < rect[0] + rect[2] && point[1] > rect[1] && point[1] < rect[1] + rect[3]){
@@ -145,6 +114,41 @@ class image{
 		c.restore();
 	}
 }
+
+class button{
+	constructor(X, Y, W, H, img, outlineCol = "rgba(100, 100, 100, 0.5)"){
+		this.X = X;
+		this.Y = Y;
+		this.W = W;
+		this.H = H;
+		this.img = img;
+		this.outlineCol = outlineCol;
+	}
+	update(locked = false){
+		if(collidePoint([mousePos.x, mousePos.y], [this.X, this.Y, this.W, this.H]) === true && locked === false){
+			selectBoxTarget = [this.X, this.Y];
+			selectBoxSizeTarget = [this.W, this.H];
+			if(liftedMouse === true){
+				liftedMouse = false;
+				return true
+			}
+			c.beginPath();
+			c.fillStyle = this.outlineCol;
+			c.fillRect(this.X-1, this.Y-1, this.W+2, this.H+2);
+			this.img.drawImg(this.X+3, this.Y+3, this.W-6, this.H-6, 0.9);
+		}else{
+			c.beginPath();
+			c.fillStyle = this.outlineCol;
+			c.fillRect(this.X, this.Y, this.W+1, this.H+1);
+			this.img.drawImg(this.X, this.Y, this.W, this.H, 0.7);
+		}
+		if(locked === true){
+			lockedImg.drawImg(this.X, this.Y, this.W, this.H);
+		}
+		return false
+	}
+}
+var lockedImg = new image("locked.png");
 
 function midPoint(point1, point2, per){
 	var x = point1[0] + (point2[0] - point1[0])*per;
@@ -416,6 +420,7 @@ var seriesNames = ["easy", "holiday", "series3"];
 var seriesButtons = {"holiday" : new button(1*175*scale+10*scale, (Math.floor(1/4)+1)*130*scale, 175*scale, 130*scale, thumbs["holiday"]),
 "easy" : new button(0*175*scale+10*scale, (Math.floor(0/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series2"]),
 "series3" : new button(2*175*scale+10*scale, (Math.floor(2/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series3"])};
+var seriesRequirement = [0, 6, 16];
 
 var carImg = new image("car1.png");
 var carShadowImg = new image("car1shadow.png");
@@ -430,6 +435,10 @@ var graphicsButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.wi
 var trophyImgs = [new image("trophy1.png"), new image("trophy2.png"), new image("trophy3.png")];
 
 var seriesPointsTemp = 0;
+var enoughPoints = false;
+var totalPoints = 0;
+var coinImg = new image("coin.png");
+var coinKey = new image("key.png");
 function update(){
 	if(gameState === "race"){
 		frames += 1;
@@ -623,8 +632,10 @@ function update(){
 		c.beginPath();
 		c.fillStyle = "rgb(255, 255, 255)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
-		
+			
+		coinKey.drawImg(0, 0, 100*0.475382*scale, 100*scale);
 
+		totalPoints = 0;
 		for(var i = 0; i < seriesNames.length; i+=1){
 			seriesPointsTemp = 0;
 			for(var t = 0; t < tracks[seriesNames[i]].length; t+=1){
@@ -638,8 +649,14 @@ function update(){
 					seriesPointsTemp += 5;
 				}
 			}
+			totalPoints += seriesPointsTemp;
+			if(totalPoints >= seriesRequirement[i]){
+				enoughPoints = false;
+			}else{
+				enoughPoints = true;
+			}
 
-			if(seriesButtons[seriesNames[i]].update() === true){
+			if(seriesButtons[seriesNames[i]].update(enoughPoints) === true){
 				gameState = "menu1";
 				currentSeries = seriesNames[i];
 				liftedMouse = false;
@@ -648,8 +665,15 @@ function update(){
 					trackButtons.push(new button((canvas.width*0.9)/tracks[currentSeries].length*i+canvas.width*0.05, 260*scale, (canvas.width*0.9)/tracks[currentSeries].length*0.9, canvas.width/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
 				}
 			}
+			if(enoughPoints === true){
+				showText("Requires "+seriesRequirement[i].toString(), i*175*scale+87.5*scale, 200*scale, 20*scale, "rgb(255, 255, 255)");
+			}
 			showText(seriesPointsTemp, i*175*scale+87.5*scale, 300*scale, 20*scale);
 		}
+
+		coinImg.drawImg(canvas.width*0.95, canvas.height*0.01, canvas.width*0.04, canvas.height*0.04*1.3333);
+		showText(totalPoints, 670*scale, 27*scale, 20*scale);
+
 		if(graphicsButton.update() === true){
 			graphicsSetting += 1;
 			if(graphicsSetting === 3){
