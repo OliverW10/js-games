@@ -1,6 +1,6 @@
 var canvas = document.getElementById("canvasTag");
 var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-h *= 0.9
+h *= 0.95
 var scale = h/520
 var c = canvas.getContext("2d"); //c means context
 
@@ -342,8 +342,8 @@ new track("tracks/show/track4.png", "track4", [1, 10], [130, 75, Math.PI/2], [12
 ],
 "easy":[
 new track("tracks/show/track2-1.png", "track2-1", [1, 0.9], [270, 70, 0], [8.5, 7.9, 7.3]),
-new track("tracks/show/track2-2.png", "track2-2", [1,0.9], [300, 30, 0], [9.3, 9, 8.5]),
-new track("tracks/mask/track2-3.png", "track2-3", [1, 0.9], [650, 200, Math.PI/2], [10, 9.2, 8.5])
+new track("tracks/show/track2-2.png", "track2-2", [1,0.9], [300, 30, 0], [10, 9, 8.5]),
+new track("tracks/show/track2-3.png", "track2-3", [1, 0.9], [650, 200, Math.PI/2], [10, 9.2, 8.5])
 ],
 "series3":[]
 };
@@ -439,6 +439,7 @@ var enoughPoints = false;
 var totalPoints = 0;
 var coinImg = new image("coin.png");
 var coinKey = new image("key.png");
+var maxTurningAngle = 0.9;
 function update(){
 	if(gameState === "race"){
 		frames += 1;
@@ -457,14 +458,17 @@ function update(){
 
 		lastPos[0] = carPos[0];
 		lastPos[1] = carPos[1];
-		if(Keys["left"] === true && carWheelAngle > -1){
+		if(Keys["left"] === true && carWheelAngle > -maxTurningAngle){
 			carWheelAngle -= 0.1;
 		}
-		if(Keys["right"] === true && carWheelAngle < 1){
+		if(Keys["right"] === true && carWheelAngle < maxTurningAngle){
 			carWheelAngle += 0.1; //normally 0.1
 		}
 		if(Keys["right"] ===  false && Keys["left"] === false){
 			carWheelAngle -= carWheelAngle * 0.1;
+		}
+		if(mouseButtons[0] === true){
+			carWheelAngle = Math.min(Math.max(((mousePos.x/scale)-356)/200, -maxTurningAngle), maxTurningAngle);
 		}
 
 		if(carWheelSpeed > 0){
@@ -592,6 +596,10 @@ function update(){
 
 		carImg.drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
 
+		c.beginPath();
+		c.fillStyle = "rgba(0, 0, 0, 0.4)";
+		c.fillRect(10*scale, 10*scale, 50*scale, (15+lapTimes.length*15)*scale);//c.fillRect(10*scale, 20*scale, 50*scale, i*10*scale);
+
 		for(var i = 0; i<lapTimes.length; i+=1){
 			if(tracks[currentSeries][currentTrack].getTrophy(lapTimes[i]) !=4){
 				trophyImgs[tracks[currentSeries][currentTrack].getTrophy(lapTimes[i])-1].drawImg(45*scale, (23+i*15)*scale, 10*scale, 12*scale);
@@ -618,9 +626,6 @@ function update(){
 
 
 		showText(Math.floor(Math.sqrt((carVel[0]**2+carVel[1]**2))*70)+" k/h", 60*scale, 500*scale, 30*scale, "rgb(150, 150, 150)"); //speedo
-		c.beginPath();
-		c.fillStyle = "rgba(0, 0, 0, 0.4)";
-		c.fillRect(10*scale, 10*scale, 50*scale, (15+lapTimes.length*10)*scale);//c.fillRect(10*scale, 20*scale, 50*scale, i*10*scale);
 	}else{
 		h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		h *= 0.9
@@ -728,7 +733,7 @@ function update(){
 			showText(tracks[currentSeries][i].bestTime, (canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 195*scale, 20*scale);
 			totalTimeTemp += Number(tracks[currentSeries][i].bestTime);
 		}
-		showText(Math.round(((totalTimeTemp) + 0.000000001 )* 100) / 100, canvas.width/2, canvas.height*0.3, 50*scale) // sometimes the rounding does weird things so if you add a tiny amount it fixes it
+		showText((Math.round((((totalTimeTemp) + 0.000000001 )* 100) / 100)).toString()+"s", canvas.width/2, canvas.height*0.3, 50*scale) // sometimes the rounding does weird things so if you add a tiny amount it fixes it
 		selectBoxPos[0] += (selectBoxTarget[0] - selectBoxPos[0])*0.3;
 		selectBoxPos[1] += (selectBoxTarget[1] - selectBoxPos[1])*0.3;
 		selectBoxSize[0] += (selectBoxSizeTarget[0] - selectBoxSize[0])*0.3;
@@ -737,7 +742,7 @@ function update(){
 		c.lineWidth = 2;
 		drawCorners([selectBoxPos[0]-2, selectBoxPos[1]-2, selectBoxSize[0]+4, selectBoxSize[1]+4]);
 	}
-	if(gameState === "menu3"){ // race select
+	if(gameState === "menu3"){ // main menu?
 
 	}
 	liftedMouse = false;
