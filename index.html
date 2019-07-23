@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-144388892-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-144388892-1');
+	</script>
+
 	<title>Racing game</title>
 	<style type="text/css">
 	canvas {
@@ -12,6 +22,7 @@
 	</style>
 </head>
 <body>
+	<a href="https://github.com/OliverW10/OliverW10.github.io">View source code</a>
 	<canvas id="canvasTag" width = "800" height = "600"></canvas>
 	<script src="tracks/mask/track.js"></script>
 	<script src="game.js"></script>

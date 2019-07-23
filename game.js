@@ -621,20 +621,27 @@ function update(){
 			showText(lapTimes[i], 30*scale, (32+i*15)*scale, 10*scale, "rgb(255, 255, 255)");
 		}
 		showText((Math.round(((frames/60) + 0.0000001 )* 100) / 100), 30*scale, 20*scale, 10*scale, "rgb(255, 255, 255)"); //current lap time
+		//c.beginPath();
+		//c.fillStyle = "rgba(0, 0, 0, 0.4)";
+		//c.fillRect(100*scale, 1*scale, 1000, 23*scale); //shadow
 		c.beginPath();
 		c.fillStyle = "rgb(100, 100, 255)";
-		c.fillRect(100*scale, 2*scale, frames*scale*0.6, 20*scale);
+		c.fillRect(100*scale, 1*scale, frames*scale*0.6, 20*scale); // blue box
+
+		//c.beginPath();
+		//c.fillStyle = "rgba(0, 0, 0, 0.4)";
+		//c.fillRect((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+79*scale, 24*scale, (tracks[currentSeries][currentTrack].targetTimes[0] - tracks[currentSeries][currentTrack].targetTimes[2])*60*0.6*scale+40*scale, 25*scale); //trophys shadow
 
 
-		trophyImgs[0].drawImg((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale);
+		trophyImgs[0].drawImg((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale); //gold
 		c.fillStyle = "rgb(100, 100, 100)";
 		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
 
-		trophyImgs[1].drawImg((tracks[currentSeries][currentTrack].targetTimes[1]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale);
+		trophyImgs[1].drawImg((tracks[currentSeries][currentTrack].targetTimes[1]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale); //silver
 		c.fillStyle = "rgb(100, 100, 100)";
 		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[1]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
 
-		trophyImgs[2].drawImg((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale);
+		trophyImgs[2].drawImg((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale); //bronze
 		c.fillStyle = "rgb(100, 100, 100)";
 		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
 
