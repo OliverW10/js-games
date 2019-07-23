@@ -1,5 +1,8 @@
+//border : 1px solid black; from the canvas
 var canvas = document.getElementById("canvasTag");
 var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+//var w = window.innerWidth || document.documentElemnt.clientWidth || document.body.clientWidthh;
+//canvas.style.left = "50px";
 h *= 0.95
 var scale = h/520
 var c = canvas.getContext("2d"); //c means context
@@ -20,6 +23,17 @@ function getMousePos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 };
+
+var touchPos = {x:0, y:0};
+function getTouchPos(canvas, evt){
+	var ract = canvas.getBoundingClientRect();
+	return {
+		x:evt.clientX-rect.left,
+		y:evt.clientY-rect.top};
+};
+canvas.addEventListener("ontouchmove", function(evt){
+	mousePos = getTouchPos(canvas, evt);
+}, false);
 
 var Keys = {"left":false, "right":false, "up":false, "down":false, "space":false, "esc":false};
 document.addEventListener('keydown', function(event) {
@@ -632,6 +646,7 @@ function update(){
 		scale = h/520
 		canvas.height = 520*scale;
 		canvas.width = 720*scale;
+		//canvas.left = h*0.1;
 	}
 	if(gameState === "menu0"){ //series select
 		c.beginPath();
