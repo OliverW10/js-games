@@ -1,5 +1,6 @@
 //border : 1px solid black; from the canvas
 var canvas = document.getElementById("canvasTag");
+var entirePage = document.getElementById("wholePage");
 var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 //var w = window.innerWidth || document.documentElemnt.clientWidth || document.body.clientWidthh;
 //canvas.style.left = "50px";
@@ -11,12 +12,13 @@ var c = canvas.getContext("2d"); //c means context
 //canvas.height = trackImg.height;
 //canvas.width = trackImg.width//Math.floor(h*1.333333*0.9);
 
-var mousePos={x:0,y:0};
+var inputPos={x:0,y:0};
 canvas.addEventListener('mousemove', function(evt) {
-	mousePos = getMousePos(canvas, evt);
+	inputPos = getinputPos(canvas, evt);
+	//console.log("mouse move");
 }, false);
 
-function getMousePos(canvas, evt) {
+function getinputPos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
 	return {
 		x: evt.clientX - rect.left,
@@ -24,15 +26,15 @@ function getMousePos(canvas, evt) {
 	};
 };
 
-var touchPos = {x:0, y:0};
-function getTouchPos(canvas, evt){
-	var ract = canvas.getBoundingClientRect();
-	return {
-		x:evt.clientX-rect.left,
-		y:evt.clientY-rect.top};
-};
 canvas.addEventListener("ontouchmove", function(evt){
-	mousePos = getTouchPos(canvas, evt);
+	inputPos = getinputPos(canvas, evt);
+	evt.preventDefault();
+	//console.log("touch move");
+}, false);
+canvas.addEventListener("ontouchstart", function(evt){
+	inputPos = getinputPos(canvas, evt);
+	evt.preventDefault();
+	//console.log("touch start");
 }, false);
 
 var Keys = {"left":false, "right":false, "up":false, "down":false, "space":false, "esc":false};
@@ -139,7 +141,7 @@ class button{
 		this.outlineCol = outlineCol;
 	}
 	update(locked = false){
-		if(collidePoint([mousePos.x, mousePos.y], [this.X, this.Y, this.W, this.H]) === true && locked === false){
+		if(collidePoint([inputPos.x, inputPos.y], [this.X, this.Y, this.W, this.H]) === true && locked === false){
 			selectBoxTarget = [this.X, this.Y];
 			selectBoxSizeTarget = [this.W, this.H];
 			if(liftedMouse === true){
@@ -482,7 +484,7 @@ function update(){
 			carWheelAngle -= carWheelAngle * 0.1;
 		}
 		if(mouseButtons[0] === true){
-			carWheelAngle = Math.min(Math.max(((mousePos.x/scale)-356)/200, -maxTurningAngle), maxTurningAngle);
+			carWheelAngle = Math.min(Math.max(((inputPos.x/scale)-356)/200, -maxTurningAngle), maxTurningAngle);
 		}
 
 		if(carWheelSpeed > 0){
@@ -530,7 +532,7 @@ function update(){
 		carSpeed = Math.hypot((carPos[0] - lastPos[0]), (carPos[1] - lastPos[1]));
 
 		//collisions
-		//console.log(collisionList[Math.floor(mousePos.x)][Math.floor(mousePos.y)]);
+		//console.log(collisionList[Math.floor(inputPos.x)][Math.floor(inputPos.y)]);
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1])][Math.floor(carPos[0])];
 		if(colTemp === true){
 			reset();
@@ -645,8 +647,11 @@ function update(){
 		c.fillStyle = "rgb(100, 100, 100)";
 		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
 
-
 		showText(Math.floor(Math.sqrt((carVel[0]**2+carVel[1]**2))*70)+" k/h", 60*scale, 500*scale, 30*scale, "rgb(150, 150, 150)"); //speedo
+
+		c.beginPath();
+		c.fillStyle = "rgb(255, 0, 0)";
+		c.fillRect(inputPos.x, inputPos.y, 50*scale, 50*scale);
 	}else{
 		h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		h *= 0.9
