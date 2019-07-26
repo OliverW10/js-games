@@ -267,13 +267,17 @@ function drawCorners(rect){
 var smokeImg = new image("smoke.png");
 
 class smoke{
-	constructor(X, Y){
+	constructor(X, Y, size = null){
 		this.age = 0;
 		this.X = X;
 		this.Y = Y;
 		this.Xvel = (Math.random()-0.5);
 		this.Yvel = (Math.random()-0.5);
-		this.size = (Math.random()+0.5)*20
+		if(size === null){
+			this.size = (Math.random()+0.5)*20
+		}else{
+			this.size = size;
+		}
 		this.alive = true;
 	}
 	run(){
@@ -354,14 +358,18 @@ var tracks = {"holiday":[
 new track("tracks/show/track1.png", "track1", [1, 0.9], [300, 410, 0], [15, 12, 10]),//9.5
 new track("tracks/show/track2.png", "track2", [0.9, 0.8], [400, 400, 0], [15, 12, 10]), //9.8
 new track("tracks/show/track3.png", "track3", [2.5, 0.1], [200, 400, 0], [8, 7, 6]),
-new track("tracks/show/track4.png", "track4", [1, 10], [130, 75, Math.PI/2], [12, 11.5, 10])
+new track("tracks/show/track4.png", "track4", [0.9, 10], [130, 75, Math.PI/2], [13.5, 13, 12.5])
 ],
 "easy":[
-new track("tracks/show/track2-1.png", "track2-1", [1, 0.9], [270, 70, 0], [8.5, 7.9, 7.3]),
-new track("tracks/show/track2-2.png", "track2-2", [1,0.9], [300, 30, 0], [10, 9, 8.5]),
-new track("tracks/show/track2-3.png", "track2-3", [1, 0.9], [650, 200, Math.PI/2], [10, 9.2, 8.5])
+new track("tracks/show/track2-1.png", "track2-1", [0.65, 0.6], [270, 70, 0], [15, 13, 11]),
+new track("tracks/show/track2-2.png", "track2-2", [0.65,0.6], [300, 30, 0], [15, 13.75, 12.5]),
+new track("tracks/show/track2-3.png", "track2-3", [0.65, 0.6], [650, 200, Math.PI/2], [15, 14, 13])
 ],
-"series3":[]
+"series3":[
+new track("tracks/show/track3-1.png", "track3-1", [0.5, 0.5], [250, 400, -Math.PI/2], [12.5, 11.5, 10.5]),
+new track("tracks/show/track3-2.png", "track3-2", [0.5, 0.5], [480, 200, 0], [15, 13, 12]),
+new track("tracks/show/track3-3.png", "track3-3", [0.5, 0.5], [400, 450, Math.PI], [14, 13, 11])
+]
 };
 
 
@@ -432,11 +440,12 @@ var selectBoxSizeTarget = [0, 0];
 var totalTimeTemp = 0;
 
 var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png")};
-var seriesNames = ["easy", "holiday", "series3"];
-var seriesButtons = {"holiday" : new button(1*175*scale+10*scale, (Math.floor(1/4)+1)*130*scale, 175*scale, 130*scale, thumbs["holiday"]),
-"easy" : new button(0*175*scale+10*scale, (Math.floor(0/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series2"]),
-"series3" : new button(2*175*scale+10*scale, (Math.floor(2/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series3"])};
-var seriesRequirement = [0, 6, 16];
+var seriesNames = ["series3", "easy", "holiday"];
+// "series name" : new button(number*175*scale+10*scale, (Math.floor(number/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series name"]
+var seriesButtons = {"holiday" : new button(2*175*scale+10*scale, (Math.floor(2/4)+1)*130*scale, 175*scale, 130*scale, thumbs["holiday"]), //2
+"easy" : new button(1*175*scale+10*scale, (Math.floor(1/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series2"]), // 1
+"series3" : new button(0*175*scale+10*scale, (Math.floor(0/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series3"])}; // 0
+var seriesRequirement = [0, 6, 16]; //0, 6, 16
 
 var carImg = new image("car1.png");
 var carShadowImg = new image("car1shadow.png");
@@ -456,6 +465,7 @@ var totalPoints = 0;
 var coinImg = new image("coin.png");
 var coinKey = new image("key.png");
 var maxTurningAngle = 0.9;
+var wheelTurningSpeed = 0.05; //normally 0.1
 function update(){
 	if(gameState === "race"){
 		frames += 1;
@@ -475,13 +485,13 @@ function update(){
 		lastPos[0] = carPos[0];
 		lastPos[1] = carPos[1];
 		if(Keys["left"] === true && carWheelAngle > -maxTurningAngle){
-			carWheelAngle -= 0.1;
+			carWheelAngle -= wheelTurningSpeed;
 		}
 		if(Keys["right"] === true && carWheelAngle < maxTurningAngle){
-			carWheelAngle += 0.1; //normally 0.1
+			carWheelAngle += wheelTurningSpeed;
 		}
 		if(Keys["right"] ===  false && Keys["left"] === false){
-			carWheelAngle -= carWheelAngle * 0.1;
+			carWheelAngle -= carWheelAngle * wheelTurningSpeed * 2;
 		}
 		if(mouseButtons[0] === true){
 			carWheelAngle = Math.min(Math.max(((inputPos.x/scale)-356)/200, -maxTurningAngle), maxTurningAngle);
@@ -534,7 +544,10 @@ function update(){
 		//collisions
 		//console.log(collisionList[Math.floor(inputPos.x)][Math.floor(inputPos.y)]);
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1])][Math.floor(carPos[0])];
-		if(colTemp === true){
+		if(colTemp === true){ //hit a wall
+			for(var i = 0; i < 5; i+=1){
+				smokeList.push(new smoke(carPos[0] - Math.cos(carAngle)*7, carPos[1] - Math.sin(carAngle)*7, 40));
+			}
 			reset();
 		}else if(colTemp === 2){ //tounching red
 			if(lastColour === 1 && startedLap === true){ //last touched green
@@ -649,9 +662,6 @@ function update(){
 
 		showText(Math.floor(Math.sqrt((carVel[0]**2+carVel[1]**2))*70)+" k/h", 60*scale, 500*scale, 30*scale, "rgb(150, 150, 150)"); //speedo
 
-		c.beginPath();
-		c.fillStyle = "rgb(255, 0, 0)";
-		c.fillRect(inputPos.x, inputPos.y, 50*scale, 50*scale);
 	}else{
 		h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		h *= 0.9
@@ -698,7 +708,7 @@ function update(){
 				}
 			}
 			if(enoughPoints === true){
-				showText("Requires "+seriesRequirement[i].toString(), i*175*scale+87.5*scale, 200*scale, 20*scale, "rgb(255, 255, 255)");
+				showText("Requires "+seriesRequirement[i].toString(), seriesButtons[seriesNames[i]].X+seriesButtons[seriesNames[i]].H/2, 200*scale, 20*scale, "rgb(255, 255, 255)");
 			}
 			showText(seriesPointsTemp, i*175*scale+87.5*scale, 300*scale, 20*scale);
 		}
