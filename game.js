@@ -15,7 +15,6 @@ var c = canvas.getContext("2d"); //c means context
 var inputPos={x:0,y:0};
 canvas.addEventListener('mousemove', function(evt) {
 	inputPos = getinputPos(canvas, evt);
-	//console.log("mouse move");
 }, false);
 
 function getinputPos(canvas, evt) {
@@ -38,6 +37,8 @@ canvas.addEventListener("ontouchstart", function(evt){
 }, false);
 
 var Keys = {"left":false, "right":false, "up":false, "down":false, "space":false, "esc":false};
+var key3 = false;
+var threeD = false;
 document.addEventListener('keydown', function(event) {
 		if(event.keyCode === 37 || event.keyCode === 65) { // left
 			Keys["left"] = true;
@@ -55,6 +56,18 @@ document.addEventListener('keydown', function(event) {
 			Keys["space"] = true;
 		}else if(event.keyCode === 27){
 			Keys["esc"] = true;
+		}else if(event.keyCode === 51){
+			key3 = true;
+		}
+		if(event.keyCode === 68 && key3 === true){
+			if(threeD === true){
+				threeD = false;
+			}else{
+				threeD = true;
+			}
+		}
+		if(event.keyCode != 51){
+			key3 = false;
 		}
 	}
 );
@@ -262,6 +275,21 @@ function drawCorners(rect){
 	c.lineTo(rect[0]+rect[2], rect[1]); //top right
 	c.lineTo(rect[0]+rect[2]*0.9, rect[1]); //top right left
 	c.stroke();
+}
+
+
+function ray(X, Y, angle, map){
+	var currentPixel = false;
+	var rayX = X;
+	var rayY = Y;
+	var distance = 0;
+	while(currentPixel != true){
+		rayX += Math.cos(angle);
+		rayY += Math.sin(angle);
+		currentPixel = map[Math.floor(rayY)][Math.floor(rayX)];
+		distance += 1
+	}
+	return [distance, currentPixel];
 }
 
 var smokeImg = new image("smoke.png");
@@ -542,7 +570,6 @@ function update(){
 		carSpeed = Math.hypot((carPos[0] - lastPos[0]), (carPos[1] - lastPos[1]));
 
 		//collisions
-		//console.log(collisionList[Math.floor(inputPos.x)][Math.floor(inputPos.y)]);
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1])][Math.floor(carPos[0])];
 		if(colTemp === true){ //hit a wall
 			for(var i = 0; i < 5; i+=1){
@@ -579,13 +606,12 @@ function update(){
 			reset();
 		}
 
-		if(smokeOn === true){
+		if(smokeOn === true && threeD === false){
 			carShadowImg.drawRotatedImg((carPos[0]+2.5)*scale, (carPos[1]+2.5)*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
 		}
 
 		for(var i = 0; i < smokeList.length; i += 1){
 			smokeList[i].run();
-			//console.log(smokeList[i]);
 		}
 
 		var i = 0;
@@ -622,8 +648,26 @@ function update(){
 			}
 		}
 		*/
-
-		carImg.drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
+		if(threeD === true){
+			c.beginPath();
+			c.fillStyle = "rgb(0, 0, 255)";
+			c.fillRect(0, 0, canvas.width, canvas.height);
+			for(var i = 0; i < 720; i+=1){
+				c.beginPath();
+				[rayDist, wallType] = ray(carPos[0], carPos[1], carAngle+(i-360)/200, tracks[currentSeries][currentTrack].collisionArray)
+				rayDist = Math.sqrt(rayDist)*15
+				if(rayDist < 250){
+					if(wallType === true){
+						c.fillStyle = "rgb("+(250-(rayDist/2.5))+", "+(250-(rayDist/2.5))+" ,"+(250-(rayDist/2.5))+")";
+					}else{
+						c.fillStyle = "rgb(0, "+(250-(rayDist/2.5))+", 0)";
+					}
+					c.fillRect(i*scale*1, rayDist*scale, 1, (500-rayDist*2)*scale);
+				}
+			}
+		}else{
+			carImg.drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
+		}
 
 		c.beginPath();
 		c.fillStyle = "rgba(0, 0, 0, 0.4)";
@@ -641,7 +685,7 @@ function update(){
 		//c.fillRect(100*scale, 1*scale, 1000, 23*scale); //shadow
 		c.beginPath();
 		c.fillStyle = "rgb(100, 100, 255)";
-		c.fillRect(100*scale, 1*scale, frames*scale*0.6, 20*scale); // blue box
+		c.fillRect(100*scale, 1*scale, frames*scale*0.6, 20*scale); // blue bar
 
 		//c.beginPath();
 		//c.fillStyle = "rgba(0, 0, 0, 0.4)";
