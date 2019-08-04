@@ -381,10 +381,11 @@ var lapTimes = [];
 canvas.height = 520*scale;//trackImg.img.naturalHeight;
 canvas.width = 720*scale;//trackImg.img.naturalWidth//Math.floor(h*1.333333*0.9);
 
+var skidSound = new Audio("skid.mp3");
 
 var tracks = {"holiday":[
 new track("tracks/show/track1.png", "track1", [1, 0.9], [300, 410, 0], [15, 12, 10]),//9.5
-new track("tracks/show/track2.png", "track2", [0.9, 0.8], [400, 400, 0], [15, 12, 10]), //9.8
+new track("tracks/show/track2.png", "track2", [0.8, 0.8], [400, 400, 0], [15, 12, 10]), //9.8
 new track("tracks/show/track3.png", "track3", [2.5, 0.1], [200, 400, 0], [8, 7, 6]),
 new track("tracks/show/track4.png", "track4", [0.9, 10], [130, 75, Math.PI/2], [13.5, 13, 12.5])
 ],
@@ -422,7 +423,7 @@ var angleDif = 0; // diference in angle between the direction you are moving and
 var frames = 0;
 
 var skidMarks = [];
-var skidding = false;
+var skidding = 0;
 
 var lastColour = true;
 var startedLap = false;
@@ -453,7 +454,7 @@ function reset(){
 	frames = 0;
 
 	//skidMarks = [];
-	skidding = false;
+	skidding = 0;
 
 	startedLap = false;
 	lastColour = false;
@@ -560,14 +561,24 @@ function update(){
 			if(Math.abs(angleDif+carWheelAngle) > 0.7 && Math.abs(angleDif-carWheelAngle) < 2.44){ //make it be harder to skid at low speeds
 				skidMarks.push([carPos[0]-1, carPos[1]-1]);
 				smokeList.push(new smoke(carPos[0], carPos[1]));
+				skidding += 0.25;
 				
 			}
 			if(Math.abs(angleDif) > 0.7 && Math.abs(angleDif) < 2.44){
 				skidMarks.push([carPos[0] - Math.cos(carAngle)*15 - 1, carPos[1] - Math.sin(carAngle)*15 - 1]);
 				smokeList.push(new smoke(carPos[0] - Math.cos(carAngle)*15, carPos[1] - Math.sin(carAngle)*15));
+				skidding += 0.25;
 			}
 		}
+		skidding -= 0.1;
+		skidding = Math.max(Math.min(skidding, 1), 0)
 		carSpeed = Math.hypot((carPos[0] - lastPos[0]), (carPos[1] - lastPos[1]));
+		skidSound.volume = skidding;
+		if(skidding > 0.1){
+			skidSound.play();
+		}else{
+			skidSound.pause();
+		}
 
 		//collisions
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1])][Math.floor(carPos[0])];
@@ -633,6 +644,7 @@ function update(){
 			lapTimes = [];
 			liftedEsc = false;
 			tracks[currentSeries][currentTrack].getTrophy();
+			skidSound.pause();
 		}
 
 		/*
@@ -719,6 +731,7 @@ function update(){
 		c.fillStyle = "rgb(255, 255, 255)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 			
+		showText("Made by Oliver W", 25*scale, 510*scale, 6*scale);
 		coinKey.drawImg(0, 0, 100*0.475382*scale, 100*scale);
 
 		totalPoints = 0;
