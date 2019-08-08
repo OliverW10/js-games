@@ -127,6 +127,12 @@ class image{
 	constructor(imageLocation){
 		this.img = new Image();
 		this.img.src=imageLocation;
+		while(this.img.complete){
+
+		}
+		loadingCurrent += 1;
+		loadingScreen();
+		console.log(Math.round(loadingCurrent/loadingTotal*100)+"%");
 	}	
 
 	drawImg(X,Y,W,H, alpha){
@@ -143,7 +149,6 @@ class image{
 		c.restore();
 	}
 }
-
 class button{
 	constructor(X, Y, W, H, img, outlineCol = "rgba(100, 100, 100, 0.5)"){
 		this.X = X;
@@ -177,7 +182,6 @@ class button{
 		return false
 	}
 }
-var lockedImg = new image("locked.png");
 
 function midPoint(point1, point2, per){
 	var x = point1[0] + (point2[0] - point1[0])*per;
@@ -292,7 +296,6 @@ function ray(X, Y, angle, map){
 	return [distance, currentPixel];
 }
 
-var smokeImg = new image("smoke.png");
 
 class smoke{
 	constructor(X, Y, size = null){
@@ -372,20 +375,27 @@ class track{ //is used to store infomation about a track in a readable way (rath
 		}
 	}
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var smokeList = [];
+function loadingScreen(){
+	c.beginPath();
+	c.fillStyle = "rgb(255, 100, 100)";
+	c.fillRect(0, 0, canvas.width, canvas.height);
 
-var lapTimes = [];
+	c.beginPath();
+	c.fillStyle = "rgb(50, 60, 200)";
+	c.fillRect(canvas.width*0.1, canvas.height*0.45, loadingCurrent/loadingTotal * canvas.width * 0.8, canvas.height*1)
+}
 
-//var trackImg = new image("tracks/show/track1.png");
-canvas.height = 520*scale;//trackImg.img.naturalHeight;
-canvas.width = 720*scale;//trackImg.img.naturalWidth//Math.floor(h*1.333333*0.9);
-
-var skidSound = new Audio("skid.mp3");
-
+// LOADING IMAGES
+var loadingTotal = 24;
+var loadingCurrent = 0;
+var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png")};
+var lockedImg = new image("locked.png");
+var smokeImg = new image("smoke.png");
 var tracks = {"holiday":[
 new track("tracks/show/track1.png", "track1", [1, 0.9], [300, 410, 0], [15, 12, 10]),//9.5
-new track("tracks/show/track2.png", "track2", [0.8, 0.8], [400, 400, 0], [15, 12, 10]), //9.8
+new track("tracks/show/track2.png", "track2", [1, 0.7], [400, 400, 0], [15, 12, 10]), //9.8
 new track("tracks/show/track3.png", "track3", [2.5, 0.1], [200, 400, 0], [8, 7, 6]),
 new track("tracks/show/track4.png", "track4", [0.9, 10], [130, 75, Math.PI/2], [13.5, 13, 12.5])
 ],
@@ -400,7 +410,27 @@ new track("tracks/show/track3-2.png", "track3-2", [0.5, 0.5], [480, 200, 0], [15
 new track("tracks/show/track3-3.png", "track3-3", [0.5, 0.5], [400, 450, Math.PI], [14, 13, 11])
 ]
 };
+var skidSound = new Audio("skid.mp3");
+var carImg = new image("car1.png");
+var carShadowImg = new image("car1shadow.png");
+var resetButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("reset.png"));
+var graphicsButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("graphics.png"))
+var trophyImgs = [new image("trophy1.png"), new image("trophy2.png"), new image("trophy3.png")];
+var coinImg = new image("coin.png");
+var coinKey = new image("key.png");
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+console.log("finished loading");
+
+var smokeList = [];
+
+var lapTimes = [];
+
+//var trackImg = new image("tracks/show/track1.png");
+canvas.height = 520*scale;//trackImg.img.naturalHeight;
+canvas.width = 720*scale;//trackImg.img.naturalWidth//Math.floor(h*1.333333*0.9);
 
 var upgrades = [1, 0.9]; //speed, handeling
 // normal 1, 0.9
@@ -468,31 +498,22 @@ var selectBoxSizeTarget = [0, 0];
 
 var totalTimeTemp = 0;
 
-var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png")};
 var seriesNames = ["series3", "easy", "holiday"];
 // "series name" : new button(number*175*scale+10*scale, (Math.floor(number/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series name"]
 var seriesButtons = {"holiday" : new button(2*175*scale+10*scale, (Math.floor(2/4)+1)*130*scale, 175*scale, 130*scale, thumbs["holiday"]), //2
 "easy" : new button(1*175*scale+10*scale, (Math.floor(1/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series2"]), // 1
 "series3" : new button(0*175*scale+10*scale, (Math.floor(0/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series3"])}; // 0
-var seriesRequirement = [0, 6, 16]; //0, 6, 16
-
-var carImg = new image("car1.png");
-var carShadowImg = new image("car1shadow.png");
+var seriesRequirement = [0, 6, 15]; //0, 6, 16
 
 var trackButtons = [];
 for(var i = 0; i < tracks[currentSeries].length; i+=1){
 	trackButtons.push(new button((canvas.width*0.9)/tracks[currentSeries].length*i+canvas.width*0.05, 200*scale, (canvas.width*0.9)/tracks[currentSeries].length*0.9, canvas.width/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
 }
-var resetButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("reset.png"));
-var graphicsButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("graphics.png"))
 
-var trophyImgs = [new image("trophy1.png"), new image("trophy2.png"), new image("trophy3.png")];
 
 var seriesPointsTemp = 0;
 var enoughPoints = false;
 var totalPoints = 0;
-var coinImg = new image("coin.png");
-var coinKey = new image("key.png");
 var maxTurningAngle = 0.9;
 var wheelTurningSpeed = 0.05; //normally 0.1
 function update(){
@@ -696,7 +717,7 @@ function update(){
 		//c.fillStyle = "rgba(0, 0, 0, 0.4)";
 		//c.fillRect(100*scale, 1*scale, 1000, 23*scale); //shadow
 		c.beginPath();
-		c.fillStyle = "rgb(100, 100, 255)";
+		c.fillStyle = "rgba(100, 100, 255, 0.8)";
 		c.fillRect(100*scale, 1*scale, frames*scale*0.6, 20*scale); // blue bar
 
 		//c.beginPath();
