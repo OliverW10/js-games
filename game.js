@@ -298,12 +298,17 @@ function ray(X, Y, angle, map){
 
 
 class smoke{
-	constructor(X, Y, size = null){
+	constructor(X, Y, size = null, angle = "random"){
 		this.age = 0;
 		this.X = X;
 		this.Y = Y;
-		this.Xvel = (Math.random()-0.5);
-		this.Yvel = (Math.random()-0.5);
+		if(angle === "random"){
+			this.Xvel = (Math.random()-0.5);
+			this.Yvel = (Math.random()-0.5);
+		}else{
+			this.Xvel = Math.cos(angle);
+			this.Yvel = Math.sin(angle);
+		}
 		if(size === null){
 			this.size = (Math.random()+0.5)*20
 		}else{
@@ -377,6 +382,35 @@ class track{ //is used to store infomation about a track in a readable way (rath
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function createSmoke(){
+	if(Math.random()>0){
+		menuSmokePos.push([-canvas.width, (Math.random()*canvas.height*2)-canvas.height, canvas.width*0.002*Math.random()]);
+	}else{
+		menuSmokePos.push([canvas.width, (Math.random()*canvas.height*2)-canvas.height, -canvas.width*0.002*Math.random()]);
+	}
+}
+
+var dotsAngle = 0;
+function menuBackground(){
+	c.beginPath();
+	c.fillStyle = "rgb(240, 240, 240)";
+	c.fillRect(0, 0, canvas.width, canvas.height);
+	//c.fillStyle = "rgb(0, 0, 0)";
+	if(graphicsSetting != 0){
+		dotsImg.drawImg(Math.cos(dotsAngle)*canvas.width*3-canvas.width*3, Math.sin(dotsAngle)*canvas.height*3-canvas.height*3, canvas.width*7.5, canvas.height*7.5);
+		dotsAngle += 0.0001;
+		for(var i = 0; i < menuSmokePos.length; i+=1){
+			smokeImg.drawImg(menuSmokePos[i][0], menuSmokePos[i][1], canvas.width, canvas.height, 0.5);
+			//c.fillRect(menuSmokePos[i][0], menuSmokePos[i][1], canvas.width, canvas.height);
+			menuSmokePos[i][0] += menuSmokePos[i][2];
+			if(Math.abs(menuSmokePos[i][0])-1 > canvas.width){
+				menuSmokePos[i][0] = -canvas.width;//-menuSmokePos[i][0];
+				//console.log(menuSmokePos[i][0]);
+			}
+		}
+	}
+}
+
 function loadingScreen(){
 	c.beginPath();
 	c.fillStyle = "rgb(255, 100, 100)";
@@ -388,7 +422,8 @@ function loadingScreen(){
 }
 
 // LOADING IMAGES
-var loadingTotal = 24;
+var loadingTotal = 25;
+var dotsImg = new image("dots.png");
 var loadingCurrent = 0;
 var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png")};
 var lockedImg = new image("locked.png");
@@ -425,6 +460,10 @@ var coinKey = new image("key.png");
 console.log("finished loading");
 
 var smokeList = [];
+var menuSmokePos = [];
+for(var i = 0; i < 10; i += 1){
+	createSmoke();
+}
 
 var lapTimes = [];
 
@@ -748,10 +787,8 @@ function update(){
 		//canvas.left = h*0.1;
 	}
 	if(gameState === "menu0"){ //series select
-		c.beginPath();
-		c.fillStyle = "rgb(255, 255, 255)";
-		c.fillRect(0, 0, canvas.width, canvas.height);
-			
+		menuBackground();
+
 		showText("Made by Oliver W", 25*scale, 510*scale, 6*scale);
 		coinKey.drawImg(0, 0, 100*0.475382*scale, 100*scale);
 
@@ -816,9 +853,7 @@ function update(){
 		drawCorners([selectBoxPos[0]-2, selectBoxPos[1]-2, selectBoxSize[0]+4, selectBoxSize[1]+4]);
 	}
 	else if(gameState === "menu1"){ //race select
-		c.beginPath();
-		c.fillStyle = "rgb(255, 255, 255)";
-		c.fillRect(0, 0, canvas.width, canvas.height);
+		menuBackground();
 		//thumbs[currentSeries].drawImg(0, 0, canvas.width, canvas.height);
 		for(var i = 0; i<trackButtons.length; i+=1){
 			if(trackButtons[i].update() === true){
