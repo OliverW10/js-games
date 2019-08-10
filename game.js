@@ -123,16 +123,16 @@ function blendCols(col1, col2, per){
 	return [R, G, B];
 }
 
+function addToCounter(){
+	loadCounter += 1;
+	//console.log(loadCounter);
+}
+
 class image{
 	constructor(imageLocation){
 		this.img = new Image();
+		this.img.onload = addToCounter();
 		this.img.src=imageLocation;
-		while(this.img.complete){
-
-		}
-		loadingCurrent += 1;
-		loadingScreen();
-		console.log(Math.round(loadingCurrent/loadingTotal*100)+"%");
 	}	
 
 	drawImg(X,Y,W,H, alpha){
@@ -425,13 +425,13 @@ function loadingScreen(){
 
 	c.beginPath();
 	c.fillStyle = "rgb(50, 60, 200)";
-	c.fillRect(canvas.width*0.1, canvas.height*0.45, loadingCurrent/loadingTotal * canvas.width * 0.8, canvas.height*1)
+	c.fillRect(canvas.width*0.1, canvas.height*0.45, loadCounter/loadingTotal * canvas.width * 0.8, canvas.height*1)
 }
 
 // LOADING IMAGES
-var loadingTotal = 25;
+var loadingTotal = 24;
+var loadCounter = 0;
 var dotsImg = new image("dots.png");
-var loadingCurrent = 0;
 var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png")};
 var lockedImg = new image("locked.png");
 var smokeImg = new image("smoke.png");
@@ -464,7 +464,6 @@ var coinKey = new image("key.png");
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-console.log("finished loading");
 
 var smokeList = [];
 var menuSmokePos = [];
@@ -505,7 +504,7 @@ var lastColour = true;
 var startedLap = false;
 var colTemp = null;
 
-var gameState = "menu0";
+var gameState = "loading";
 var currentTrack = 0;
 var currentSeries = "holiday";
 
@@ -563,6 +562,14 @@ var totalPoints = 0;
 var maxTurningAngle = 0.9;
 var wheelTurningSpeed = 0.05; //normally 0.1
 function update(){
+	if(gameState === "loading"){
+		console.log(loadCounter)
+		if(loadCounter >= loadingTotal){
+			gameState = "menu0";
+			console.log("finished loading");
+		}
+		showText("Loading", canvas.width/2, canvas.height/2, 30*scale);
+	}
 	if(gameState === "race"){
 		frames += 1;
 		tracks[currentSeries][currentTrack].trackImg.drawImg(0, 0, canvas.width, canvas.height, 1);
