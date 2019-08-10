@@ -159,25 +159,25 @@ class button{
 		this.outlineCol = outlineCol;
 	}
 	update(locked = false){
-		if(collidePoint([inputPos.x, inputPos.y], [this.X, this.Y, this.W, this.H]) === true && locked === false){
-			selectBoxTarget = [this.X, this.Y];
-			selectBoxSizeTarget = [this.W, this.H];
+		if(collidePoint([inputPos.x, inputPos.y], [this.X*scale, this.Y*scale, this.W*scale, this.H*scale]) === true && locked === false){
+			selectBoxTarget = [this.X*scale, this.Y*scale];
+			selectBoxSizeTarget = [this.W*scale, this.H*scale];
 			if(liftedMouse === true){
 				liftedMouse = false;
 				return true
 			}
 			c.beginPath();
 			c.fillStyle = this.outlineCol;
-			c.fillRect(this.X-1, this.Y-1, this.W+2, this.H+2);
-			this.img.drawImg(this.X+3, this.Y+3, this.W-6, this.H-6, 0.9);
+			c.fillRect((this.X-1)*scale, (this.Y-1)*scale, (this.W+2)*scale, (this.H+2)*scale);
+			this.img.drawImg((this.X+3)*scale, (this.Y+3)*scale, (this.W-6)*scale, (this.H-6)*scale, 0.9);
 		}else{
 			c.beginPath();
 			c.fillStyle = this.outlineCol;
-			c.fillRect(this.X, this.Y, this.W+1, this.H+1);
-			this.img.drawImg(this.X, this.Y, this.W, this.H, 0.7);
+			c.fillRect(this.X*scale, this.Y*scale, (this.W+1)*scale, (this.H+1)*scale);
+			this.img.drawImg(this.X*scale, this.Y*scale, this.W*scale, this.H*scale, 0.7);
 		}
 		if(locked === true){
-			lockedImg.drawImg(this.X, this.Y, this.W, this.H);
+			lockedImg.drawImg(this.X*scale, this.Y*scale, this.W*scale, this.H*scale);
 		}
 		return false
 	}
@@ -391,16 +391,22 @@ function createSmoke(){
 }
 
 var dotsAngle = 0;
+var dotsRadius = 3;
 function menuBackground(){
 	c.beginPath();
 	c.fillStyle = "rgb(240, 240, 240)";
 	c.fillRect(0, 0, canvas.width, canvas.height);
 	//c.fillStyle = "rgb(0, 0, 0)";
 	if(graphicsSetting != 0){
-		dotsImg.drawImg(Math.cos(dotsAngle)*canvas.width*3-canvas.width*3, Math.sin(dotsAngle)*canvas.height*3-canvas.height*3, canvas.width*7.5, canvas.height*7.5);
+		if(Math.random() > 0.01){
+			dotsImg.drawImg(Math.cos(dotsAngle)*canvas.width*dotsRadius-canvas.width*dotsRadius, Math.sin(dotsAngle)*canvas.height*dotsRadius-canvas.height*dotsRadius, canvas.width*dotsRadius*2+canvas.width, canvas.height*dotsRadius*2+canvas.width);
+		}else{
+			dotsImg.drawImg(Math.cos(dotsAngle)*canvas.width*dotsRadius-canvas.width*dotsRadius+(Math.random()-0.5)*canvas.width, Math.sin(dotsAngle)*canvas.height*dotsRadius-canvas.height*dotsRadius, canvas.width*dotsRadius*2+canvas.width, canvas.height*dotsRadius*2+canvas.width);
+		}
 		dotsAngle += 0.0001;
+		/*
 		for(var i = 0; i < menuSmokePos.length; i+=1){
-			smokeImg.drawImg(menuSmokePos[i][0], menuSmokePos[i][1], canvas.width, canvas.height, 0.5);
+			smokeImg.drawImg(menuSmokePos[i][0], menuSmokePos[i][1], canvas.width, canvas.height, 0.3);
 			//c.fillRect(menuSmokePos[i][0], menuSmokePos[i][1], canvas.width, canvas.height);
 			menuSmokePos[i][0] += menuSmokePos[i][2];
 			if(Math.abs(menuSmokePos[i][0])-1 > canvas.width){
@@ -408,6 +414,7 @@ function menuBackground(){
 				//console.log(menuSmokePos[i][0]);
 			}
 		}
+		*/
 	}
 }
 
@@ -448,8 +455,8 @@ new track("tracks/show/track3-3.png", "track3-3", [0.5, 0.5], [400, 450, Math.PI
 var skidSound = new Audio("skid.mp3");
 var carImg = new image("car1.png");
 var carShadowImg = new image("car1shadow.png");
-var resetButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("reset.png"));
-var graphicsButton = new button(canvas.width*0.80, canvas.height*0.85, canvas.width*0.15, canvas.height*0.05, new image("graphics.png"))
+var resetButton = new button(720*0.80, 512*0.85, 720*0.15, 512*0.05, new image("reset.png"));
+var graphicsButton = new button(720*0.80, 512*0.85, 720*0.15, 512*0.05, new image("graphics.png"))
 var trophyImgs = [new image("trophy1.png"), new image("trophy2.png"), new image("trophy3.png")];
 var coinImg = new image("coin.png");
 var coinKey = new image("key.png");
@@ -461,7 +468,7 @@ console.log("finished loading");
 
 var smokeList = [];
 var menuSmokePos = [];
-for(var i = 0; i < 10; i += 1){
+for(var i = 0; i < 20; i += 1){
 	createSmoke();
 }
 
@@ -539,14 +546,14 @@ var totalTimeTemp = 0;
 
 var seriesNames = ["series3", "easy", "holiday"];
 // "series name" : new button(number*175*scale+10*scale, (Math.floor(number/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series name"]
-var seriesButtons = {"holiday" : new button(2*175*scale+10*scale, (Math.floor(2/4)+1)*130*scale, 175*scale, 130*scale, thumbs["holiday"]), //2
-"easy" : new button(1*175*scale+10*scale, (Math.floor(1/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series2"]), // 1
-"series3" : new button(0*175*scale+10*scale, (Math.floor(0/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series3"])}; // 0
+var seriesButtons = {"holiday" : new button(2*175+10, (Math.floor(2/4)+1)*130, 175, 130, thumbs["holiday"]), //2
+"easy" : new button(1*175+10, (Math.floor(1/4)+1)*130, 175, 130, thumbs["series2"]), // 1
+"series3" : new button(0*175+10, (Math.floor(0/4)+1)*130, 175, 130, thumbs["series3"])}; // 0
 var seriesRequirement = [0, 6, 15]; //0, 6, 16
 
 var trackButtons = [];
 for(var i = 0; i < tracks[currentSeries].length; i+=1){
-	trackButtons.push(new button((canvas.width*0.9)/tracks[currentSeries].length*i+canvas.width*0.05, 200*scale, (canvas.width*0.9)/tracks[currentSeries].length*0.9, canvas.width/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
+	trackButtons.push(new button((720*0.9)/tracks[currentSeries].length*i+720*0.05, 200, (720*0.9)/tracks[currentSeries].length*0.9, 720/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
 }
 
 
