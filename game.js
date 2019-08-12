@@ -432,7 +432,7 @@ function loadingScreen(){
 var loadingTotal = 24;
 var loadCounter = 0;
 var dotsImg = new image("dots.png");
-var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png")};
+var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png"), "series4":new image("tracks/thumbs/series4.png")};
 var lockedImg = new image("locked.png");
 var smokeImg = new image("smoke.png");
 var tracks = {"holiday":[
@@ -450,7 +450,8 @@ new track("tracks/show/track2-3.png", "track2-3", [0.65, 0.6], [650, 200, Math.P
 new track("tracks/show/track3-1.png", "track3-1", [0.5, 0.5], [250, 400, -Math.PI/2], [12.5, 11.5, 10.5]),
 new track("tracks/show/track3-2.png", "track3-2", [0.5, 0.5], [480, 200, 0], [15, 13, 12]),
 new track("tracks/show/track3-3.png", "track3-3", [0.5, 0.5], [400, 450, Math.PI], [14, 13, 11])
-]
+],
+"med":[]
 };
 var skidSound = new Audio("skid.mp3");
 var carImg = new image("car1.png");
@@ -543,12 +544,13 @@ var selectBoxSizeTarget = [0, 0];
 
 var totalTimeTemp = 0;
 
-var seriesNames = ["series3", "easy", "holiday"];
+var seriesNames = ["series3", "easy",  "holiday"];
 // "series name" : new button(number*175*scale+10*scale, (Math.floor(number/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series name"]
-var seriesButtons = {"holiday" : new button(2*175+10, (Math.floor(2/4)+1)*130, 175, 130, thumbs["holiday"]), //2
-"easy" : new button(1*175+10, (Math.floor(1/4)+1)*130, 175, 130, thumbs["series2"]), // 1
-"series3" : new button(0*175+10, (Math.floor(0/4)+1)*130, 175, 130, thumbs["series3"])}; // 0
-var seriesRequirement = [0, 6, 15]; //0, 6, 16
+var seriesButtons = {"holiday" : new button(2*175+10, (Math.floor(2/4)+1)*130, 175*0.95, 130*0.95, thumbs["holiday"]), //3
+"easy" : new button(1*175+10, (Math.floor(1/4)+1)*130, 175*0.95, 130*0.95, thumbs["series2"]), // 1
+"series3" : new button(0*175+10, (Math.floor(0/4)+1)*130, 175*0.95, 130*0.95, thumbs["series3"]), //0
+"med": new button(2*175+10, (Math.floor(2/4)+1)*130, 175*0.95, 130*0.95, thumbs["series4"])}; // 2
+var seriesRequirement = [0, 6, 11, 16]; //0, 6, 16
 
 var trackButtons = [];
 for(var i = 0; i < tracks[currentSeries].length; i+=1){
@@ -570,7 +572,7 @@ function update(){
 		}
 		showText("Loading", canvas.width/2, canvas.height/2, 30*scale);
 	}
-	if(gameState === "race"){
+	else if(gameState === "race"){
 		frames += 1;
 		tracks[currentSeries][currentTrack].trackImg.drawImg(0, 0, canvas.width, canvas.height, 1);
 
@@ -833,11 +835,11 @@ function update(){
 				liftedMouse = false;
 				trackButtons = [];
 				for(var i = 0; i < tracks[currentSeries].length; i+=1){
-					trackButtons.push(new button((canvas.width*0.9)/tracks[currentSeries].length*i+canvas.width*0.05, 260*scale, (canvas.width*0.9)/tracks[currentSeries].length*0.9, canvas.width/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
+					trackButtons.push(new button((720*0.9)/tracks[currentSeries].length*i+720*0.05, 200, (720*0.9)/tracks[currentSeries].length*0.9, 720/tracks[currentSeries].length*0.6573033707865169, tracks[currentSeries][i].trackImg));
 				}
 			}
 			if(enoughPoints === true){
-				showText("Requires "+seriesRequirement[i].toString(), seriesButtons[seriesNames[i]].X+seriesButtons[seriesNames[i]].H/2, 200*scale, 20*scale, "rgb(255, 255, 255)");
+				showText("Requires "+seriesRequirement[i].toString(), seriesButtons[seriesNames[i]].X+seriesButtons[seriesNames[i]].W*0.6, 240*scale, 20*scale, "rgb(255, 255, 255)");
 			}
 			showText(seriesPointsTemp, i*175*scale+87.5*scale, 300*scale, 20*scale);
 		}
@@ -892,7 +894,7 @@ function update(){
 		totalTimeTemp = 0;
 		for(var i = 0; i < tracks[currentSeries].length; i+=1){
 			if(tracks[currentSeries][i].trophy != 4){
-				trophyImgs[tracks[currentSeries][i].trophy-1].drawImg((canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 300*scale, 50*scale, 70*scale);
+				trophyImgs[tracks[currentSeries][i].trophy-1].drawImg(trackButtons[i].X+trackButtons[i].W*0.82, trackButtons[i].Y+trackButtons[i].H*0.62, trackButtons[i].W*0.35, trackButtons[i].H*0.6);
 			}
 			showText(tracks[currentSeries][i].bestTime, (canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 195*scale, 20*scale);
 			totalTimeTemp += Number(tracks[currentSeries][i].bestTime);
