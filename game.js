@@ -123,19 +123,25 @@ function blendCols(col1, col2, per){
 	return [R, G, B];
 }
 
-function addToCounter(){
-	loadCounter += 1;
-	//console.log(loadCounter);
+function addToCounter(imObj){
+	console.log(imObj.img.naturalWidth);
+	if(imObj.img.complete === true && imObj.img.naturalWidth !== 0){
+		loadCounter += 1;
+		console.log("loaded img");
+	}
 }
 
+allImgs = []
 class image{
 	constructor(imageLocation){
 		this.img = new Image();
-		this.img.onload = addToCounter();
+		//this.img.onload = addToCounter(this);
 		this.img.src=imageLocation;
+		allImgs.push(this);
 	}	
 
 	drawImg(X,Y,W,H, alpha){
+		//console.log(this.img.naturalWidth)
 		c.globalAlpha = alpha;
 		c.drawImage(this.img, X,Y, W,H);
 		c.globalAlpha = 1;
@@ -393,6 +399,7 @@ function createSmoke(){
 var dotsAngle = 0;
 var dotsRadius = 3;
 function menuBackground(){
+	vingetteImg.drawImg(0, 0, canvas.width, canvas.height);
 	c.beginPath();
 	c.fillStyle = "rgb(240, 240, 240)";
 	c.fillRect(0, 0, canvas.width, canvas.height);
@@ -429,8 +436,9 @@ function loadingScreen(){
 }
 
 // LOADING IMAGES
-var loadingTotal = 24;
+var loadingTotal = 25;
 var loadCounter = 0;
+var vingetteImg = new image("vingette.jpg");
 var dotsImg = new image("dots.png");
 var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png"), "series4":new image("tracks/thumbs/series4.png")};
 var lockedImg = new image("locked.png");
@@ -565,7 +573,10 @@ var maxTurningAngle = 0.9;
 var wheelTurningSpeed = 0.05; //normally 0.1
 function update(){
 	if(gameState === "loading"){
-		console.log(loadCounter)
+		//console.log(loadCounter)
+		for(var i = 0; i<allImgs.length; i+=1){
+			addToCounter(allImgs[i]);
+		}
 		if(loadCounter >= loadingTotal){
 			gameState = "menu0";
 			console.log("finished loading");
