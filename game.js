@@ -124,10 +124,8 @@ function blendCols(col1, col2, per){
 }
 
 function addToCounter(imObj){
-	console.log(imObj.img.naturalWidth);
 	if(imObj.img.complete === true && imObj.img.naturalWidth !== 0){
 		loadCounter += 1;
-		console.log("loaded img");
 	}
 }
 
@@ -141,7 +139,6 @@ class image{
 	}	
 
 	drawImg(X,Y,W,H, alpha){
-		//console.log(this.img.naturalWidth)
 		c.globalAlpha = alpha;
 		c.drawImage(this.img, X,Y, W,H);
 		c.globalAlpha = 1;
@@ -399,7 +396,6 @@ function createSmoke(){
 var dotsAngle = 0;
 var dotsRadius = 3;
 function menuBackground(){
-	vingetteImg.drawImg(0, 0, canvas.width, canvas.height);
 	c.beginPath();
 	c.fillStyle = "rgb(240, 240, 240)";
 	c.fillRect(0, 0, canvas.width, canvas.height);
@@ -418,11 +414,11 @@ function menuBackground(){
 			menuSmokePos[i][0] += menuSmokePos[i][2];
 			if(Math.abs(menuSmokePos[i][0])-1 > canvas.width){
 				menuSmokePos[i][0] = -canvas.width;//-menuSmokePos[i][0];
-				//console.log(menuSmokePos[i][0]);
 			}
 		}
 		*/
 	}
+	vingetteImg.drawImg(0, 0, canvas.width, canvas.height, 0.4);
 }
 
 function loadingScreen(){
@@ -573,7 +569,6 @@ var maxTurningAngle = 0.9;
 var wheelTurningSpeed = 0.05; //normally 0.1
 function update(){
 	if(gameState === "loading"){
-		//console.log(loadCounter)
 		for(var i = 0; i<allImgs.length; i+=1){
 			addToCounter(allImgs[i]);
 		}
@@ -690,6 +685,9 @@ function update(){
 			frames = 0;
 		}
 		if(colTemp === 1){ //touching green
+			if(lastColour === 2){ //player went back without touching the white
+				reset();
+			}
 			lastColour = 1;
 		}
 		if(colTemp === false){ //touching white
@@ -698,6 +696,9 @@ function update(){
 			}
 			lastColour = true;
 		}
+		//console.log(lastColour);
+		//console.log(startedLap);
+		//console.log("");
 
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1] - Math.sin(carAngle)*15)][Math.floor(carPos[0] - Math.cos(carAngle)*15)];
 		if(colTemp === true){
@@ -817,7 +818,7 @@ function update(){
 		menuBackground();
 
 		showText("Made by Oliver W", 25*scale, 510*scale, 6*scale);
-		coinKey.drawImg(0, 0, 100*0.475382*scale, 100*scale);
+		coinKey.drawImg(10*scale, 10*scale, 100*0.475382*scale, 100*scale);
 
 		totalPoints = 0;
 		for(var i = 0; i < seriesNames.length; i+=1){
