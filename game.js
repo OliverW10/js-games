@@ -28,12 +28,10 @@ function getinputPos(canvas, evt) {
 canvas.addEventListener("ontouchmove", function(evt){
 	inputPos = getinputPos(canvas, evt);
 	evt.preventDefault();
-	//console.log("touch move");
 }, false);
 canvas.addEventListener("ontouchstart", function(evt){
 	inputPos = getinputPos(canvas, evt);
 	evt.preventDefault();
-	//console.log("touch start");
 }, false);
 
 var Keys = {"left":false, "right":false, "up":false, "down":false, "space":false, "esc":false};
@@ -124,8 +122,9 @@ function blendCols(col1, col2, per){
 }
 
 function addToCounter(imObj){
-	if(imObj.img.complete === true && imObj.img.naturalWidth !== 0){
+	if(imObj.img.complete === true && imObj.img.naturalWidth !== 0 && imObj.loaded === false){
 		loadCounter += 1;
+		imObj.loaded = true;
 	}
 }
 
@@ -136,6 +135,7 @@ class image{
 		//this.img.onload = addToCounter(this);
 		this.img.src=imageLocation;
 		allImgs.push(this);
+		this.loaded = false;
 	}	
 
 	drawImg(X,Y,W,H, alpha){
@@ -346,6 +346,7 @@ class track{ //is used to store infomation about a track in a readable way (rath
 		this.targetTimes = targetTimes;
 		this.trophy = 4;
 		this.getTrophy();
+		this.barScale = (this.targetTimes[0]/10.333333)*1.1;
 	}
 	start(){
 		upgrades = [this.carStats[0], this.carStats[1]];
@@ -395,6 +396,7 @@ function createSmoke(){
 
 var dotsAngle = 0;
 var dotsRadius = 3;
+var randShift = Math.random()
 function menuBackground(){
 	c.beginPath();
 	c.fillStyle = "rgb(240, 240, 240)";
@@ -407,6 +409,7 @@ function menuBackground(){
 			dotsImg.drawImg(Math.cos(dotsAngle)*canvas.width*dotsRadius-canvas.width*dotsRadius+(Math.random()-0.5)*canvas.width, Math.sin(dotsAngle)*canvas.height*dotsRadius-canvas.height*dotsRadius, canvas.width*dotsRadius*2+canvas.width, canvas.height*dotsRadius*2+canvas.width);
 		}
 		dotsAngle += 0.0001;
+		dotsRadius = 2+Math.sin(dotsAngle*randShift+randShift);
 		/*
 		for(var i = 0; i < menuSmokePos.length; i+=1){
 			smokeImg.drawImg(menuSmokePos[i][0], menuSmokePos[i][1], canvas.width, canvas.height, 0.3);
@@ -419,16 +422,23 @@ function menuBackground(){
 		*/
 	}
 	vingetteImg.drawImg(0, 0, canvas.width, canvas.height, 0.4);
-}
 
+}
 function loadingScreen(){
 	c.beginPath();
-	c.fillStyle = "rgb(255, 100, 100)";
+	c.fillStyle = "rgb(100, 100, 100)";
 	c.fillRect(0, 0, canvas.width, canvas.height);
 
 	c.beginPath();
+	c.strokeStyle = "rgb(200, 200, 200)";
+	c.rect(canvas.width*0.1, canvas.height*0.45, canvas.width * 0.8, canvas.height*0.1)
+	c.stroke();
+
+	c.beginPath();
 	c.fillStyle = "rgb(50, 60, 200)";
-	c.fillRect(canvas.width*0.1, canvas.height*0.45, loadCounter/loadingTotal * canvas.width * 0.8, canvas.height*1)
+	c.fillRect(canvas.width*0.1, canvas.height*0.45, loadCounter/loadingTotal * canvas.width * 0.8, canvas.height*0.1)
+
+	showText("Loading", canvas.width * 0.5, canvas.height*0.4, 30*scale);
 }
 
 // LOADING IMAGES
@@ -455,7 +465,11 @@ new track("tracks/show/track3-1.png", "track3-1", [0.5, 0.5], [250, 400, -Math.P
 new track("tracks/show/track3-2.png", "track3-2", [0.5, 0.5], [480, 200, 0], [15, 13, 12]),
 new track("tracks/show/track3-3.png", "track3-3", [0.5, 0.5], [400, 450, Math.PI], [14, 13, 11])
 ],
-"med":[]
+"hard":[
+new track("tracks/show/track4-1.png", "track4-1", [0.6, 1], [150, 150, Math.PI/2], [14, 13, 12]),
+new track("tracks/show/track4-2.png", "track4-2", [0.6, 1], [100, 250, -Math.PI/2], [20, 19.5, 18.75]),
+new track("tracks/show/track4-3.png", "track4-3", [0.6, 0.4], [650, 200, Math.PI/2], [16.5, 16, 15]),
+]
 };
 var skidSound = new Audio("skid.mp3");
 var carImg = new image("car1.png");
@@ -501,6 +515,7 @@ var lastPos = [0, 0]; // the postion on the last frame to calculate the car spee
 var angleDif = 0; // diference in angle between the direction you are moving and the direction you are facing, used for skid marks
 
 var frames = 0;
+var currentBarScale = 1;
 
 var skidMarks = [];
 var skidding = 0;
@@ -548,13 +563,13 @@ var selectBoxSizeTarget = [0, 0];
 
 var totalTimeTemp = 0;
 
-var seriesNames = ["series3", "easy",  "holiday"];
+var seriesNames = ["series3", "easy", "hard", "holiday"];
 // "series name" : new button(number*175*scale+10*scale, (Math.floor(number/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series name"]
-var seriesButtons = {"holiday" : new button(2*175+10, (Math.floor(2/4)+1)*130, 175*0.95, 130*0.95, thumbs["holiday"]), //3
+var seriesButtons = {"holiday" : new button(3*175+10, (Math.floor(3/4)+1)*130, 175*0.95, 130*0.95, thumbs["holiday"]), //3
 "easy" : new button(1*175+10, (Math.floor(1/4)+1)*130, 175*0.95, 130*0.95, thumbs["series2"]), // 1
 "series3" : new button(0*175+10, (Math.floor(0/4)+1)*130, 175*0.95, 130*0.95, thumbs["series3"]), //0
-"med": new button(2*175+10, (Math.floor(2/4)+1)*130, 175*0.95, 130*0.95, thumbs["series4"])}; // 2
-var seriesRequirement = [0, 6, 11, 16]; //0, 6, 16
+"hard": new button(2*175+10, (Math.floor(2/4)+1)*130, 175*0.95, 130*0.95, thumbs["series4"])}; // 2
+var seriesRequirement = [0, 6, 15, 21]; //0, 6, 16
 
 var trackButtons = [];
 for(var i = 0; i < tracks[currentSeries].length; i+=1){
@@ -575,8 +590,9 @@ function update(){
 		if(loadCounter >= loadingTotal){
 			gameState = "menu0";
 			console.log("finished loading");
+			console.log(loadCounter)
 		}
-		showText("Loading", canvas.width/2, canvas.height/2, 30*scale);
+		loadingScreen();
 	}
 	else if(gameState === "race"){
 		frames += 1;
@@ -696,9 +712,6 @@ function update(){
 			}
 			lastColour = true;
 		}
-		//console.log(lastColour);
-		//console.log(startedLap);
-		//console.log("");
 
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1] - Math.sin(carAngle)*15)][Math.floor(carPos[0] - Math.cos(carAngle)*15)];
 		if(colTemp === true){
@@ -779,30 +792,31 @@ function update(){
 			}
 			showText(lapTimes[i], 30*scale, (32+i*15)*scale, 10*scale, "rgb(255, 255, 255)");
 		}
+
 		showText((Math.round(((frames/60) + 0.0000001 )* 100) / 100), 30*scale, 20*scale, 10*scale, "rgb(255, 255, 255)"); //current lap time
 		//c.beginPath();
 		//c.fillStyle = "rgba(0, 0, 0, 0.4)";
 		//c.fillRect(100*scale, 1*scale, 1000, 23*scale); //shadow
 		c.beginPath();
 		c.fillStyle = "rgba(100, 100, 255, 0.8)";
-		c.fillRect(100*scale, 1*scale, frames*scale*0.6, 20*scale); // blue bar
+		c.fillRect(100*scale, 1*scale, frames*scale/currentBarScale, 20*scale); // blue bar
 
 		//c.beginPath();
 		//c.fillStyle = "rgba(0, 0, 0, 0.4)";
 		//c.fillRect((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+79*scale, 24*scale, (tracks[currentSeries][currentTrack].targetTimes[0] - tracks[currentSeries][currentTrack].targetTimes[2])*60*0.6*scale+40*scale, 25*scale); //trophys shadow
 
 
-		trophyImgs[0].drawImg((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale); //gold
+		trophyImgs[0].drawImg((tracks[currentSeries][currentTrack].targetTimes[2]*60*scale/currentBarScale)+92.5*scale, 25*scale, 15*scale, 20*scale); //gold
 		c.fillStyle = "rgb(100, 100, 100)";
-		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
+		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[2]*60*scale/currentBarScale)+99*scale, 2*scale, 2*scale, 23*scale);
 
-		trophyImgs[1].drawImg((tracks[currentSeries][currentTrack].targetTimes[1]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale); //silver
+		trophyImgs[1].drawImg((tracks[currentSeries][currentTrack].targetTimes[1]*60*scale/currentBarScale)+92.5*scale, 25*scale, 15*scale, 20*scale); //silver
 		c.fillStyle = "rgb(100, 100, 100)";
-		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[1]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
+		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[1]*60*scale/currentBarScale)+99*scale, 2*scale, 2*scale, 23*scale);
 
-		trophyImgs[2].drawImg((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+92.5*scale, 25*scale, 15*scale, 20*scale); //bronze
+		trophyImgs[2].drawImg((tracks[currentSeries][currentTrack].targetTimes[0]*60*scale/currentBarScale)+92.5*scale, 25*scale, 15*scale, 20*scale); //bronze
 		c.fillStyle = "rgb(100, 100, 100)";
-		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[0]*60*0.6*scale)+99*scale, 2*scale, 2*scale, 23*scale);
+		c.fillRect((tracks[currentSeries][currentTrack].targetTimes[0]*60*scale/currentBarScale)+99*scale, 2*scale, 2*scale, 23*scale);
 
 		showText(Math.floor(Math.sqrt((carVel[0]**2+carVel[1]**2))*70)+" k/h", 60*scale, 500*scale, 30*scale, "rgb(150, 150, 150)"); //speedo
 
@@ -890,6 +904,7 @@ function update(){
 				gameState = "race";
 				currentTrack = i;
 				tracks[currentSeries][i].start()
+				currentBarScale = tracks[currentSeries][currentTrack].barScale;
 			}
 		}
 		if(resetButton.update() === true){
