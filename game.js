@@ -865,7 +865,7 @@ function update(){
 				}
 			}
 			if(enoughPoints === true){
-				showText("Requires "+seriesRequirement[i].toString(), seriesButtons[seriesNames[i]].X+seriesButtons[seriesNames[i]].W*0.6, 240*scale, 20*scale, "rgb(255, 255, 255)");
+				showText("Requires "+seriesRequirement[i].toString(), (seriesButtons[seriesNames[i]].X+seriesButtons[seriesNames[i]].W*0.5)*scale, 240*scale, 20*scale, "rgb(255, 255, 255)");
 			}
 			showText(seriesPointsTemp, i*175*scale+87.5*scale, 300*scale, 20*scale);
 		}
