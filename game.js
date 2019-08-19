@@ -340,7 +340,7 @@ class track{ //is used to store infomation about a track in a readable way (rath
 		if(localStorage.getItem(name) != null){
 			this.bestTime = localStorage.getItem(name)
 		}else{
-			this.bestTime = 1000
+			this.bestTime = 1000;
 		}
 		this.name = name;
 		this.targetTimes = targetTimes;
@@ -565,10 +565,10 @@ var totalTimeTemp = 0;
 
 var seriesNames = ["series3", "easy", "hard", "holiday"];
 // "series name" : new button(number*175*scale+10*scale, (Math.floor(number/4)+1)*130*scale, 175*scale, 130*scale, thumbs["series name"]
-var seriesButtons = {"holiday" : new button(3*175+10, (Math.floor(3/4)+1)*130, 175*0.95, 130*0.95, thumbs["holiday"]), //3
-"easy" : new button(1*175+10, (Math.floor(1/4)+1)*130, 175*0.95, 130*0.95, thumbs["series2"]), // 1
-"series3" : new button(0*175+10, (Math.floor(0/4)+1)*130, 175*0.95, 130*0.95, thumbs["series3"]), //0
-"hard": new button(2*175+10, (Math.floor(2/4)+1)*130, 175*0.95, 130*0.95, thumbs["series4"])}; // 2
+var seriesButtons = {"holiday" : new button((3%4)*175+10, (Math.floor(3/4)+1)*130, 175*0.95, 130*0.95, thumbs["holiday"]), //3
+"easy" : new button((1%4)*175+10, (Math.floor(1/4)+1)*130, 175*0.95, 130*0.95, thumbs["series2"]), // 1
+"series3" : new button((0%4)*175+10, (Math.floor(0/4)+1)*130, 175*0.95, 130*0.95, thumbs["series3"]), //0
+"hard": new button((2%4)*175+10, (Math.floor(2/4)+1)*130, 175*0.95, 130*0.95, thumbs["series4"])}; // 2
 var seriesRequirement = [0, 6, 15, 21]; //0, 6, 16
 
 var trackButtons = [];
@@ -865,9 +865,10 @@ function update(){
 				}
 			}
 			if(enoughPoints === true){
-				showText("Requires "+seriesRequirement[i].toString(), (seriesButtons[seriesNames[i]].X+seriesButtons[seriesNames[i]].W*0.5)*scale, 240*scale, 20*scale, "rgb(255, 255, 255)");
+				showText("Requires "+seriesRequirement[i].toString(), (seriesButtons[seriesNames[i]].X+seriesButtons[seriesNames[i]].W*0.5)*scale, (seriesButtons[seriesNames[i]].Y+seriesButtons[seriesNames[i]].H*0.7)*scale, 20*scale, "rgb(255, 255, 255)");
 			}
 			showText(seriesPointsTemp, i*175*scale+87.5*scale, 300*scale, 20*scale);
+			coinImg.drawImg(i*175*scale+100*scale, 282.5*scale, canvas.width*0.03, canvas.height*0.03*1.3333);
 		}
 
 		coinImg.drawImg(canvas.width*0.95, canvas.height*0.01, canvas.width*0.04, canvas.height*0.04*1.3333);
@@ -921,12 +922,18 @@ function update(){
 		totalTimeTemp = 0;
 		for(var i = 0; i < tracks[currentSeries].length; i+=1){
 			if(tracks[currentSeries][i].trophy != 4){
-				trophyImgs[tracks[currentSeries][i].trophy-1].drawImg(trackButtons[i].X+trackButtons[i].W*0.82, trackButtons[i].Y+trackButtons[i].H*0.62, trackButtons[i].W*0.35, trackButtons[i].H*0.6);
+				trophyImgs[tracks[currentSeries][i].trophy-1].drawImg((trackButtons[i].X+trackButtons[i].W*0.75)*scale, (trackButtons[i].Y+trackButtons[i].H*0.55)*scale, (trackButtons[i].W*0.35)*scale, (trackButtons[i].H*0.5)*scale);
 			}
-			showText(tracks[currentSeries][i].bestTime, (canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 195*scale, 20*scale);
+			if(tracks[currentSeries][i].bestTime == 1000){
+				showText("--", (canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 195*scale, 20*scale);
+				//showText(tracks[currentSeries][i].bestTime, (canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 195*scale, 20*scale);
+			}
+			else{
+				showText(tracks[currentSeries][i].bestTime.toString()+"s", (canvas.width*0.9)/tracks[currentSeries].length*(i+0.5)+canvas.width*0.05, 195*scale, 20*scale);
+			}
 			totalTimeTemp += Number(tracks[currentSeries][i].bestTime);
 		}
-		showText((Math.round((((totalTimeTemp) + 0.000000001 )* 100) / 100)).toString()+"s", canvas.width/2, canvas.height*0.3, 50*scale) // sometimes the rounding does weird things so if you add a tiny amount it fixes it
+		//showText((Math.round((((totalTimeTemp) + 0.000000001 )* 100) / 100)).toString()+"s", canvas.width/2, canvas.height*0.3, 50*scale) // sometimes the rounding does weird things so if you add a tiny amount it fixes it
 		selectBoxPos[0] += (selectBoxTarget[0] - selectBoxPos[0])*0.3;
 		selectBoxPos[1] += (selectBoxTarget[1] - selectBoxPos[1])*0.3;
 		selectBoxSize[0] += (selectBoxSizeTarget[0] - selectBoxSize[0])*0.3;
