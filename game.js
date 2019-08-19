@@ -474,12 +474,12 @@ new track("tracks/show/track4-3.png", "track4-3", [0.6, 0.4], [650, 200, Math.PI
 var skidSound = new Audio("skid.mp3");
 var carImg = new image("car1.png");
 var carShadowImg = new image("car1shadow.png");
-var resetButton = new button(720*0.80, 512*0.85, 720*0.15, 512*0.05, new image("reset.png"));
-var graphicsButton = new button(720*0.80, 512*0.85, 720*0.15, 512*0.05, new image("graphics.png"))
+var resetButton = new button(720*0.80, 512*0.9, 720*0.15, 512*0.05, new image("reset.png"));
+var graphicsButton = new button(720*0.80, 512*0.9, 720*0.15, 512*0.05, new image("graphics.png"))
 var trophyImgs = [new image("trophy1.png"), new image("trophy2.png"), new image("trophy3.png")];
 var coinImg = new image("coin.png");
 var coinKey = new image("key.png");
-
+var battlePassButton = new button(720/3, 512*0.7, 720/3, 720/6, new image("battle_pass.png"));
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -873,6 +873,10 @@ function update(){
 
 		coinImg.drawImg(canvas.width*0.95, canvas.height*0.01, canvas.width*0.04, canvas.height*0.04*1.3333);
 		showText(totalPoints, 670*scale, 27*scale, 20*scale);
+
+		if(battlePassButton.update() === true){
+			window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+		}
 
 		if(graphicsButton.update() === true){
 			graphicsSetting += 1;
