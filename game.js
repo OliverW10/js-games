@@ -497,7 +497,7 @@ new track("tracks/show/track4-3.png", "track4-3", [0.6, 0.4], [650, 200, Math.PI
 ]
 };
 var skidSound = new Audio("skid.mp3");
-var carImg = [new image("car1.png"), new image("car2.png"), new image("car3.png"), new image("car5.png")];
+var carImg = [new image("car1.png"), new image("car2.png"), new image("car3.png"), new image("car4.png"), new image("car5.png"), new image("car6.png")];
 var carShadowImg = new image("car1shadow.png");
 
 var carButtons = []
@@ -932,7 +932,7 @@ function update(){
 
 		if(skinButton.update() === true){
 			carType += 1
-			if(carType >= 4){
+			if(carType >= 6){
 				carType = 0
 			}
 			showCar = 120
