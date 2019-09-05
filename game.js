@@ -330,6 +330,28 @@ class smoke{
 	}
 }
 
+class explotion{
+	constructor(X, Y, angle, type = 0){
+		this.angle = angle;
+		this.X = X;
+		this.Y = Y;
+		this.frame = 0;
+		this.age = 0;
+		this.type = 0;
+		this.dead = false;
+	}
+	draw(){
+		this.age += 1;
+		this.frame = Math.floor(this.age/10);
+		if(this.frame >= 3){
+			this.dead = true;
+			//explotionImg[2].drawImg((this.X-25)*scale, (this.Y-25)*scale, 50*scale, 50*scale, 0.95);
+		}else{
+			explotionImg[this.frame].drawImg((this.X-25)*scale, (this.Y-25)*scale, 50*scale, 50*scale, 0.95);
+		}
+	}
+}
+
 class track{ //is used to store infomation about a track in a readable way (rather than a list or dict)
 	constructor(trackImg, name, carStats, startPos, targetTimes = []){
 		this.trackImg = new image(trackImg);
@@ -442,8 +464,11 @@ function loadingScreen(){
 }
 
 // LOADING IMAGES
-var loadingTotal = 25;
+var loadingTotal = 38;
 var loadCounter = 0;
+var adImg = new image("ad.jpg");
+var skinButton = new button(720*0.05, 512*0.9, 720*0.15, 512*0.075, new image("skin.png"));
+var explotionImg = [new image("explotion1.png"), new image("explotion2.png"), new image("explotion3.png")];
 var vingetteImg = new image("vingette.jpg");
 var dotsImg = new image("dots.png");
 var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png"), "series4":new image("tracks/thumbs/series4.png")};
@@ -472,8 +497,14 @@ new track("tracks/show/track4-3.png", "track4-3", [0.6, 0.4], [650, 200, Math.PI
 ]
 };
 var skidSound = new Audio("skid.mp3");
-var carImg = new image("car1.png");
+var carImg = [new image("car1.png"), new image("car2.png"), new image("car3.png"), new image("car5.png")];
 var carShadowImg = new image("car1shadow.png");
+
+var carButtons = []
+for(var i = 0; i<=7; i+=1){
+	carButtons.push(new button((720*0.9)/7*i+720*0.05, 200, (720*0.9)/7*0.9, 720/7*0.6573033707865169, carImg[i]));
+}
+var carButtons = [new button(720)];
 var resetButton = new button(720*0.80, 512*0.9, 720*0.15, 512*0.05, new image("reset.png"));
 var graphicsButton = new button(720*0.80, 512*0.9, 720*0.15, 512*0.05, new image("graphics.png"))
 var trophyImgs = [new image("trophy1.png"), new image("trophy2.png"), new image("trophy3.png")];
@@ -483,6 +514,12 @@ var battlePassButton = new button(720/3, 512*0.7, 720/3, 720/6, new image("battl
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var explotionList = [];
+
+var carType = 3;
+var showCar = 0
+//var selectedCar = 3; // 0-6 are images, 7 is going through all of them and "glitching"
 
 var smokeList = [];
 var menuSmokePos = [];
@@ -534,6 +571,15 @@ var graphicsSetting = 1;
 var graphicsOptions = [[0, false, "off"], [1000, true, "low"], [10000, true, "high"]];
 var showSetting = 0;
 
+var boostMeter = 0;
+
+if(localStorage.getItem("points") != null){
+	points = localStorage.getItem("points");
+}else{
+	points = 0;
+	localStorage.setItem("points", 0);
+}
+
 function reset(){
 	boost = 1;
 	speedMult = 1;
@@ -553,6 +599,7 @@ function reset(){
 
 	startedLap = false;
 	lastColour = false;
+	boostMeter = 0;
 }
 reset();
 
@@ -654,15 +701,16 @@ function update(){
 		carPos[0] += carVel[0];
 		carPos[1] += carVel[1];
 
+		//showText(Math.floor(angleDif*10), 100, 100, 100);
 		if(smokeOn === true){
 			angleDif = Math.atan2(carVel[1], carVel[0]) - carAngle; //could also do dist to a vel vector to a vector thats infront of the car by the speed (this would add skidding when acceslerting and by doing two and min ing it would work backwards too)
-			if(Math.abs(angleDif+carWheelAngle) > 0.7 && Math.abs(angleDif-carWheelAngle) < 2.44){ //make it be harder to skid at low speeds
+			if((Math.abs(angleDif+carWheelAngle) > 0.5 && Math.abs(angleDif-carWheelAngle) < 2.64) || angleDif-carWheelAngle < -3){ //make it be harder to skid at low speeds
 				skidMarks.push([carPos[0]-1, carPos[1]-1]);
 				smokeList.push(new smoke(carPos[0], carPos[1]));
 				skidding += 0.25;
 				
 			}
-			if(Math.abs(angleDif) > 0.7 && Math.abs(angleDif) < 2.44){
+			if((Math.abs(angleDif) > 0.5 && Math.abs(angleDif) < 2.64) || angleDif < -3){
 				skidMarks.push([carPos[0] - Math.cos(carAngle)*15 - 1, carPos[1] - Math.sin(carAngle)*15 - 1]);
 				smokeList.push(new smoke(carPos[0] - Math.cos(carAngle)*15, carPos[1] - Math.sin(carAngle)*15));
 				skidding += 0.25;
@@ -673,10 +721,12 @@ function update(){
 		carSpeed = Math.hypot((carPos[0] - lastPos[0]), (carPos[1] - lastPos[1]));
 		skidSound.volume = skidding;
 		if(skidding > 0.1){
+			boostMeter += skidding;
 			skidSound.play();
 		}else{
 			skidSound.pause();
 		}
+		boostMeter += 0.1;
 
 		//collisions
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1])][Math.floor(carPos[0])];
@@ -684,6 +734,7 @@ function update(){
 			for(var i = 0; i < 5; i+=1){
 				smokeList.push(new smoke(carPos[0] - Math.cos(carAngle)*7, carPos[1] - Math.sin(carAngle)*7, 40));
 			}
+			explotionList.push(new explotion(carPos[0], carPos[1], carAngle));
 			reset();
 		}else if(colTemp === 2){ //tounching red
 			if(lastColour === 1 && startedLap === true){ //last touched green
@@ -746,6 +797,11 @@ function update(){
 			liftedEsc = false;
 			tracks[currentSeries][currentTrack].getTrophy();
 			skidSound.pause();
+			explotionList = [];
+		}
+
+		for(var i = 0; i<explotionList.length;i+=1){
+			explotionList[i].draw();
 		}
 
 		/*
@@ -779,7 +835,7 @@ function update(){
 				}
 			}
 		}else{
-			carImg.drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
+			carImg[carType].drawRotatedImg(carPos[0]*scale, carPos[1]*scale, 25*scale, 12.5*scale, 1, carAngle-Math.PI, 6.125*scale, 6.125*scale);
 		}
 
 		c.beginPath();
@@ -800,11 +856,11 @@ function update(){
 		c.beginPath();
 		c.fillStyle = "rgba(100, 100, 255, 0.8)";
 		c.fillRect(100*scale, 1*scale, frames*scale/currentBarScale, 20*scale); // blue bar
+		showText("Time", 125*scale, 15*scale, 10*scale, "rgba(0, 0, 0, 0.5)");
 
-		//c.beginPath();
-		//c.fillStyle = "rgba(0, 0, 0, 0.4)";
-		//c.fillRect((tracks[currentSeries][currentTrack].targetTimes[2]*60*0.6*scale)+79*scale, 24*scale, (tracks[currentSeries][currentTrack].targetTimes[0] - tracks[currentSeries][currentTrack].targetTimes[2])*60*0.6*scale+40*scale, 25*scale); //trophys shadow
-
+		c.beginPath();
+		c.fillStyle = "rgb(0, 255, 0, 0.9)";
+		//c.fillRect(canvas.width*0.1, canvas.height*0.5, boostMeter*scale*0.8, 50*scale);
 
 		trophyImgs[0].drawImg((tracks[currentSeries][currentTrack].targetTimes[2]*60*scale/currentBarScale)+92.5*scale, 25*scale, 15*scale, 20*scale); //gold
 		c.fillStyle = "rgb(100, 100, 100)";
@@ -874,6 +930,13 @@ function update(){
 		coinImg.drawImg(canvas.width*0.95, canvas.height*0.01, canvas.width*0.04, canvas.height*0.04*1.3333);
 		showText(totalPoints, 670*scale, 27*scale, 20*scale);
 
+		if(skinButton.update() === true){
+			carType += 1
+			if(carType >= 4){
+				carType = 0
+			}
+			showCar = 120
+		}
 		if(battlePassButton.update() === true){
 			window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 		}
@@ -887,7 +950,11 @@ function update(){
 			smokeOn = graphicsOptions[graphicsSetting][1];
 			showSetting = 30;
 		}
-			
+		if(showCar > 0){
+			showCar -= 1
+			carShadowImg.drawRotatedImg(canvas.width*0.51, canvas.height*0.41, 250*scale, 125*scale, 1, showCar/60+Math.PI*1.5, 125*scale, 60.25*scale);
+			carImg[carType].drawRotatedImg(canvas.width*0.5, canvas.height*0.4, 250*scale, 125*scale, 1, showCar/60+Math.PI*1.5, 125*scale, 60.25*scale);
+		}
 		if(showSetting >= 0){
 			showSetting -= 1;
 			showText(graphicsOptions[graphicsSetting][2], canvas.width/2, canvas.height/2, 50*scale, "rgb(0, 0, 0)");
@@ -944,6 +1011,8 @@ function update(){
 		selectBoxSize[1] += (selectBoxSizeTarget[1] - selectBoxSize[1])*0.3;
 		c.strokeStyle = "rgb(0, 0, 0)";
 		c.lineWidth = 2;
+
+		adImg.drawImg(canvas.width*0.42, canvas.height*0.72, canvas.width*0.15, canvas.height*0.2);
 		drawCorners([selectBoxPos[0]-2, selectBoxPos[1]-2, selectBoxSize[0]+4, selectBoxSize[1]+4]);
 	}
 	if(gameState === "menu3"){ // main menu?
