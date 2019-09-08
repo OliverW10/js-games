@@ -550,7 +550,7 @@ function loadingScreen(){
 // LOADING IMAGES
 var loadingSoundTotal = 5;
 var loadCountSounds = 0;
-var loadingTotal = 41;
+var loadingTotal = 40;
 var loadCounter = 0;
 //var adImg = new image("ad.jpg");
 var skinButton = new button(720*0.05, 512*0.9, 720*0.15, 512*0.075, new image("skin.png"));
