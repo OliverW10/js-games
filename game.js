@@ -1040,9 +1040,9 @@ function update(){
 			}
 			showCar = 120
 		}
-		if(battlePassButton.update() === true){
-			window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-		}
+		//if(battlePassButton.update() === true){
+		//	window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+		//}
 
 		if(graphicsButton.update() === true){
 			graphicsSetting += 1;
@@ -1127,7 +1127,7 @@ function update(){
 		c.strokeStyle = "rgb(0, 0, 0)";
 		c.lineWidth = 2;
 
-		adImg.drawImg(canvas.width*0.42, canvas.height*0.72, canvas.width*0.15, canvas.height*0.2);
+		//adImg.drawImg(canvas.width*0.42, canvas.height*0.72, canvas.width*0.15, canvas.height*0.2);
 		drawCorners([selectBoxPos[0]-2, selectBoxPos[1]-2, selectBoxSize[0]+4, selectBoxSize[1]+4]);
 	}
 	if(gameState === "menu3"){ // main menu?
