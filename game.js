@@ -488,6 +488,18 @@ function menuBackground(){
 	vingetteImg.drawImg(0, 0, canvas.width, canvas.height, 0.4);
 
 }
+
+var loadingTips = ["Poop -the developer",
+"Unlock trophys to get medals",
+"Use medals to unlock more series",
+"Only boring people get bored -mum",
+"Try to take the shortest path possible",
+"Thanks for the music dooja",
+"Taking the inner line is usually shorter",
+"Going fast is quicker than going slow"];
+
+loadingTipTimer = 0;
+loadingTip = Math.floor(Math.random()*loadingTips.length)
 function loadingScreen(){
 	c.beginPath();
 	c.fillStyle = "rgb(100, 100, 100)";
@@ -510,6 +522,12 @@ function loadingScreen(){
 
 	if((loadCounter+loadCountSounds)/(loadingTotal+loadingSoundTotal)>0.99){
 		showText("press any key to continue", canvas.width*0.5, canvas.height*0.6, 20*scale);
+	}
+	showText(loadingTips[loadingTip], canvas.width*0.5, canvas.height*0.7, 15*scale);
+	loadingTipTimer += 1;
+	if(loadingTipTimer > 120){
+		loadingTip = Math.floor(Math.random()*loadingTips.length)
+		loadingTipTimer = 0;
 	}
 }
 
