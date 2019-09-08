@@ -201,7 +201,7 @@ class button{
 			if(this.lastFrame === false){
 				//hoverSound.pause();
 				hoverSound.audio.currentTime = 0;
-				hoverSound.playSound(0.2);
+				hoverSound.playSound(0.4);
 			}
 			this.lastFrame = true;
 			selectBoxTarget = [this.X*scale, this.Y*scale];
@@ -489,14 +489,25 @@ function menuBackground(){
 
 }
 
-var loadingTips = ["Poop -the developer",
+var loadingTips = ["poop -the developer",
 "Unlock trophys to get medals",
 "Use medals to unlock more series",
 "Only boring people get bored -mum",
 "Try to take the shortest path possible",
 "Thanks for the music dooja",
 "Taking the inner line is usually shorter",
-"Going fast is quicker than going slow"];
+"Going fast is quicker than going slow",
+"who's joe",
+"pressing the left arrow key turns left",
+"pressing the right arrow key turn right",
+"you can brake (if you want to go slow)",
+"there is an infinite supply of cars for you to crash",
+"press esc to go back to the previous menu",
+"never ask who joe is",
+"is the s or the c silent in 'scent'",
+"type in your credit card details to unlock an easter egg",
+"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"];
 
 loadingTipTimer = 0;
 loadingTip = Math.floor(Math.random()*loadingTips.length)
@@ -525,7 +536,7 @@ function loadingScreen(){
 	}
 	showText(loadingTips[loadingTip], canvas.width*0.5, canvas.height*0.7, 15*scale);
 	loadingTipTimer += 1;
-	if(loadingTipTimer > 120){
+	if(loadingTipTimer > 180){
 		loadingTip = Math.floor(Math.random()*loadingTips.length)
 		loadingTipTimer = 0;
 	}
@@ -725,7 +736,7 @@ function update(){
 			console.log("finished loading");
 			console.log(loadCounter);
 			console.log(loadCountSounds);
-			menuSound.playSound();
+			menuSound.playSound(1);
 		}
 		loadingScreen();
 	}
@@ -795,22 +806,22 @@ function update(){
 			if((Math.abs(angleDif+carWheelAngle) > 0.5 && Math.abs(angleDif-carWheelAngle) < 2.64) || angleDif-carWheelAngle < -3){ //make it be harder to skid at low speeds
 				skidMarks.push([carPos[0]-1, carPos[1]-1]);
 				smokeList.push(new smoke(carPos[0], carPos[1]));
-				skidding += 0.25;
+				skidding += 0.01;
 				
 			}
 			if((Math.abs(angleDif) > 0.5 && Math.abs(angleDif) < 2.64) || angleDif < -3){
 				skidMarks.push([carPos[0] - Math.cos(carAngle)*15 - 1, carPos[1] - Math.sin(carAngle)*15 - 1]);
 				smokeList.push(new smoke(carPos[0] - Math.cos(carAngle)*15, carPos[1] - Math.sin(carAngle)*15));
-				skidding += 0.25;
+				skidding += 0.01;
 			}
 		}
-		skidding -= 0.1;
+		skidding -= 0.05;
 		skidding = Math.max(Math.min(skidding, 1), 0)
 		carSpeed = Math.hypot((carPos[0] - lastPos[0]), (carPos[1] - lastPos[1]));
 		//skidSound.volume = skidding;
 		if(skidding > 0.1){
 			boostMeter += skidding;
-			skidSound.playSound(skidding/10);
+			skidSound.playSound(skidding/20);
 		}else{
 			skidSound.pause();
 		}
@@ -887,7 +898,8 @@ function update(){
 			skidSound.pause();
 			menuSound.audio.currentTime = musicSound.audio.currentTime;
 			musicSound.pause();
-			menuSound.playSound();
+			hardSound.pause();
+			menuSound.playSound(1);
 			explotionList = [];
 		}
 
@@ -1075,7 +1087,11 @@ function update(){
 				currentBarScale = tracks[currentSeries][currentTrack].barScale;
 				menuSound.pause();
 				musicSound.audio.currentTime = menuSound.audio.currentTime;
-				musicSound.playSound(0.7);
+				if(currentSeries === "holiday"){
+					hardSound.playSound(0.2);
+				}else{
+					musicSound.playSound(0.2);
+				}
 			}
 		}
 		if(resetButton.update() === true){
