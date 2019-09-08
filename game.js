@@ -67,6 +67,7 @@ document.addEventListener('keydown', function(event) {
 		if(event.keyCode != 51){
 			key3 = false;
 		}
+		pressedAnyKey = true;
 	}
 );
 document.addEventListener('keyup', function(event) {
@@ -95,6 +96,7 @@ document.addEventListener('keyup', function(event) {
 mouseButtons = [false, false, false];
 document.addEventListener('mousedown', function(event){
 	mouseButtons[0] = true;
+	pressedAnyKey = true;
 });
 
 var liftedMouse = false;
@@ -125,6 +127,38 @@ function addToCounter(imObj){
 	if(imObj.img.complete === true && imObj.img.naturalWidth !== 0 && imObj.loaded === false){
 		loadCounter += 1;
 		imObj.loaded = true;
+	}
+}
+
+
+function addToCounterSound(soObj){
+	if(soObj.audio.readyState >= 4 && soObj.loaded === false){
+		loadCountSounds += 1;
+		soObj.loaded = true;
+	}
+}
+
+allSounds = [];
+class sound{
+	constructor(audioLocation, loop = false){
+		this.src = audioLocation;
+		this.audio = new Audio(audioLocation);
+		allSounds.push(this)
+		this.loaded = false;
+		this.audio.loop = loop;
+		this.audio.addEventListener("canplaythrough", function(){
+			//this.loaded = true;
+			//loadCountSounds += 1
+		})
+	}
+	playSound(volume = 1){
+		this.audio.volume = volume;
+		//if(this.loaded === true){
+			this.audio.play();
+		//}
+	}
+	pause(){
+		this.audio.pause();
 	}
 }
 
@@ -160,9 +194,16 @@ class button{
 		this.H = H;
 		this.img = img;
 		this.outlineCol = outlineCol;
+		this.lastFrame = false;
 	}
 	update(locked = false){
 		if(collidePoint([inputPos.x, inputPos.y], [this.X*scale, this.Y*scale, this.W*scale, this.H*scale]) === true && locked === false){
+			if(this.lastFrame === false){
+				//hoverSound.pause();
+				hoverSound.audio.currentTime = 0;
+				hoverSound.playSound(0.2);
+			}
+			this.lastFrame = true;
 			selectBoxTarget = [this.X*scale, this.Y*scale];
 			selectBoxSizeTarget = [this.W*scale, this.H*scale];
 			if(liftedMouse === true){
@@ -174,6 +215,7 @@ class button{
 			c.fillRect((this.X-1)*scale, (this.Y-1)*scale, (this.W+2)*scale, (this.H+2)*scale);
 			this.img.drawImg((this.X+3)*scale, (this.Y+3)*scale, (this.W-6)*scale, (this.H-6)*scale, 0.9);
 		}else{
+			this.lastFrame = false;
 			c.beginPath();
 			c.fillStyle = this.outlineCol;
 			c.fillRect(this.X*scale, this.Y*scale, (this.W+1)*scale, (this.H+1)*scale);
@@ -458,13 +500,23 @@ function loadingScreen(){
 
 	c.beginPath();
 	c.fillStyle = "rgb(50, 60, 200)";
-	c.fillRect(canvas.width*0.1, canvas.height*0.45, loadCounter/loadingTotal * canvas.width * 0.8, canvas.height*0.1)
+	c.fillRect(canvas.width*0.1, canvas.height*0.45, (loadCounter+loadCountSounds)/(loadingTotal+loadingSoundTotal) * canvas.width * 0.8, canvas.height*0.1)
 
 	showText("Loading", canvas.width * 0.5, canvas.height*0.4, 30*scale);
+
+	showText("Programming and game art by Olikat", canvas.width*0.24, canvas.height*0.05, 20*scale);
+	showText("Music by dooja", canvas.width*0.1, canvas.height*0.1, 20*scale);
+	//showText("Generally being god by me", canvas.width*0.2, canvas.height*0.15, 20*scale);
+
+	if((loadCounter+loadCountSounds)/(loadingTotal+loadingSoundTotal)>0.99){
+		showText("press any key to continue", canvas.width*0.5, canvas.height*0.6, 20*scale);
+	}
 }
 
 // LOADING IMAGES
-var loadingTotal = 38;
+var loadingSoundTotal = 5;
+var loadCountSounds = 0;
+var loadingTotal = 41;
 var loadCounter = 0;
 var adImg = new image("ad.jpg");
 var skinButton = new button(720*0.05, 512*0.9, 720*0.15, 512*0.075, new image("skin.png"));
@@ -496,7 +548,11 @@ new track("tracks/show/track4-2.png", "track4-2", [0.6, 1], [100, 250, -Math.PI/
 new track("tracks/show/track4-3.png", "track4-3", [0.6, 0.4], [650, 200, Math.PI/2], [16.5, 16, 15]),
 ]
 };
-var skidSound = new Audio("skid.mp3");
+var menuSound = new sound("menu.mp3", true);
+var hardSound = new sound("hard.mp3", true);
+var hoverSound = new sound("hover.mp3", false);
+var musicSound = new sound("music.mp3", true);
+var skidSound = new sound("skid.mp3", true);
 var carImg = [new image("car1.png"), new image("car2.png"), new image("car3.png"), new image("car4.png"), new image("car5.png"), new image("car6.png")];
 var carShadowImg = new image("car1shadow.png");
 
@@ -514,6 +570,7 @@ var battlePassButton = new button(720/3, 512*0.7, 720/3, 720/6, new image("battl
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+var pressedAnyKey = false;
 
 var explotionList = [];
 
@@ -629,15 +686,28 @@ var enoughPoints = false;
 var totalPoints = 0;
 var maxTurningAngle = 0.9;
 var wheelTurningSpeed = 0.05; //normally 0.1
+
+//musicSound.volume = 1
+//var canPlayMusic = false
+//function setPlay(){
+//	canPlayMusic = true;
+//}
+//musicSound.addEventListener("canplay", function)
+
 function update(){
 	if(gameState === "loading"){
+		for(var i = 0; i<allSounds.length; i+=1){
+			addToCounterSound(allSounds[i]);
+		}
 		for(var i = 0; i<allImgs.length; i+=1){
 			addToCounter(allImgs[i]);
 		}
-		if(loadCounter >= loadingTotal){
+		if(loadCounter >= loadingTotal && loadCountSounds >= loadingSoundTotal && pressedAnyKey === true){
 			gameState = "menu0";
 			console.log("finished loading");
-			console.log(loadCounter)
+			console.log(loadCounter);
+			console.log(loadCountSounds);
+			menuSound.playSound();
 		}
 		loadingScreen();
 	}
@@ -719,10 +789,10 @@ function update(){
 		skidding -= 0.1;
 		skidding = Math.max(Math.min(skidding, 1), 0)
 		carSpeed = Math.hypot((carPos[0] - lastPos[0]), (carPos[1] - lastPos[1]));
-		skidSound.volume = skidding;
+		//skidSound.volume = skidding;
 		if(skidding > 0.1){
 			boostMeter += skidding;
-			skidSound.play();
+			skidSound.playSound(skidding/10);
 		}else{
 			skidSound.pause();
 		}
@@ -797,6 +867,9 @@ function update(){
 			liftedEsc = false;
 			tracks[currentSeries][currentTrack].getTrophy();
 			skidSound.pause();
+			menuSound.audio.currentTime = musicSound.audio.currentTime;
+			musicSound.pause();
+			menuSound.playSound();
 			explotionList = [];
 		}
 
@@ -968,6 +1041,11 @@ function update(){
 	}
 	else if(gameState === "menu1"){ //race select
 		menuBackground();
+		if(currentSeries === "holiday"){
+			c.beginPath();
+			c.fillStyle = "rgba(255, 0, 0, 0.05)";
+			c.fillRect(0, 0, canvas.width, canvas.height);
+		}
 		//thumbs[currentSeries].drawImg(0, 0, canvas.width, canvas.height);
 		for(var i = 0; i<trackButtons.length; i+=1){
 			if(trackButtons[i].update() === true){
@@ -977,6 +1055,9 @@ function update(){
 				currentTrack = i;
 				tracks[currentSeries][i].start()
 				currentBarScale = tracks[currentSeries][currentTrack].barScale;
+				menuSound.pause();
+				musicSound.audio.currentTime = menuSound.audio.currentTime;
+				musicSound.playSound(0.7);
 			}
 		}
 		if(resetButton.update() === true){
