@@ -507,7 +507,12 @@ var loadingTips = ["poop -the developer",
 "is the s or the c silent in 'scent'",
 "type in your credit card details to unlock an easter egg",
 "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"];
+"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+"you don't need to get gold on everything",
+"you don't need to gold ever track in a series to move on",
+"if you are stuggling then get better",
+"if you can't beat a track then just dont",
+""];
 
 loadingTipTimer = 0;
 loadingTip = Math.floor(Math.random()*loadingTips.length)
@@ -547,7 +552,7 @@ var loadingSoundTotal = 5;
 var loadCountSounds = 0;
 var loadingTotal = 41;
 var loadCounter = 0;
-var adImg = new image("ad.jpg");
+//var adImg = new image("ad.jpg");
 var skinButton = new button(720*0.05, 512*0.9, 720*0.15, 512*0.075, new image("skin.png"));
 var explotionImg = [new image("explotion1.png"), new image("explotion2.png"), new image("explotion3.png")];
 var vingetteImg = new image("vingette.jpg");
