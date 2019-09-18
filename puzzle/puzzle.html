@@ -10,14 +10,17 @@
 
 	  gtag('config', 'UA-144388892-1');
 	</script>
-
-	<title>Olikat Games</title>
+	<title>Shooter game</title>
 	<style type="text/css">
+	canvas {
+		border : 1px solid black;
+		left : 100px;
+	}
 	body {margin: 0px;}
+
 	</style>
 </head>
 <body>
-	<a href="racer/race.html">Drift racer</a>
-	<a href="puzzle/puzzle.html">Shooter game</a>
-	<a href="https://github.com/OliverW10/OliverW10.github.io">View source code</a>
+		<canvas id="canvasTag" width = "800" height = "600"></canvas>
+		<script src="game.js"></script>
 </body>

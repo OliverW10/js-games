@@ -986,7 +986,7 @@ function update(){
 
 	}else{
 		h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-		h *= 0.9
+		h *= 0.95
 		scale = h/520
 		canvas.height = 520*scale;
 		canvas.width = 720*scale;
