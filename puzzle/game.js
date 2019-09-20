@@ -149,6 +149,11 @@ class image{
 	}
 }
 
+// LOADING
+var healthPickupImg = new image("images/healthPickup.png");
+var gunPickupImg = new image("images/gunPickup.png");
+var swapPickupImg = new image("images/swapPickup.png");
+
 function midPoint(point1, point2, per){
 	var x = point1[0] + (point2[0] - point1[0])*per;
 	var y = point1[1] + (point2[1] - point1[1])*per;
@@ -166,7 +171,7 @@ function drawRotatedRect(X, Y, W, H, colour, rotation){
 	c.restore();
 }
 
-function showText(text, X, Y, Size, colour = "rgb(255, 255, 255)", bold = false){
+function showText(text, X, Y, Size, colour = "rgb(0, 0, 0)", bold = false){
 	c.beginPath();
 	if(bold === true){
 		c.font = "bold "+Size+"px Arial";
@@ -248,7 +253,7 @@ function drawCorners(rect){
 }
 
 class particle{
-	constructor(X, Y, colour = "rgb(255, 255, 255)"){
+	constructor(X, Y, colour = "rgb(100, 20, 0)"){
 		this.X = X;
 		this.Y = Y;
 		var angle = (Math.random()-0.5)*Math.PI*2;
@@ -291,14 +296,14 @@ class bullet{
 		if(this.drawAble === true){
 			c.beginPath();
 			c.strokeWeight = 3;
-			c.strokeStyle = "rgb(255, 230, 200)";
+			c.strokeStyle = "rgb(20, 10, 0)";
 			c.moveTo(this.X*scale, this.Y*scale);
 			c.lineTo((this.X-Math.cos(this.angle)*this.bulletType[3]*3)*scale, (this.Y-Math.sin(this.angle)*this.bulletType[3]*3)*scale);
 			c.stroke();
 
 			c.beginPath();
 			c.strokeWeight = 1;
-			c.strokeStyle = "rgb(255, 255, 255)";
+			c.strokeStyle = "rgb(0, 0, 0)";
 			c.moveTo(this.X*scale, this.Y*scale);
 			c.lineTo((this.X-Math.cos(this.angle)*this.bulletType[3]*3)*scale, (this.Y-Math.sin(this.angle)*this.bulletType[3]*3)*scale);
 			c.stroke();
@@ -358,19 +363,42 @@ class pickup{
 							players[i].gun = temp;
 						}
 						if(this.type === 2){
+							this.alive = false;
+							var tempX = players[i].X;
+							var tempY = players[i].Y;
+							var tempGun = players[i].gun;
+							var tempHealth = players[i].health;
+							var playerToSwap = Math.floor(Math.random()*players.length)
+							while(playerToSwap === i){
+								var playerToSwap = Math.floor(Math.random()*players.length)
+							}
+							players[i].X = players[playerToSwap].X;
+							players[i].Y = players[playerToSwap].Y;
+							players[i].gun = players[playerToSwap].gun;
+							players[i].health = players[playerToSwap].health;
 
+							players[playerToSwap].X = tempX;
+							players[playerToSwap].Y = tempY;
+							players[playerToSwap].gun = tempGun;
+							players[playerToSwap].health = tempHealth;
 						}
 					}
 				}
 			}
 			c.beginPath();
 			if(this.type === 0){
-				c.fillStyle = "rgb(255, 255, 255)";
+				drawBubble(this.X*scale, this.Y*scale, 10*scale, [50, 150, 0])
+				//healthPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
 			}
 			if(this.type === 1){
-				c.fillStyle = "rgb(255, 255, 255)";
+				drawBubble(this.X*scale, this.Y*scale, 10*scale, [40, 40, 10])
+				//gunPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
 			}
-			c.fillRect(this.X*scale, this.Y*scale, 5, 5);
+			if(this.type === 2){
+				drawBubble(this.X*scale, this.Y*scale, 10*scale, [0, 100, 200])
+				//swapPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
+			}
+			//c.fillRect(this.X*scale, this.Y*scale, 5, 5);
 		}
 	}
 }
@@ -387,7 +415,7 @@ function testPos(X, Y){
 }
 
 // [name, shooting speed, explosive, bullet speed, inaccuracy, damage, movement speed]
-var guns = [["pistol", 45, false, 3, 0.05, 1, 1],
+var guns = [["pistol", 45, false, 3, 0.05, 1, 1.5],
 ["machine gun", 15, false, 1.5, 0.2, 0.5, 0.7],
 ["sniper", 75, false, 10, 0.01, 5, 1],
 ["AR", 20, false, 4, 0.1, 1, 1]];
@@ -396,6 +424,8 @@ class player{
 		this.alive = true;
 		this.direction = [0, 0];
 		this.colour = colour;
+		this.rgb = this.colour.match(/\d+/g);
+		this.rgb= [Number(this.rgb[0]), Number(this.rgb[1]), Number(this.rgb[2])]
 		if(controles==="mouse"){
 
 		}else{
@@ -465,6 +495,8 @@ class player{
 		}
 
 		if(this.visable === true){
+			this.angle = Math.atan2(this.Yvel, this.Xvel);
+			/*
 			c.beginPath();
 			if(this.alive === true){
 				c.fillStyle = this.colour;
@@ -472,16 +504,51 @@ class player{
 				c.fillStyle = "rgb(50, 50, 50)";
 			}
 			c.fillRect((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
-			this.angle = Math.atan2(this.Yvel, this.Xvel);
 			c.beginPath();
 			c.moveTo(this.X*scale, this.Y*scale);
 			c.lineTo((this.X+Math.cos(this.angle)*10)*scale, (this.Y+Math.sin(this.angle)*10)*scale);
 			c.stroke();
+			*/
+			drawPlayer(this.X*scale, this.Y*scale, 10, this.angle, this.rgb)
 		}
 		showText(this.health.toString()+"HP", (healthPos)*canvas.width, 550*scale, 20*scale);
 		showText(guns[this.gun][0], (healthPos+0.1)*canvas.width, 550*scale, 17*scale);
 		showText(guns[this.gun][5].toString()+" damage", (healthPos+0.1)*canvas.width, 565*scale, 10*scale);
 	}
+}
+function drawPlayer(X, Y, S, angle, colour){
+	drawBubble(X, Y, S, colour);
+	drawBubble(X+Math.cos(angle)*10*scale, Y+Math.sin(angle)*10*scale, S*0.5, [0, 0, 0]);
+}
+
+function drawBubble(X, Y, S, colour){
+	//console.log(colour[0]+10)
+	c.beginPath();
+	c.fillStyle = "rgb("+colour[0]+", "+colour[1]+", "+colour[2]+")";
+	c.arc(X, Y, S, 0, 2*Math.PI);
+	c.fill();
+
+	c.beginPath();
+	c.arc(X-S*0.2, Y-S*0.2, S*0.8, 0, 2*Math.PI);
+	c.fillStyle = "rgb("+Math.min(colour[0]+50, 255)+", "+Math.min(colour[1]+50, 255)+", "+Math.min(colour[2]+50, 255)+")";
+	c.fill();
+
+	c.beginPath();
+	c.arc(X-S*0.6, Y-S*0.6, S*0.3, 0, 2*Math.PI);
+	c.fillStyle = "rgb("+Math.min(colour[0]+150, 255)+", "+Math.min(colour[1]+150, 255)+", "+Math.min(colour[2]+150, 255)+")";
+	c.fill();
+}
+
+function drawRoundedBubble(X, Y, W, H, colour){
+	var minS = Math.min(W, H)
+	c.fillStyle = "rgb("+colour[0]+", "+colour[1]+", "+colour[2]+")";
+	roundRect(c, X, Y, W, H, minS*0.2, true, false);
+
+	c.fillStyle = "rgb("+Math.min(colour[0]+50, 255)+", "+Math.min(colour[1]+50, 255)+", "+Math.min(colour[2]+50, 255)+")";
+	roundRect(c, X+W*0.05, Y+W*0.05, W*0.8, H*0.8, minS*0.3, true, false);
+
+	c.fillStyle = "rgb("+Math.min(colour[0]+200, 255)+", "+Math.min(colour[1]+200, 255)+", "+Math.min(colour[2]+200, 255)+")";
+	roundRect(c, X+W*0.1, Y+W*0.1, W*0.2, H*0.2, minS*0.1, true, false);
 }
 
 //map block types:
@@ -489,12 +556,28 @@ class player{
 // 1 hidden
 // 2 lava
 // 3 speed
-var map = [[0.2, 0.2, 0.1, 0.1, 0],
+var map = [[0.45, 0, 0.1, 0.45, 1],
+[0.45, 0.55, 0.1, 0.45, 1],
+[0.3, 0, 0.1, 1, 3],
+[0.6, 0, 0.1, 1, 3],
+[0.15, 0.4, 0.1, 0.2, 0],
+[0.75, 0.4, 0.1, 0.2, 0]
+]
+
+var map2 = [[0.2, 0.2, 0.1, 0.1, 0],
 [0.7, 0.7, 0.1, 0.1, 0],
 [0.3, 0.4, 0.4, 0.2, 1],
 [0, 0.4, 0.3, 0.2, 3],
 [0.7, 0.4, 0.3, 0.2, 3]
 ]
+
+function avgRand(iterations){
+	var tempNum = 0;
+	for(var i = 0; i<iterations; i+=1){
+		tempNum+=Math.random();
+	}
+	return tempNum/iterations
+}
 
 // names [left, up, right, down, shoot]
 // arrows [37, 38, 39, 40, 18]
@@ -503,17 +586,35 @@ keyPresets = {"arrows":[37, 38, 39, 40, 16],
 "wasd":[65, 87, 68, 83, 32]};
 
 var pickups = [];
-for(var i = 0; i<20; i+=1){
+for(var i = 0; i<10; i+=1){ // health
+	X = avgRand(3)*800;
+	Y =  avgRand(3)*600;
+	while(testPos(X, Y) === true){
+		X = avgRand(3)*800;
+		Y = avgRand(3)*600;
+	}
+	pickups.push(new pickup(X, Y, 0))
+}
+for(var i = 0; i<10; i+=1){ //guns
 	X = Math.random()*800;
 	Y = Math.random()*600;
 	while(testPos(X, Y) === true){
 		X = Math.random()*800;
 		Y = Math.random()*600;
 	}
-	pickups.push(new pickup(X, Y, Math.round(Math.random()*1)))
+	pickups.push(new pickup(X, Y, 1))
 }
-var players = [new player(keyPresets["arrows"], 80, 60, "rgb(255, 255, 255)"),
-new player(keyPresets["wasd"], 720, 540, "rgb(255, 255, 255)")];
+for(var i = 0; i<2; i+=1){ //swap
+	X = Math.random()*800;
+	Y = Math.random()*600;
+	while(testPos(X, Y) === true){
+		X = Math.random()*800;
+		Y = Math.random()*600;
+	}
+	pickups.push(new pickup(X, Y, 2))
+}
+var players = [new player(keyPresets["arrows"], 80, 60, "rgb(252, 131, 111)"),
+new player(keyPresets["wasd"], 720, 540, "rgb(10, 50, 255)")];
 var bullets = [];
 
 var gameOver = false;
@@ -527,24 +628,26 @@ function update(){
 	canvas.width = 800*scale;
 
 	c.beginPath();
-	c.fillStyle = "rgb(0, 0, 50)";
+	c.fillStyle = "rgb(255, 255, 255)";
 	c.fillRect(0, 0, canvas.width, canvas.height);
 
 	for(var i = 0; i<map.length; i+=1){
 		c.beginPath();
 		if(map[i][4] === 0){
-			c.fillStyle = "rgb(255, 255, 255)";
+			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [0, 0, 0])
 		}
 		if(map[i][4] === 1){
-			c.fillStyle = "rgb(200, 200, 200)";
+			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [100, 100, 100])
 		}
 		if(map[i][4] === 2){
-			c.fillStyle = "rgb(200, 50, 0)";
+			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [200, 60, 0])
 		}
 		if(map[i][4] === 3){
-			c.fillStyle = "rgb(0, 100, 200)";
+			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [200, 150, 0])
 		}
-		c.fillRect(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height);
+		//drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [0, 0, 0])
+		//roundRect(c, map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, 10*scale, true, false)
+		//c.fillRect(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height);
 	}
 
 	for(var i = 0; i<players.length; i+=1){
