@@ -150,9 +150,9 @@ class image{
 }
 
 // LOADING
-var healthPickupImg = new image("images/healthPickup.png");
-var gunPickupImg = new image("images/gunPickup.png");
-var swapPickupImg = new image("images/swapPickup.png");
+//var healthPickupImg = new image("images/healthPickup.png");
+//var gunPickupImg = new image("images/gunPickup.png");
+//var swapPickupImg = new image("images/swapPickup.png");
 
 function midPoint(point1, point2, per){
 	var x = point1[0] + (point2[0] - point1[0])*per;
@@ -253,28 +253,31 @@ function drawCorners(rect){
 }
 
 class particle{
-	constructor(X, Y, colour = "rgb(100, 20, 0)"){
+	constructor(X, Y, colour = "rgb(0, 0, 0)"){
 		this.X = X;
 		this.Y = Y;
 		var angle = (Math.random()-0.5)*Math.PI*2;
 		this.Xvel = Math.cos(angle)*Math.random()*2;
 		this.Yvel = Math.sin(angle)*Math.random()*2;
 		this.alive = true;
+		this.time = 500;
 		this.colour = colour;
+		this.rgb = this.colour.match(/\d+/g);
+		this.rgb= [Number(this.rgb[0]), Number(this.rgb[1]), Number(this.rgb[2])]
 	}
 	draw(){
 		this.Xvel -= this.Xvel * 0.05;
 		this.Yvel -= this.Yvel * 0.05
 		this.X += this.Xvel;
 		this.Y += this.Yvel;
-		if(this.Xvel < 1 && this.Yvel < 1){
+		if(this.time<=0){
 			this.alive = false;
+		}else{
+			this.time -= 1;
 		}
-		//if(this.alive === false){
-			c.beginPath();
-			c.fillStyle = this.colour;
-			c.fillRect(this.X*scale, this.Y*scale, 3*scale, 3*scale);
-		//}
+		if(this.alive === true){
+			drawBubble(this.X*scale, this.Y*scale, 3*scale, this.rgb, this.time/500)
+		}
 	}
 }
 particles = [];
@@ -387,15 +390,15 @@ class pickup{
 			}
 			c.beginPath();
 			if(this.type === 0){
-				drawBubble(this.X*scale, this.Y*scale, 10*scale, [50, 150, 0])
+				drawBubble(this.X*scale, this.Y*scale, 7*scale, [50, 150, 0])
 				//healthPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
 			}
 			if(this.type === 1){
-				drawBubble(this.X*scale, this.Y*scale, 10*scale, [40, 40, 10])
+				drawBubble(this.X*scale, this.Y*scale, 7*scale, [40, 40, 10])
 				//gunPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
 			}
 			if(this.type === 2){
-				drawBubble(this.X*scale, this.Y*scale, 10*scale, [0, 100, 200])
+				drawBubble(this.X*scale, this.Y*scale, 7*scale, [0, 100, 200])
 				//swapPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
 			}
 			//c.fillRect(this.X*scale, this.Y*scale, 5, 5);
@@ -445,6 +448,7 @@ class player{
 		this.shootCooldown = 0;
 		this.visable = true;
 		this.speed = 1;
+		this.alerted = false;
 	}
 
 	draw(healthPos){
@@ -492,10 +496,20 @@ class player{
 
 		if(this.health <= 0){
 			this.alive = false;
+			if(this.alerted === false){
+				alert("somebody fucking died");
+				this.alerted = true;
+			}
 		}
 
 		if(this.visable === true){
 			this.angle = Math.atan2(this.Yvel, this.Xvel);
+				
+			if(this.alive){
+				drawPlayer(this.X*scale, this.Y*scale, 6*scale, this.angle, this.rgb)
+			}else{
+				drawPlayer(this.X*scale, this.Y*scale, 6*scale, this.angle, [100, 100, 100])
+			}
 			/*
 			c.beginPath();
 			if(this.alive === true){
@@ -509,7 +523,6 @@ class player{
 			c.lineTo((this.X+Math.cos(this.angle)*10)*scale, (this.Y+Math.sin(this.angle)*10)*scale);
 			c.stroke();
 			*/
-			drawPlayer(this.X*scale, this.Y*scale, 10, this.angle, this.rgb)
 		}
 		showText(this.health.toString()+"HP", (healthPos)*canvas.width, 550*scale, 20*scale);
 		showText(guns[this.gun][0], (healthPos+0.1)*canvas.width, 550*scale, 17*scale);
@@ -518,24 +531,24 @@ class player{
 }
 function drawPlayer(X, Y, S, angle, colour){
 	drawBubble(X, Y, S, colour);
-	drawBubble(X+Math.cos(angle)*10*scale, Y+Math.sin(angle)*10*scale, S*0.5, [0, 0, 0]);
+	drawBubble(X+Math.cos(angle)*S*scale, Y+Math.sin(angle)*S*scale, S*0.5, [0, 0, 0]);
 }
 
-function drawBubble(X, Y, S, colour){
+function drawBubble(X, Y, S, colour, alpha = 1){
 	//console.log(colour[0]+10)
 	c.beginPath();
-	c.fillStyle = "rgb("+colour[0]+", "+colour[1]+", "+colour[2]+")";
+	c.fillStyle = "rgba("+colour[0]+", "+colour[1]+", "+colour[2]+","+alpha+")";
 	c.arc(X, Y, S, 0, 2*Math.PI);
 	c.fill();
 
 	c.beginPath();
 	c.arc(X-S*0.2, Y-S*0.2, S*0.8, 0, 2*Math.PI);
-	c.fillStyle = "rgb("+Math.min(colour[0]+50, 255)+", "+Math.min(colour[1]+50, 255)+", "+Math.min(colour[2]+50, 255)+")";
+	c.fillStyle = "rgba("+Math.min(colour[0]+50, 255)+", "+Math.min(colour[1]+50, 255)+", "+Math.min(colour[2]+50, 255)+","+alpha+")";
 	c.fill();
 
 	c.beginPath();
 	c.arc(X-S*0.6, Y-S*0.6, S*0.3, 0, 2*Math.PI);
-	c.fillStyle = "rgb("+Math.min(colour[0]+150, 255)+", "+Math.min(colour[1]+150, 255)+", "+Math.min(colour[2]+150, 255)+")";
+	c.fillStyle = "rgba("+Math.min(colour[0]+150, 255)+", "+Math.min(colour[1]+150, 255)+", "+Math.min(colour[2]+150, 255)+","+alpha+")";
 	c.fill();
 }
 
@@ -549,6 +562,18 @@ function drawRoundedBubble(X, Y, W, H, colour){
 
 	c.fillStyle = "rgb("+Math.min(colour[0]+200, 255)+", "+Math.min(colour[1]+200, 255)+", "+Math.min(colour[2]+200, 255)+")";
 	roundRect(c, X+W*0.1, Y+W*0.1, W*0.2, H*0.2, minS*0.1, true, false);
+}
+
+function drawArrow(X, Y, S=10, A=0){
+	c.beginPath();
+	c.fillStyle = "rgba(100, 100, 100, 0.5)";
+	c.moveTo(X*scale, Y*scale);
+	c.lineTo((X+Math.cos(A+3)*S)*scale, (Y+Math.sin(A+3)*S)*scale);
+	c.lineTo((X+Math.cos(A)*S)*scale, (Y+Math.sin(A)*S)*scale);
+}
+
+function drawSpeedArea(rect, ){
+
 }
 
 //map block types:
@@ -613,7 +638,7 @@ for(var i = 0; i<2; i+=1){ //swap
 	}
 	pickups.push(new pickup(X, Y, 2))
 }
-var players = [new player(keyPresets["arrows"], 80, 60, "rgb(252, 131, 111)"),
+var players = [new player(keyPresets["arrows"], 80, 60, "rgb(252, 66, 58)"),
 new player(keyPresets["wasd"], 720, 540, "rgb(10, 50, 255)")];
 var bullets = [];
 
