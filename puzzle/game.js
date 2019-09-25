@@ -8,7 +8,7 @@ h *= 0.95
 var scale = h/600
 var c = canvas.getContext("2d"); //c means context
 
-//800x600 is the size of the tracks (4:3)
+//800x800 is the size of the tracks (4:3)
 
 //each map has these features:
 // - pickups that swap positions of players or can be held
@@ -286,17 +286,17 @@ class bullet{
 	constructor(X, Y, angle, shotBy, bulletType){
 		this.X = X;
 		this.Y = Y;
-		this.angle = angle;
+		this.angle = angle+(Math.random()-0.5)*bulletType[4];
 		this.shotBy = shotBy;
 		this.bulletType = bulletType;
-		this.alive = true;
-		this.drawAble = true;
+		this.active = true;
+		this.visable = true;
 	}
 	draw(){
 		//console.log(this.bulletType);
-		this.X += Math.cos(this.angle)*this.bulletType[3];
-		this.Y += Math.sin(this.angle)*this.bulletType[3];
-		if(this.drawAble === true){
+		if(this.visable === true){
+			this.X += Math.cos(this.angle)*this.bulletType[3];
+			this.Y += Math.sin(this.angle)*this.bulletType[3];
 			c.beginPath();
 			c.strokeWeight = 3;
 			c.strokeStyle = "rgb(20, 10, 0)";
@@ -310,33 +310,48 @@ class bullet{
 			c.moveTo(this.X*scale, this.Y*scale);
 			c.lineTo((this.X-Math.cos(this.angle)*this.bulletType[3]*3)*scale, (this.Y-Math.sin(this.angle)*this.bulletType[3]*3)*scale);
 			c.stroke();
-		}
-		for(var i = 0; i<players.length; i+=1){
-			if(this.shotBy !== players[i] && this.alive === true){
-				if(this.X > players[i].X-5 && this.X < players[i].X+5 && this.Y > players[i].Y-5 && this.Y < players[i].Y+5){
-					if(this.alive === true){
-						for(var p = 0; p<10; p += 1){
-							particles.push(new particle(this.X, this.Y, "rgb(255, 0, 0)"));
-						}
-					}
+			
+			if(this.active === true){
 
-					this.alive = false;
-					players[i].health -= this.bulletType[5];
-				}
-			}
-		}
-		for(var i = 0; i<map.length; i+=1){
-			if(map[i][4] === 0){
-				if(collidePoint([this.X, this.Y], [map[i][0]*800, map[i][1]*600,  map[i][2]*800, map[i][3]*600]) === true){
-					if(this.alive === true){
-						for(var p = 0; p<10; p += 1){
-							particles.push(new particle(this.X, this.Y));
+				for(var i = 0; i<players.length; i+=1){
+					if(this.shotBy !== players[i]){
+						if(this.X > players[i].X-5 && this.X < players[i].X+5 && this.Y > players[i].Y-5 && this.Y < players[i].Y+5){
+							for(var p = 0; p<10; p += 1){
+								particles.push(new particle(this.X, this.Y, "rgb(255, 0, 0)"));
+							}
+
+							this.active = false;
+							players[i].health -= this.bulletType[5];
 						}
 					}
-					this.alive = false;
-					this.drawAble = false;
 				}
+				
+				for(var i = 0; i<map.length; i+=1){
+					if(map[i][4] === 0){
+						if(collidePoint([this.X, this.Y], [map[i][0]*800, map[i][1]*600,  map[i][2]*800, map[i][3]*600]) === true){
+							for(var p = 0; p<10; p += 1){
+								particles.push(new particle(this.X, this.Y));
+							}
+							this.active = false;
+							this.visable = false;
+						}
+					}
+				}
+				
+				for(var i = 0; i<homers.length; i+=1){
+					if(homers[i].alive === true){
+						if(collidePoint([this.X, this.Y], [homers[i].X-5, homers[i].Y-5, 10, 10]) === true){
+							homers[i].alive = false;
+							if(this.bulletType[3] <= 3){
+								this.active = false;
+								this.visable = false;
+							}
+						}
+					}
+				}
+				
 			}
+
 		}
 	}
 }
@@ -372,9 +387,9 @@ class pickup{
 							var tempGun = players[i].gun;
 							var tempHealth = players[i].health;
 							var playerToSwap = Math.floor(Math.random()*players.length)
-							while(playerToSwap === i){
+							//while(playerToSwap === i){
 								var playerToSwap = Math.floor(Math.random()*players.length)
-							}
+							//}
 							players[i].X = players[playerToSwap].X;
 							players[i].Y = players[playerToSwap].Y;
 							players[i].gun = players[playerToSwap].gun;
@@ -406,6 +421,70 @@ class pickup{
 	}
 }
 
+function dist(X1, Y1, X2, Y2){
+	return Math.hypot(X1-X2, Y1-Y2)
+}
+
+var currentHomer = null;
+var tempSortedPlayer = null;
+class homer{
+	constructor(X, Y){
+		this.X = X;
+		this.Y = Y;
+		this.angle = 0;
+		this.alive = true;
+	}
+	draw(){
+		if(this.alive === true){
+			currentHomer = this;
+			tempSortedPlayer = players.slice().sort(this.playerSort);
+			if(tempSortedPlayer[0].visable === true){
+				this.target = tempSortedPlayer[0]
+			}else if(tempSortedPlayer[1].visable === true){
+				this.target = tempSortedPlayer[1]
+			}else if(tempSortedPlayer[2].visable === true){
+				this.target = tempSortedPlayer[2]
+			}else{
+				this.target = false;
+			}
+			//console.log(this.target);
+			if(this.target != false){
+				if(collidePoint([this.X, this.Y], [this.target.X-5, this.target.Y-5, 10, 10]) === true){
+					this.alive = false;
+					this.target.health -= 0.5;
+				}
+
+				this.angle = Math.atan2(this.target.Y - this.Y, this.target.X - this.X);
+				this.X+=Math.cos(this.angle)*0.2;
+				if(testPos(this.X, this.Y) === true){
+					this.X-=Math.cos(this.angle)*0.2;
+				}
+				this.Y+=Math.sin(this.angle)*0.2;
+				if(testPos(this.X, this.Y) === true){
+					this.Y-=Math.sin(this.angle)*0.2;
+				}
+			}
+			c.beginPath();
+			c.moveTo(this.X*scale, this.Y*scale);
+			c.lineTo((this.X+5)*scale, (this.Y+5)*scale);
+			c.lineTo((this.X-5)*scale, (this.Y+5)*scale);
+			c.fillStyle = "rgb(255, 0, 0)";
+			c.fill();
+			c.stroke();
+		}
+	}
+	playerSort(a, b){
+		if(dist(a.X, a.Y, currentHomer.X, currentHomer.Y) < dist(b.X, b.Y, currentHomer.X, currentHomer.Y)){
+			return -1
+		}else{
+			return 1
+		}
+	}
+}
+
+homers = []
+//homers.push(new homer(0, 0))
+
 function testPos(X, Y){
 	for(var i = 0; i<map.length; i+=1){
 		if(map[i][4] === 0){
@@ -418,10 +497,10 @@ function testPos(X, Y){
 }
 
 // [name, shooting speed, explosive, bullet speed, inaccuracy, damage, movement speed]
-var guns = [["pistol", 45, false, 3, 0.05, 1, 1.5],
-["machine gun", 15, false, 1.5, 0.2, 0.5, 0.7],
-["sniper", 75, false, 10, 0.01, 5, 1],
-["AR", 20, false, 4, 0.1, 1, 1]];
+var guns = [["pistol", 45, false, 3, 0.01, 1, 1.5],
+["machine gun", 15, false, 2, 0.2, 0.25, 0.7],
+["sniper", 75, false, 10, 0.0, 5, 1],
+["AR", 20, false, 4, 0.05, 1, 1]];
 class player{
 	constructor(controles, X, Y, colour = "rgb(0, 0, 0)"){
 		this.alive = true;
@@ -451,7 +530,7 @@ class player{
 		this.alerted = false;
 	}
 
-	draw(healthPos){
+	draw(){
 		this.visable = true;
 		this.speed = 1;
 		for(var i = 0; i<map.length; i+=1){
@@ -466,7 +545,7 @@ class player{
 		}
 		if(Keys[this.controles[4]] === true && this.shootCooldown <= 0 && this.alive === true && this.visable){
 			this.shootCooldown = guns[this.gun][1];
-			//console.log(Math.round((this.angle/Math.PI)*4)*Math.PI/4);
+			//Math.round((this.angle/Math.PI)*4)*Math.PI/4
 			bullets.push(new bullet(this.X, this.Y, Math.round((this.angle/Math.PI)*4)*Math.PI/4, this, guns[this.gun]));
 		}
 		this.shootCooldown -= 1
@@ -497,7 +576,11 @@ class player{
 		if(this.health <= 0){
 			this.alive = false;
 			if(this.alerted === false){
-				alert("somebody fucking died");
+				if(Math.random()>0.5){
+					alert("beep boop ur trash");
+				}else{
+					alert("mad cause bad lol");
+				}
 				this.alerted = true;
 			}
 		}
@@ -524,9 +607,6 @@ class player{
 			c.stroke();
 			*/
 		}
-		showText(this.health.toString()+"HP", (healthPos)*canvas.width, 550*scale, 20*scale);
-		showText(guns[this.gun][0], (healthPos+0.1)*canvas.width, 550*scale, 17*scale);
-		showText(guns[this.gun][5].toString()+" damage", (healthPos+0.1)*canvas.width, 565*scale, 10*scale);
 	}
 }
 function drawPlayer(X, Y, S, angle, colour){
@@ -581,7 +661,7 @@ function drawSpeedArea(rect, ){
 // 1 hidden
 // 2 lava
 // 3 speed
-var map = [[0.45, 0, 0.1, 0.45, 1],
+var map2 = [[0.45, 0, 0.1, 0.45, 1],
 [0.45, 0.55, 0.1, 0.45, 1],
 [0.3, 0, 0.1, 1, 3],
 [0.6, 0, 0.1, 1, 3],
@@ -589,13 +669,24 @@ var map = [[0.45, 0, 0.1, 0.45, 1],
 [0.75, 0.4, 0.1, 0.2, 0]
 ]
 
-var map2 = [[0.2, 0.2, 0.1, 0.1, 0],
+var map3 = [[0.2, 0.2, 0.1, 0.1, 0],
 [0.7, 0.7, 0.1, 0.1, 0],
 [0.3, 0.4, 0.4, 0.2, 1],
 [0, 0.4, 0.3, 0.2, 3],
 [0.7, 0.4, 0.3, 0.2, 3]
 ]
 
+var map = [[0.45, 0.45, 0.1, 0.1, 1],
+[0.35, 0.35, 0.1, 0.1, 0],
+[0.35, 0.55, 0.1, 0.1, 0],
+[0.55, 0.35, 0.1, 0.1, 0],
+[0.55, 0.55, 0.1, 0.1, 0],
+[0.35, 0, 0.3, 0.35, 3],
+[0, 0.35, 0.35, 0.3, 3],
+[0.35, 0.65, 0.3, 0.35, 3],
+[0.65, 0.35, 0.35, 0.3, 3],
+]
+//poop
 function avgRand(iterations){
 	var tempNum = 0;
 	for(var i = 0; i<iterations; i+=1){
@@ -608,7 +699,9 @@ function avgRand(iterations){
 // arrows [37, 38, 39, 40, 18]
 // wasd [65, 87, 68, 83, 16]
 keyPresets = {"arrows":[37, 38, 39, 40, 16],
-"wasd":[65, 87, 68, 83, 32]};
+"wasd":[65, 87, 68, 83, 32],
+"tfgh":[84, 70, 71, 72, 78],
+"ijkl":[74, 73, 76, 75, 188]};
 
 var pickups = [];
 for(var i = 0; i<10; i+=1){ // health
@@ -638,12 +731,17 @@ for(var i = 0; i<2; i+=1){ //swap
 	}
 	pickups.push(new pickup(X, Y, 2))
 }
-var players = [new player(keyPresets["arrows"], 80, 60, "rgb(252, 66, 58)"),
-new player(keyPresets["wasd"], 720, 540, "rgb(10, 50, 255)")];
+var players = [new player(keyPresets["arrows"], 80, 80, "rgb(252, 66, 58)"),
+new player(keyPresets["wasd"], 720, 520, "rgb(10, 50, 255)"),
+new player(keyPresets["ijkl"], 520, 80, "rgb(10, 252, 66)")];
 var bullets = [];
 
 var gameOver = false;
 var winner = false;
+
+var homerSpawnTimer = 0;
+var homerSpawnTime = 240;
+var homerSpawnPositions = 1;
 
 function update(){
 	h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -676,7 +774,14 @@ function update(){
 	}
 
 	for(var i = 0; i<players.length; i+=1){
-		players[i].draw((i+1)/(players.length+1));
+		players[i].draw();
+		var xpos = (i+1)/(players.length+1);
+		showText(players[i].health.toString()+"HP", (xpos)*canvas.width, 550*scale, 20*scale);
+		showText(guns[players[i].gun][0], (xpos+0.1)*canvas.width, 550*scale, 17*scale);
+		showText(guns[players[i].gun][5].toString()+" damage", (xpos+0.1)*canvas.width, 565*scale, 10*scale);
+		c.beginPath();
+		c.fillStyle = players[i].colour;
+		c.fillRect((xpos-0.01)*canvas.width, 550*scale, 20*scale, 20*scale);
 	}
 	for(var i = 0; i<bullets.length; i+=1){
 		bullets[i].draw();
@@ -686,6 +791,23 @@ function update(){
 	}
 	for(var i = 0; i<particles.length; i+=1){
 		particles[i].draw();
+	}
+	for(var i = 0; i<homers.length; i+=1){
+		homers[i].draw();
+	}
+	
+	if(homerSpawnTimer >= homerSpawnTime){
+		homerSpawnTime -= 1;
+		homerSpawnTimer = 0
+		homerSpawnPositions = 8-Math.floor(homerSpawnTime/30);
+		//if(homerSpawnPositions === 0){
+			homers.push(new homer(0, 0));
+			homers.push(new homer(canvas.width, 0));
+			homers.push(new homer(0, canvas.height));
+			homers.push(new homer(canvas.width, canvas.height));
+		//}
+	}else{
+		homerSpawnTimer += 1;
 	}
 }
 
