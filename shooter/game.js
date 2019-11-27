@@ -10,10 +10,11 @@ var c = canvas.getContext("2d"); //c means context
 
 //800x800 is the size of the tracks (4:3)
 
-//each map has these features:
-// - pickups that swap positions of players or can be held
-// - player specific teleports
-// - 
+//you have a gravity gun type thing
+// you can pull and push goo as projectiles
+// you can harvest goo off the walls
+// charge up burst shot by holding push and pull
+// can trade in goo for guns
 
 var inputPos={x:0,y:0};
 canvas.addEventListener('mousemove', function(evt) {
@@ -27,15 +28,6 @@ function getinputPos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 };
-
-canvas.addEventListener("ontouchmove", function(evt){
-	inputPos = getinputPos(canvas, evt);
-	evt.preventDefault();
-}, false);
-canvas.addEventListener("ontouchstart", function(evt){
-	inputPos = getinputPos(canvas, evt);
-	evt.preventDefault();
-}, false);
 
 var Keys = {}//{"left":false, "right":false, "up":false, "down":false, "space":false, "esc":false};
 document.addEventListener('keydown', function(event) {
@@ -75,6 +67,14 @@ function collidePoint(point, rect){
 		return true;
 	}else{
 		return false;
+	}
+}
+
+function collideRect(rect1, rect2){
+	if(rect1[0] > rect2[0] + rect2[2] || rect1[0] + rect1[2] < rect2[0] || rect1[1] > rect2[1] + rect2[3] || rect1[1] - rect1[3] < rect2[1]){
+		return false;
+	}else{
+		return true;
 	}
 }
 
@@ -252,13 +252,48 @@ function drawCorners(rect){
 	c.stroke();
 }
 
+class projectile{
+	constructor(X, Y){
+
+	}
+}
+
+class chunk{
+	constructor(X, Y, size){
+		this.X = X;
+		this.Y = Y;
+		this.size = size;
+		this.Xvel = 0;
+		this.Yvel = 0;
+		this.points = [];
+		for(var i = 0; i<Math.floor(Math.random()*this.size*0.5); i+=1){
+			this.points.push([(1+Math.random()*0.2)*this.size*0.5, (Math.random()-0.5)*Math.PI*2]);
+		}
+		this.rotation = 0;
+	}
+	draw(){
+		this.beginPath();
+		this.fillStyle = "rgb(50, 30, 10)";
+		this.stokeStyle = "rgb(0, 0, 0)";
+
+		c.moveTo(this.X + Math.cos(this.points[0][0]+this.rotation)*this.points[0][1], this.Y + Math.sin(this.points[0][0]+this.rotation)*this.points[0][1])
+		for(var i = 0; i < this.point.length; i += 1){
+			c.lineTo(this.X + Math.cos(this.points[0][0]+this.rotation)*this.points[0][1], this.Y + Math.sin(this.points[0][0]+this.rotation)*this.points[0][1])
+		}
+
+		c.stoke();
+		c.fill();
+	}
+}
+
+
 class particle{
-	constructor(X, Y, colour = "rgb(0, 0, 0)"){
+	constructor(X, Y, colour = "rgb(0, 0, 0)", speed = 2, drawType = 1){
 		this.X = X;
 		this.Y = Y;
 		var angle = (Math.random()-0.5)*Math.PI*2;
-		this.Xvel = Math.cos(angle)*Math.random()*2;
-		this.Yvel = Math.sin(angle)*Math.random()*2;
+		this.Xvel = Math.cos(angle)*Math.random()*speed;
+		this.Yvel = Math.sin(angle)*Math.random()*speed;
 		this.alive = true;
 		this.time = 500;
 		this.colour = colour;
@@ -276,147 +311,15 @@ class particle{
 			this.time -= 1;
 		}
 		if(this.alive === true){
-			drawBubble(this.X*scale, this.Y*scale, 3*scale, this.rgb, this.time/500)
-		}
-	}
-}
-particles = [];
-
-class bullet{
-	constructor(X, Y, angle, shotBy, bulletType){
-		this.X = X;
-		this.Y = Y;
-		this.angle = angle+(Math.random()-0.5)*bulletType[4];
-		this.shotBy = shotBy;
-		this.bulletType = bulletType;
-		this.active = true;
-		this.visable = true;
-	}
-	draw(){
-		//console.log(this.bulletType);
-		if(this.visable === true){
-			this.X += Math.cos(this.angle)*this.bulletType[3];
-			this.Y += Math.sin(this.angle)*this.bulletType[3];
-			c.beginPath();
-			c.strokeWeight = 3;
-			c.strokeStyle = "rgb(20, 10, 0)";
-			c.moveTo(this.X*scale, this.Y*scale);
-			c.lineTo((this.X-Math.cos(this.angle)*this.bulletType[3]*3)*scale, (this.Y-Math.sin(this.angle)*this.bulletType[3]*3)*scale);
-			c.stroke();
-
-			c.beginPath();
-			c.strokeWeight = 1;
-			c.strokeStyle = "rgb(0, 0, 0)";
-			c.moveTo(this.X*scale, this.Y*scale);
-			c.lineTo((this.X-Math.cos(this.angle)*this.bulletType[3]*3)*scale, (this.Y-Math.sin(this.angle)*this.bulletType[3]*3)*scale);
-			c.stroke();
-			
-			if(this.active === true){
-
-				for(var i = 0; i<players.length; i+=1){
-					if(this.shotBy !== players[i]){
-						if(this.X > players[i].X-5 && this.X < players[i].X+5 && this.Y > players[i].Y-5 && this.Y < players[i].Y+5){
-							for(var p = 0; p<10; p += 1){
-								particles.push(new particle(this.X, this.Y, "rgb(255, 0, 0)"));
-							}
-
-							this.active = false;
-							players[i].health -= this.bulletType[5];
-						}
-					}
-				}
-				
-				for(var i = 0; i<map.length; i+=1){
-					if(map[i][4] === 0){
-						if(collidePoint([this.X, this.Y], [map[i][0]*800, map[i][1]*600,  map[i][2]*800, map[i][3]*600]) === true){
-							for(var p = 0; p<10; p += 1){
-								particles.push(new particle(this.X, this.Y));
-							}
-							this.active = false;
-							this.visable = false;
-						}
-					}
-				}
-				
-				for(var i = 0; i<homers.length; i+=1){
-					if(homers[i].alive === true){
-						if(collidePoint([this.X, this.Y], [homers[i].X-5, homers[i].Y-5, 10, 10]) === true){
-							homers[i].alive = false;
-							if(this.bulletType[3] <= 3){
-								this.active = false;
-								this.visable = false;
-							}
-						}
-					}
-				}
-				
+			if(this.drawType === 0){
+				drawBubble(this.X*scale, this.Y*scale, 3*scale, this.rgb, this.time/500)
 			}
-
-		}
-	}
-}
-
-class pickup{
-	constructor(X, Y, type, bonus = false){
-		this.X = X;
-		this.Y = Y;
-		this.type = type;
-		this.alive = true;
-	}
-	draw(){
-		if(this.alive === true){
-			for(var i = 0; i<players.length; i+=1){
-				if(this.shotBy !== players[i]){
-					if(this.X > players[i].X-5 && this.X < players[i].X+5 && this.Y > players[i].Y-5 && this.Y < players[i].Y+5){
-						if(this.type === 0){
-							this.alive = false;
-							players[i].health += 1;
-						}
-						if(this.type === 1){
-							this.alive = false;
-							var temp = Math.floor(Math.random()*guns.length);
-							while(temp === players[i].gun){
-								temp = Math.floor(Math.random()*guns.length);
-							}
-							players[i].gun = temp;
-						}
-						if(this.type === 2){
-							this.alive = false;
-							var tempX = players[i].X;
-							var tempY = players[i].Y;
-							var tempGun = players[i].gun;
-							var tempHealth = players[i].health;
-							var playerToSwap = Math.floor(Math.random()*players.length)
-							//while(playerToSwap === i){
-								var playerToSwap = Math.floor(Math.random()*players.length)
-							//}
-							players[i].X = players[playerToSwap].X;
-							players[i].Y = players[playerToSwap].Y;
-							players[i].gun = players[playerToSwap].gun;
-							players[i].health = players[playerToSwap].health;
-
-							players[playerToSwap].X = tempX;
-							players[playerToSwap].Y = tempY;
-							players[playerToSwap].gun = tempGun;
-							players[playerToSwap].health = tempHealth;
-						}
-					}
-				}
+			if(this.drawType === 1){
+				c.beginPath();
+				c.fillStyle = this.colour;
+				c.arc(this.X, this.Y, 5*scale, 0, 2*Math.PI);
+				c.fill();
 			}
-			c.beginPath();
-			if(this.type === 0){
-				drawBubble(this.X*scale, this.Y*scale, 7*scale, [50, 150, 0])
-				//healthPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
-			}
-			if(this.type === 1){
-				drawBubble(this.X*scale, this.Y*scale, 7*scale, [40, 40, 10])
-				//gunPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
-			}
-			if(this.type === 2){
-				drawBubble(this.X*scale, this.Y*scale, 7*scale, [0, 100, 200])
-				//swapPickupImg.drawImg((this.X-5)*scale, (this.Y-5)*scale, 10*scale, 10*scale);
-			}
-			//c.fillRect(this.X*scale, this.Y*scale, 5, 5);
 		}
 	}
 }
@@ -424,66 +327,6 @@ class pickup{
 function dist(X1, Y1, X2, Y2){
 	return Math.hypot(X1-X2, Y1-Y2)
 }
-
-var currentHomer = null;
-var tempSortedPlayer = null;
-class homer{
-	constructor(X, Y){
-		this.X = X;
-		this.Y = Y;
-		this.angle = 0;
-		this.alive = true;
-	}
-	draw(){
-		if(this.alive === true){
-			currentHomer = this;
-			tempSortedPlayer = players.slice().sort(this.playerSort);
-			if(tempSortedPlayer[0].visable === true){
-				this.target = tempSortedPlayer[0]
-			}else if(tempSortedPlayer[1].visable === true){
-				this.target = tempSortedPlayer[1]
-			}else if(tempSortedPlayer[2].visable === true){
-				this.target = tempSortedPlayer[2]
-			}else{
-				this.target = false;
-			}
-			//console.log(this.target);
-			if(this.target != false){
-				if(collidePoint([this.X, this.Y], [this.target.X-5, this.target.Y-5, 10, 10]) === true){
-					this.alive = false;
-					this.target.health -= 0.5;
-				}
-
-				this.angle = Math.atan2(this.target.Y - this.Y, this.target.X - this.X);
-				this.X+=Math.cos(this.angle)*0.2;
-				if(testPos(this.X, this.Y) === true){
-					this.X-=Math.cos(this.angle)*0.2;
-				}
-				this.Y+=Math.sin(this.angle)*0.2;
-				if(testPos(this.X, this.Y) === true){
-					this.Y-=Math.sin(this.angle)*0.2;
-				}
-			}
-			c.beginPath();
-			c.moveTo(this.X*scale, this.Y*scale);
-			c.lineTo((this.X+5)*scale, (this.Y+5)*scale);
-			c.lineTo((this.X-5)*scale, (this.Y+5)*scale);
-			c.fillStyle = "rgb(255, 0, 0)";
-			c.fill();
-			c.stroke();
-		}
-	}
-	playerSort(a, b){
-		if(dist(a.X, a.Y, currentHomer.X, currentHomer.Y) < dist(b.X, b.Y, currentHomer.X, currentHomer.Y)){
-			return -1
-		}else{
-			return 1
-		}
-	}
-}
-
-homers = []
-//homers.push(new homer(0, 0))
 
 function testPos(X, Y){
 	for(var i = 0; i<map.length; i+=1){
@@ -528,6 +371,14 @@ class player{
 		this.visable = true;
 		this.speed = 1;
 		this.alerted = false;
+		//this.aimX = 0;
+		//this.aimY = 0;
+		//this.aimAngle = 0;
+		this.boost = 0;
+		this.locked = true;
+
+		this.baseSpeed = 0.2;
+		this.drag = 0.1;
 	}
 
 	draw(){
@@ -546,40 +397,61 @@ class player{
 		if(Keys[this.controles[4]] === true && this.shootCooldown <= 0 && this.alive === true && this.visable){
 			this.shootCooldown = guns[this.gun][1];
 			//Math.round((this.angle/Math.PI)*4)*Math.PI/4
-			bullets.push(new bullet(this.X, this.Y, Math.round((this.angle/Math.PI)*4)*Math.PI/4, this, guns[this.gun]));
+			//bullets.push(new bullet(this.X, this.Y, this.angle, this, guns[this.gun]));
 		}
+
+
+		if((Keys[this.controles[0]] === true && Keys[this.controles[2]] === true)||(Keys[this.controles[1]] === true && Keys[this.controles[3]] === true)){
+			this.boost+=this.baseSpeed
+			this.locked = true;
+		}else{
+			this.locked = false;
+		}
+
 		this.shootCooldown -= 1
-		if(Keys[this.controles[0]] === true){
-			this.Xvel -= 0.2*this.speed*guns[this.gun][6];
+		if(this.locked === false){ // && dist(0, 0, this.Xvel, this.Yvel) < 1.5
+			if(Keys[this.controles[0]] === true){
+				this.Xvel -= this.baseSpeed*this.speed*guns[this.gun][6];
+				this.Xvel -= this.boost;
+			}
+			if(Keys[this.controles[1]] === true){
+				this.Yvel -= this.baseSpeed*this.speed*guns[this.gun][6];
+				this.Yvel -= this.boost;
+			}
+			if(Keys[this.controles[2]] === true){
+				this.Xvel += this.baseSpeed*this.speed*guns[this.gun][6];
+				this.Xvel += this.boost;
+			}
+			if(Keys[this.controles[3]] === true){
+				this.Yvel += this.baseSpeed*this.speed*guns[this.gun][6];
+				this.Yvel += this.boost;
+			}
+			this.boost = 0;
 		}
-		if(Keys[this.controles[1]] === true){
-			this.Yvel -= 0.2*this.speed*guns[this.gun][6];
-		}
-		if(Keys[this.controles[2]] === true){
-			this.Xvel += 0.2*this.speed*guns[this.gun][6];
-		}
-		if(Keys[this.controles[3]] === true){
-			this.Yvel += 0.2*this.speed*guns[this.gun][6];
-		}
-		this.Xvel -= this.Xvel*0.2;
-		this.Yvel -= this.Yvel*0.2;
+		this.Xvel = Math.min(1, Math.max(-1, this.Xvel));
+		this.Yvel = Math.min(1, Math.max(-1, this.Yvel));
+
+		this.Xvel -= this.Xvel*this.drag;
+		this.Yvel -= this.Yvel*this.drag;
 
 		this.X += this.Xvel;
 		if(testPos(this.X, this.Y) === true){
-			this.X -= this.Xvel;
+			this.X -= this.Xvel*1.1;
+			this.Xvel = -this.Xvel * 0.5;
 		}
 		this.Y += this.Yvel;
 		if(testPos(this.X, this.Y) === true){
 			this.Y -= this.Yvel;
+			this.Yvel = -this.Yvel * 0.5;
 		}	
 
 		if(this.health <= 0){
 			this.alive = false;
 			if(this.alerted === false){
 				if(Math.random()>0.5){
-					alert("beep boop ur trash");
+					//alert("beep boop ur trash");
 				}else{
-					alert("mad cause bad lol");
+					//alert("mad cause bad lol");
 				}
 				this.alerted = true;
 			}
@@ -676,7 +548,7 @@ var map3 = [[0.2, 0.2, 0.1, 0.1, 0],
 [0.7, 0.4, 0.3, 0.2, 3]
 ]
 
-var map = [[0.45, 0.45, 0.1, 0.1, 1],
+var map1 = [[0.45, 0.45, 0.1, 0.1, 1],
 [0.35, 0.35, 0.1, 0.1, 0],
 [0.35, 0.55, 0.1, 0.1, 0],
 [0.55, 0.35, 0.1, 0.1, 0],
@@ -686,7 +558,12 @@ var map = [[0.45, 0.45, 0.1, 0.1, 1],
 [0.35, 0.65, 0.3, 0.35, 3],
 [0.65, 0.35, 0.35, 0.3, 3],
 ]
-//poop
+
+var map = [[0, 0, 1, 0.01, 0],
+[0, 0.01, 0.01, 1, 0],
+[0.99, 0.01, 0.01, 0.99, 0],
+[0.01, 0.99, 0.99, 0.01, 0]];
+
 function avgRand(iterations){
 	var tempNum = 0;
 	for(var i = 0; i<iterations; i+=1){
@@ -703,34 +580,6 @@ keyPresets = {"arrows":[37, 38, 39, 40, 16],
 "tfgh":[84, 70, 71, 72, 78],
 "ijkl":[74, 73, 76, 75, 188]};
 
-var pickups = [];
-for(var i = 0; i<10; i+=1){ // health
-	X = avgRand(3)*800;
-	Y =  avgRand(3)*600;
-	while(testPos(X, Y) === true){
-		X = avgRand(3)*800;
-		Y = avgRand(3)*600;
-	}
-	pickups.push(new pickup(X, Y, 0))
-}
-for(var i = 0; i<10; i+=1){ //guns
-	X = Math.random()*800;
-	Y = Math.random()*600;
-	while(testPos(X, Y) === true){
-		X = Math.random()*800;
-		Y = Math.random()*600;
-	}
-	pickups.push(new pickup(X, Y, 1))
-}
-for(var i = 0; i<2; i+=1){ //swap
-	X = Math.random()*800;
-	Y = Math.random()*600;
-	while(testPos(X, Y) === true){
-		X = Math.random()*800;
-		Y = Math.random()*600;
-	}
-	pickups.push(new pickup(X, Y, 2))
-}
 var players = [new player(keyPresets["arrows"], 80, 80, "rgb(252, 66, 58)"),
 new player(keyPresets["wasd"], 720, 520, "rgb(10, 50, 255)"),
 new player(keyPresets["ijkl"], 520, 80, "rgb(10, 252, 66)")];
@@ -739,9 +588,6 @@ var bullets = [];
 var gameOver = false;
 var winner = false;
 
-var homerSpawnTimer = 0;
-var homerSpawnTime = 240;
-var homerSpawnPositions = 1;
 
 function update(){
 	h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -756,17 +602,35 @@ function update(){
 
 	for(var i = 0; i<map.length; i+=1){
 		c.beginPath();
+		c.strokeStyle = "rgb(0, 0, 0)";
+		c.strokeWeight = 10*scale;
 		if(map[i][4] === 0){
-			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [0, 0, 0])
+			c.fillStyle = "rgb(0, 0, 0)";
+			c.rect(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height);
+			c.fill();
+			c.stroke();
+			//drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [0, 0, 0])
 		}
 		if(map[i][4] === 1){
-			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [100, 100, 100])
+			c.fillStyle = "rgb(100, 100, 100)";
+			c.rect(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height);
+			c.fill();
+			c.stroke();
+			//drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [100, 100, 100])
 		}
 		if(map[i][4] === 2){
-			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [200, 60, 0])
+			c.fillStyle = "rgb(200, 60, 0)";
+			c.rect(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height);
+			c.stroke();
+			c.fill();
+			//drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [200, 60, 0])
 		}
 		if(map[i][4] === 3){
-			drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [200, 150, 0])
+			c.fillStyle = "rgb(200, 150, 0)";
+			c.rect(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height);
+			c.stroke();
+			c.fill();
+			//drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [200, 150, 0])
 		}
 		//drawRoundedBubble(map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, [0, 0, 0])
 		//roundRect(c, map[i][0]*canvas.width, map[i][1]*canvas.height, map[i][2]*canvas.width, map[i][3]*canvas.height, 10*scale, true, false)
@@ -782,32 +646,6 @@ function update(){
 		c.beginPath();
 		c.fillStyle = players[i].colour;
 		c.fillRect((xpos-0.01)*canvas.width, 550*scale, 20*scale, 20*scale);
-	}
-	for(var i = 0; i<bullets.length; i+=1){
-		bullets[i].draw();
-	}
-	for(var i = 0; i<pickups.length; i+=1){
-		pickups[i].draw();
-	}
-	for(var i = 0; i<particles.length; i+=1){
-		particles[i].draw();
-	}
-	for(var i = 0; i<homers.length; i+=1){
-		homers[i].draw();
-	}
-	
-	if(homerSpawnTimer >= homerSpawnTime){
-		homerSpawnTime -= 1;
-		homerSpawnTimer = 0
-		homerSpawnPositions = 8-Math.floor(homerSpawnTime/30);
-		//if(homerSpawnPositions === 0){
-			homers.push(new homer(0, 0));
-			homers.push(new homer(canvas.width, 0));
-			homers.push(new homer(0, canvas.height));
-			homers.push(new homer(canvas.width, canvas.height));
-		//}
-	}else{
-		homerSpawnTimer += 1;
 	}
 }
 
