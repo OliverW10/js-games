@@ -10,11 +10,6 @@ var c = canvas.getContext("2d"); //c means context
 
 //800x800 is the size of the tracks (4:3)
 
-//you have a gravity gun type thing
-// you can pull and push goo as projectiles
-// you can harvest goo off the walls
-// charge up burst shot by holding push and pull
-// can trade in goo for guns
 
 var inputPos={x:0,y:0};
 canvas.addEventListener('mousemove', function(evt) {
@@ -28,11 +23,25 @@ function getinputPos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 };
+// names left, up, right, down, use
+var keyPresets = {"arrows":[37, 38, 39, 40, 16],
+"wasd":[65, 87, 68, 83, 32],
+"tfgh":[84, 70, 71, 72, 78],
+"ijkl":[74, 73, 76, 75, 188]};
 
-var Keys = {}//{"left":false, "right":false, "up":false, "down":false, "space":false, "esc":false};
+controles = keyPresets["wasd"]
+
+var Keys = {};
+Keys[controles[0]] = false;
+Keys[controles[1]] = false;
+Keys[controles[2]] = false;
+Keys[controles[3]] = false;
+Keys[controles[4]] = false;
+
 var pressedAnyKey = false;
 document.addEventListener('keydown', function(event) {
 		for(var key in Keys){
+			console.log(event.keyCode);
   			if(event.keyCode == key){
   				Keys[key] = true;
   			}
@@ -319,24 +328,65 @@ function createNdArray(fill, sizes){
 
 class player{
 	constructor(colour, X, Y){
-		this.X = 2;
-		this.Y = 2;
-		this.colour = 0; //0 blue, 1 red
+		this.X = X;
+		this.Y = Y;
+		this.colour = colour; //0 blue, 1 red
 		this.frame = 0;
+		this.controles = []
+		this.direction = "none";
 	}
-	run(){
-		grid[this.X][this.Y] = [2, this.colour+this.frame*2]
+	run(tick){
+		if(Keys[controles[0]] == true && this.X >= 1){
+			this.direction = 0
+			grid[this.X-1][this.Y] = [[0, 0], [4, 0]];
+		}
+		if(Keys[controles[2]] == true && this.X <= 19){
+			this.direction = 1;
+			grid[this.X+1][this.Y] = [[0, 0], [4, 1]];
+		}
+		if(Keys[controles[1]] == true && this.Y >= 1){
+			this.direction = 2;
+			grid[this.X][this.Y-1] = [[0, 0], [4, 2]];
+		}
+		if(Keys[controles[3]] == true && this.Y <= 15){
+			this.direction = 3;
+			grid[this.X][this.Y+1] = [[0, 0], [4, 3]];
+		}
+
+		if(tick == true){
+			//grid[this.X][this.Y] = [[0, 0]];
+			if(this.direction == 0){
+				this.X -= 1;
+			}
+			if(this.direction == 1){
+				this.X += 1;
+			}
+			if(this.direction == 2){
+				this.Y -= 1;
+			}
+			if(this.direction == 3){
+				this.Y += 1;
+			}
+			this.direction = "none";	
+		}
+
+		grid[this.X][this.Y] = [[0, 0], [2, this.colour+this.frame*2]];
 	}
 }
 var testPlayer = new player(0, 2, 2);
 var testPlayer2 = new player(1, 18, 13);
 var grid = createNdArray([[0, 0]], [21, 16]);
+var gridBare = createNdArray([[0, 0]], [21, 16]);
 for(var i = 0; i<10; i+=1){
 	var x = Math.floor(Math.random()*20);
 	var y = Math.floor(Math.random()*15);
 	grid[x][y] = [[0, 0], [1, 0]];
 	grid[x][y+1] = [[0, 1]];
+
+	gridBare[x][y] = [[0, 0], [1, 0]];
+	gridBare[x][y+1] = [[0, 1]];
 }
+
 
 
 var loadingSoundTotal = 0;
@@ -346,9 +396,14 @@ var loadCounter = 0;
 var spriteNumber = {0:[new image("assets/ground0.png"), new image("assets/ground1.png")], // normal, shadow
 1:[new image("assets/wall0.png")], // wall 1, wall2 , wall 3
 2:[new image("assets/knight0blue.png"), new image("assets/knight0red.png")], //knight blue, knight red, knight blue 2, knight red 2
-3:[new image("assets/bullet.png"), new image("assets/bulletR.png"), new image("assets/bulletD.png"), new image("assets/bulletL.png"), new image("assets/bulletU.png")]}; //bullet normal, bullet right, bullet down, bullet left, bullet up
+3:[new image("assets/bullet.png"), new image("assets/bulletR.png"), new image("assets/bulletD.png"), new image("assets/bulletL.png"), new image("assets/bulletU.png")],//bullet normal, bullet right, bullet down, bullet left, bullet up
+4:[new image("assets/arrowL.png"), new image("assets/arrowR.png"), new image("assets/arrowU.png"), new image("assets/arrowD.png")]}; //left right up down
 
 var gameState = "loading";
+
+var turn = 0
+var turnTimer = 0
+var tick = false;
 
 function update(){
 
@@ -378,8 +433,8 @@ function update(){
 		c.fillStyle = "rgb(255, 255, 255)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 
-		testPlayer2.run();
-		testPlayer.run();
+		testPlayer2.run(tick);
+		testPlayer.run(tick);
 
 		c.fillStyle = "rgb(0, 0, 0)";
 		for(var i = 0; i<21; i+=1){
@@ -388,6 +443,13 @@ function update(){
 					spriteNumber[grid[i][j][s][0]] [grid[i][j][s][1]].drawImg(i*40, j*40, 40, 40);
 				}
 			}
+		}
+		turnTimer += 1;
+		tick = false;
+		if(turnTimer > 60){
+			turn += 1;
+			tick = true;
+			turnTimer = 0;
 		}
 	}
 

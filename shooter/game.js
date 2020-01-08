@@ -8,14 +8,6 @@ h *= 0.95
 var scale = h/600
 var c = canvas.getContext("2d"); //c means context
 
-//800x800 is the size of the tracks (4:3)
-
-//you have a gravity gun type thing
-// you can pull and push goo as projectiles
-// you can harvest goo off the walls
-// charge up burst shot by holding push and pull
-// can trade in goo for guns
-
 var inputPos={x:0,y:0};
 canvas.addEventListener('mousemove', function(evt) {
 	inputPos = getinputPos(canvas, evt);
