@@ -1,13 +1,14 @@
 
-function projectPoint(x1, y1, z1, camera){
+function projectPoint(x1, y1, z1, camera = cameraPos){
 	// takes in a point in 3d space and puts in on the screen
 	// firstly translates by camera pos and scales to screen
 	var ax = x1+camera[0];
-	var ay = y1+camera[1];
+	var ay = -y1+camera[1];
 	var az = z1+camera[2];
 	var x2 = ((ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
 	var y2 = ((ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
-	return [x2, y2];
+	//returns X and Y position and size
+	return [x2, y2, az];
 }
 
 var courtPoints = [[-1, 0, 1],
@@ -39,28 +40,73 @@ var courtPoints = [[-1, 0, 1],
 [-1, 0, 3]
 ]
 
-function drawCourt(cameraPos){
+var netPoints = [[-1.6, 0, 2],
+[-1.6, 1, 2],
+[1.6, 1, 2],
+[1.6, 0, 2],
+[-1.6, 0, 2]];
+
+function drawPoints(points, cameraPos, colour, width = 10){
 	c.beginPath();
-	var point = projectPoint(courtPoints[0][0], courtPoints[0][1], courtPoints[0][2], cameraPos);
+	var point = projectPoint(points[0][0], points[0][1], points[0][2], cameraPos);
 	c.moveTo(point[0], point[1]);
-	for(var i = 1; i<courtPoints.length;i+=1){
-		c.strokeStyle = "rgb(245, 250, 255)";
-		c.lineWidth = 10/((courtPoints[i][2]+courtPoints[i-1][2])/2);
-		var point1 = projectPoint(courtPoints[i-1][0], courtPoints[i-1][1], courtPoints[i-1][2], cameraPos);
-		var point2 = projectPoint(courtPoints[i][0], courtPoints[i][1], courtPoints[i][2], cameraPos);
+	for(var i = 1; i<points.length;i+=1){
+		c.strokeStyle = colour;
+		var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
+		var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
+		c.lineWidth = width/((point1[2]+point2[2])/2);
 		c.moveTo(point1[0], point1[1]);
 		c.lineTo(point2[0], point2[1]);
 	}
 	c.stroke();
-	c.fillStyle = "rgb(200, 255, 0)";
-	c.fill();
+}
+
+class Ball{
+	constructor(X, Y, Z){
+		this.X = X;
+		this.Y = Y;
+		this.Z = Z;
+		this.Xvel = 0;
+		this.Yvel = 0;
+		this.Zvel = 0;
+	}
+	run(){
+		// shadow
+		// shadow should do it by doing three points
+		var shaPoint = projectPoint(this.X, 0, this.Z);
+		var shaPointX = projectPoint(this.X+0.1, 0, this.Z);
+		var shaPointZ = projectPoint(this.X, 0, this.Z+0.1);
+		//currently just does 2:1 ellipse
+
+		c.beginPath();
+		c.fillStyle = "rgba(0, 0, 0, 0.5)";
+		c.ellipse(shaPoint[0], shaPoint[1], 20/shaPoint[2], 10/shaPoint[2], 0, 0, Math.PI*2);
+		c.fill();
+
+		var point = projectPoint(this.X, this.Y, this.Z);
+		// ball
+		c.beginPath();
+		c.fillStyle = "rgb(200, 255, 10)";
+		c.arc(point[0], point[1], 20/point[2], 0, Math.PI*2);
+		c.fill();
+
+		this.Z = mousePos.y/100
+		this.Yvel -= 0.01;
+		this.Y += this.Yvel;
+		if(this.Y <= 0){
+			this.Y = 0;
+			this.Yvel = -this.Yvel;
+		}
+	}
 }
 
 var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
+var ball = new Ball(0, 1, 1.5);
 
 class Game{
 	constructor(){
+		
 	}
 
 	execute(){
@@ -69,12 +115,6 @@ class Game{
 		c.rect(0, 0, canvas.width, canvas.height);
 		c.fill();
 
-		c.beginPath();
-		c.fillStyle = "rgb(200, 255, 10)";
-		c.arc(mousePos.x, mousePos.y, 10*scale, 0, Math.PI*2);
-		c.fill();
-		c.stroke();
-
 		if(checkKey("KeyA") == true){
 			cameraPos[0] += 0.01;
 		}
@@ -82,6 +122,10 @@ class Game{
 			cameraPos[0] -= 0.01;
 		}
 
-		drawCourt(cameraPos);
+		// there is an issue with the order of rendering stuff, will need to rework it to do all at once so it can sort it
+		// the ball has to be both above and below the net render order wise.
+		drawPoints(courtPoints, cameraPos, "rgb(255, 255, 255)");
+		ball.run();
+		drawPoints(netPoints, cameraPos, "rgb(25, 25, 25)");
 	}
 }
