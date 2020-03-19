@@ -55,7 +55,7 @@ function drawPoints(points, cameraPos, colour, width = 10){
 		var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
 		var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
 		c.lineWidth = width/((point1[2]+point2[2])/2);
-		c.moveTo(point1[0], point1[1]);
+		//c.moveTo(point1[0], point1[1]);
 		c.lineTo(point2[0], point2[1]);
 	}
 	c.stroke();
@@ -66,11 +66,23 @@ class Ball{
 		this.X = X;
 		this.Y = Y;
 		this.Z = Z;
-		this.Xvel = 0;
+		this.Xvel = Math.random();
 		this.Yvel = 0;
-		this.Zvel = 0;
+		this.Zvel = Math.random();
 	}
 	run(){
+
+		this.Z = mousePos.y/10
+		this.Yvel -= 0.01;
+		this.X += this.Xvel;
+		this.Y += this.Yvel;
+		this.Z += this.Zvel;
+		if(this.Y <= 0){
+			this.Y = 0;
+			this.Yvel = -this.Yvel;
+		}
+	}
+	draw(){
 		// shadow
 		// shadow should do it by doing three points
 		var shaPoint = projectPoint(this.X, 0, this.Z);
@@ -89,14 +101,6 @@ class Ball{
 		c.fillStyle = "rgb(200, 255, 10)";
 		c.arc(point[0], point[1], 20/point[2], 0, Math.PI*2);
 		c.fill();
-
-		this.Z = mousePos.y/100
-		this.Yvel -= 0.01;
-		this.Y += this.Yvel;
-		if(this.Y <= 0){
-			this.Y = 0;
-			this.Yvel = -this.Yvel;
-		}
 	}
 }
 
@@ -104,28 +108,61 @@ var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
 var ball = new Ball(0, 1, 1.5);
 
+var mountainPoints = [[-50, -50, 30]];
+for(var i = -20; i<20; i+=1){
+	mountainPoints.push([i*2, Math.random()*20, 30])
+}
+mountainPoints.push([50, -50, 30]);
+mountainPoints.push([-50, -50, 30]);
+
 class Game{
 	constructor(){
 		
 	}
 
 	execute(){
+		var horizonPoint = projectPoint(0, 0, 100);
+		// sky
+		c.beginPath();
+		c.fillStyle = "rgb(150, 150, 255)";
+		c.rect(0, 0, canvas.width, horizonPoint[1]);
+		c.fill();
+
+		//moutains
+		drawPoints(mountainPoints, cameraPos, "rgb(50, 200, 20)", 50);
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.closePath();
+		c.fill();
+
+		//ground
 		c.beginPath();
 		c.fillStyle = "rgb(50, 200, 20)";
-		c.rect(0, 0, canvas.width, canvas.height);
+		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 
 		if(checkKey("KeyA") == true){
-			cameraPos[0] += 0.01;
+			cameraPos[0] += 0.11;
 		}
 		if(checkKey("KeyD") == true){
-			cameraPos[0] -= 0.01;
+			cameraPos[0] -= 0.11;
+		}
+		if(checkKey("KeyW") == true){
+			cameraPos[1] += 0.01;
+		}
+		if(checkKey("KeyS") == true){
+			cameraPos[1] -= 0.01;
 		}
 
 		// there is an issue with the order of rendering stuff, will need to rework it to do all at once so it can sort it
 		// the ball has to be both above and below the net render order wise.
-		drawPoints(courtPoints, cameraPos, "rgb(255, 255, 255)");
 		ball.run();
+		drawPoints(courtPoints, cameraPos, "rgb(255, 255, 255)");
+		if(ball.Z > 2){
+			ball.draw();
+		}
 		drawPoints(netPoints, cameraPos, "rgb(25, 25, 25)");
+		if(ball.Z < 2){
+			ball.draw();
+		}
 	}
 }
