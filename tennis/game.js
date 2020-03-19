@@ -1,38 +1,66 @@
 
-function projectPoint(x1, y1, z1){
-	var x2 = ((x1-canvas.width/2)/z1)+canvas.width/2
-	var y2 = ((y1-canvas.height/2)/z1)+canvas.height/2
-	return [x2, y2]
+function projectPoint(x1, y1, z1, camera){
+	// takes in a point in 3d space and puts in on the screen
+	// firstly translates by camera pos and scales to screen
+	var ax = x1+camera[0];
+	var ay = y1+camera[1];
+	var az = z1+camera[2];
+	var x2 = ((ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
+	var y2 = ((ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
+	return [x2, y2];
 }
 
-var courtPoints = [[0, 0, 1],
-[0, 1, 1],
-[1, 0, 1],
-[1, 1, 1],
-[0, 0, 2],
-[0, 1, 2],
+var courtPoints = [[-1, 0, 1],
+[-1, 0, 2],
 [1, 0, 2],
-[1, 1, 2]]
+[1, 0, 1],
+[-1.5, 0, 1],
+[-1.5, 0, 2],
+[1.5, 0, 2],
+[1.5, 0, 1],
+[1, 0, 1],
+[1, 0, 1.5],
+[0, 0, 1.5],
+[0, 0, 2],
+[0, 0, 1.5],
+[-1, 0, 1.5],
+[-1, 0, 3],
+[1, 0, 3],
+[1, 0, 2],
+[0, 0, 2],
+[0, 0, 2.5],
+[1, 0, 2.5],
+[-1, 0, 2.5],
+[-1, 0, 3],
+[1.5, 0, 3],
+[1.5, 0, 2],
+[-1.5, 0, 2],
+[-1.5, 0, 3],
+[-1, 0, 3]
+]
 
-var cameraPos = [0, 0, 0]
-
-function drawCourt(){
+function drawCourt(cameraPos){
 	c.beginPath();
-	var point = projectPoint((courtPoints[0][0]*100)+cameraPos[0], courtPoints[0][1]*100+cameraPos[1], courtPoints[0][2]+cameraPos[2]);
+	var point = projectPoint(courtPoints[0][0], courtPoints[0][1], courtPoints[0][2], cameraPos);
 	c.moveTo(point[0], point[1]);
 	for(var i = 1; i<courtPoints.length;i+=1){
 		c.strokeStyle = "rgb(245, 250, 255)";
-		var point = projectPoint((courtPoints[i][0]*100)+cameraPos[0], courtPoints[i][1]*100+cameraPos[1], courtPoints[i][2]+cameraPos[2]);
-		c.lineTo(point[0], point[1]);
+		c.lineWidth = 10/((courtPoints[i][2]+courtPoints[i-1][2])/2);
+		var point1 = projectPoint(courtPoints[i-1][0], courtPoints[i-1][1], courtPoints[i-1][2], cameraPos);
+		var point2 = projectPoint(courtPoints[i][0], courtPoints[i][1], courtPoints[i][2], cameraPos);
+		c.moveTo(point1[0], point1[1]);
+		c.lineTo(point2[0], point2[1]);
 	}
-	c.strokeWeight = 10;
 	c.stroke();
+	c.fillStyle = "rgb(200, 255, 0)";
+	c.fill();
 }
 
+var cameraPos = [0, 5, 0.5];
+var vanishingPointPos = [0.5, 0.2]
 
 class Game{
 	constructor(){
-
 	}
 
 	execute(){
@@ -47,8 +75,13 @@ class Game{
 		c.fill();
 		c.stroke();
 
-		cameraPos[0] = mousePos.x;
-		cameraPos[1] = mousePos.y;
-		drawCourt();
+		if(checkKey("KeyA") == true){
+			cameraPos[0] += 0.01;
+		}
+		if(checkKey("KeyD") == true){
+			cameraPos[0] -= 0.01;
+		}
+
+		drawCourt(cameraPos);
 	}
 }

@@ -34,7 +34,6 @@ var pressedAnyKey = false;
 document.addEventListener('keydown', function(event) {
 		current_key = event.code;
 		keys[current_key] = true;
-		console.log(keys)
 		pressedAnyKey = true;
 	}
 );
@@ -43,6 +42,15 @@ document.addEventListener('keyup', function(event) {
 		keys[current_key] = false;
 	}
 );
+
+function checkKey(key){
+	if(key in keys){
+		if(keys[key] == true){
+			return true;
+		}
+	}
+	return false;
+}
 
 mouseButtons = [false, false, false];
 document.addEventListener('mousedown', function(event){
