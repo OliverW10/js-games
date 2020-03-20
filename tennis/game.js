@@ -8,7 +8,7 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 	var x2 = ((ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
 	var y2 = ((ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
 	//returns X and Y position and size (az)
-	return [x2, y2, az];
+	return [x2, y2, 1/az];
 }
 
 var courtPoints = [[-1, 0, 1],
@@ -63,7 +63,7 @@ function drawPoints(points, cameraPos, colour, width = 10, line = true){
 		c.strokeStyle = colour;
 		var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
 		var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
-		c.lineWidth = width/((point1[2]+point2[2])/2);
+		c.lineWidth = ((point1[2]+point2[2])/2)*width;
 		c.lineTo(point2[0], point2[1]);
 	}
 	c.stroke();
@@ -84,6 +84,9 @@ class Ball{
 			this.X += this.Xvel;
 			this.Y += this.Yvel;
 			this.Z += this.Zvel;
+
+			this.Xangle += this.Xrot;
+			this.Yangle += this.Yrot;
 			// drag
 			this.Yvel *= 0.999
 			this.Xvel *= 0.99
@@ -99,28 +102,41 @@ class Ball{
 					balls.push(new Ball(this.startX, this.startY, this.startZ));
 				}
 			}
-			// if(this.X > 1.5){
-			// 	this.Xvel = -this.Xvel;
-			// 	this.X = 1.5;
-			// }
-			// if(this.X < -1.5){
-			// 	this.Xvel = -this.Xvel;
-			// 	this.X = -1.5;
-			// }
-			// if(this.Z > 3){
-			// 	this.Zvel = -this.Zvel*1.5;
-			// 	this.Z = 3;
-			// 	this.Yvel *= 1.5
-			// }
-			// if(this.Z < 1){
-			// 	this.Zvel = -this.Zvel * 0.9;
-			// 	this.Z = 1;
-			// }
+			if(this.X > 1.5){
+				this.Xvel = -this.Xvel;
+				this.X = 1.5;
+			}
+			if(this.X < -1.5){
+				this.Xvel = -this.Xvel;
+				this.X = -1.5;
+			}
+			if(this.Z > 3){
+				this.Zvel = -this.Zvel*1.5;
+				this.Z = 3;
+				this.Yvel *= 1.5
+			}
+			if(this.Z < 1){
+				this.Zvel = -this.Zvel * 0.9;
+				this.Z = 1;
+			}
 			// net
 			if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
 				this.Zvel = -this.Zvel;
 				this.Zvel *= 0.5;
 				this.Xvel *= 0.9;
+			}
+
+			if(this.Xangle > 40){
+				this.Xangle = -40;
+			}
+			if(this.Xangle < -40){
+				this.Xangle = 40;
+			}
+			if(this.Yangle > 40){
+				this.Yangle = -40;
+			}
+			if(this.Yangle < -40){
+				this.Yangle = 40;
 			}
 		}else{
 			this.Y = 0.2;
@@ -137,17 +153,31 @@ class Ball{
 		if(collidePoint(shaPoint, [0, 0, canvas.width, canvas.height]) === true && shaPoint[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgba(0, 0, 0, 0.5)";
-			c.ellipse(shaPoint[0], shaPoint[1], 20/shaPoint[2], 10/shaPoint[2], 0, 0, Math.PI*2);
+			c.ellipse(shaPoint[0], shaPoint[1], 20*shaPoint[2], 10*shaPoint[2], 0, 0, Math.PI*2);
 			c.fill();
 		}
 
 		var point = projectPoint(this.X, this.Y, this.Z);
 		// ball
+		c.beginPath();
+		c.save();
 		if(collidePoint(point, [0, 0, canvas.width, canvas.height]) === true && point[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
-			c.arc(point[0], point[1], Math.max(20/point[2], 0), 0, Math.PI*2);
+			c.arc(point[0], point[1], Math.max(20*point[2], 0), 0, Math.PI*2);
 			c.fill();
+			c.clip();
+
+			for(var x = -1; x<=1; x+=1){
+				for(var y = -1; y<=1; y+=1){
+					c.beginPath();
+					c.strokeStyle = "rgb(100, 125, 5)";
+					c.lineWidth = point[2]*5
+					c.arc(point[0]+x*point[2]*40+this.Xangle*point[2], point[1]+y*point[2]*40+this.Yangle*point[2], 20*point[2], Math.PI*x, Math.PI*(x+1));
+					c.stroke();
+				}
+			}
+			c.restore();
 		}
 	}
 	reset(){
@@ -157,12 +187,16 @@ class Ball{
 		this.Xvel = (Math.random()-0.5)*0.3;
 		this.Yvel = 0;
 		this.Zvel = (Math.random()-0.5)*0.3;
+		this.Xangle = 0;
+		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
+		this.Xrot = Math.random(); // the roational speed of the ball
+		this.Yrot = Math.random();
 	}
 }
 
 var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
-var balls = [new Ball(0, 2.5, 2)];
+var balls = [new Ball(0, 2.5, 1)];
 
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
