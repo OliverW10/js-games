@@ -34,6 +34,7 @@ var pressedAnyKey = false;
 document.addEventListener('keydown', function(event) {
 		current_key = event.code;
 		keys[current_key] = true;
+		// console.log(keys);
 		pressedAnyKey = true;
 	}
 );

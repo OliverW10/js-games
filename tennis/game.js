@@ -7,7 +7,7 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 	var az = z1+camera[2];
 	var x2 = ((ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
 	var y2 = ((ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
-	//returns X and Y position and size
+	//returns X and Y position and size (az)
 	return [x2, y2, az];
 }
 
@@ -92,31 +92,30 @@ class Ball{
 			if(this.Y-0.2 <= 0){
 				this.Y = 0.2;
 				this.Yvel = -this.Yvel*0.9;
-				var call = inCheck(this.X, this.Y-0.2, this.Z);
-				console.log(call);
+				var call = inCheck([this.X, this.Y-0.2, this.Z]);
 				bounceSpots.push([this.X, this.Y-0.2, this.Z, call]);
-				if(call === 0){
+				if(call === 0 || Math.abs(this.Xvel)+Math.abs(this.Zvel) < 0.001){
 					this.stopped = true;
 					balls.push(new Ball(this.startX, this.startY, this.startZ));
 				}
 			}
-			if(this.X > 1.5){
-				this.Xvel = -this.Xvel;
-				this.X = 1.5;
-			}
-			if(this.X < -1.5){
-				this.Xvel = -this.Xvel;
-				this.X = -1.5;
-			}
-			if(this.Z > 3){
-				this.Zvel = -this.Zvel*1.5;
-				this.Z = 3;
-				this.Yvel *= 1.5
-			}
-			if(this.Z < 1){
-				this.Zvel = -this.Zvel * 0.9;
-				this.Z = 1;
-			}
+			// if(this.X > 1.5){
+			// 	this.Xvel = -this.Xvel;
+			// 	this.X = 1.5;
+			// }
+			// if(this.X < -1.5){
+			// 	this.Xvel = -this.Xvel;
+			// 	this.X = -1.5;
+			// }
+			// if(this.Z > 3){
+			// 	this.Zvel = -this.Zvel*1.5;
+			// 	this.Z = 3;
+			// 	this.Yvel *= 1.5
+			// }
+			// if(this.Z < 1){
+			// 	this.Zvel = -this.Zvel * 0.9;
+			// 	this.Z = 1;
+			// }
 			// net
 			if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
 				this.Zvel = -this.Zvel;
@@ -135,17 +134,21 @@ class Ball{
 		var shaPointZ = projectPoint(this.X, 0, this.Z+0.1);
 		//currently just does 2:1 ellipse
 
-		c.beginPath();
-		c.fillStyle = "rgba(0, 0, 0, 0.5)";
-		c.ellipse(shaPoint[0], shaPoint[1], 20/shaPoint[2], 10/shaPoint[2], 0, 0, Math.PI*2);
-		c.fill();
+		if(collidePoint(shaPoint, [0, 0, canvas.width, canvas.height]) === true && shaPoint[2] > 0){
+			c.beginPath();
+			c.fillStyle = "rgba(0, 0, 0, 0.5)";
+			c.ellipse(shaPoint[0], shaPoint[1], 20/shaPoint[2], 10/shaPoint[2], 0, 0, Math.PI*2);
+			c.fill();
+		}
 
 		var point = projectPoint(this.X, this.Y, this.Z);
 		// ball
-		c.beginPath();
-		c.fillStyle = "rgb(200, 255, 10)";
-		c.arc(point[0], point[1], 20/point[2], 0, Math.PI*2);
-		c.fill();
+		if(collidePoint(point, [0, 0, canvas.width, canvas.height]) === true && point[2] > 0){
+			c.beginPath();
+			c.fillStyle = "rgb(200, 255, 10)";
+			c.arc(point[0], point[1], Math.max(20/point[2], 0), 0, Math.PI*2);
+			c.fill();
+		}
 	}
 	reset(){
 		this.X = this.startX;
@@ -184,7 +187,7 @@ function inCheck(pos){
 			return 0
 		}
 	}else if(pos[2] > 2 && pos[2] < 3){ //their side
-		if(pos[0] > -1 && pos[1] < 1){
+		if(pos[0] > -1 && pos[0] < 1){
 			return 2
 		}else{
 			return 0
@@ -220,10 +223,10 @@ class Game{
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 
-		if(checkKey("KeyW") == true){
+		if(checkKey("Space") == true){
 			cameraPos[1] += 0.1;
 		}
-		if(checkKey("KeyS") == true){
+		if(checkKey("ShiftLeft") == true){
 			cameraPos[1] -= 0.1;
 		}
 		if(checkKey("KeyA") == true){
@@ -232,24 +235,14 @@ class Game{
 		if(checkKey("KeyD") == true){
 			cameraPos[0] -= 0.1;
 		}
-		cameraPos[0] = cameraPos[0]*0.95+0*0.05
-		
-		for(var i = 0; i < bounceSpots.length; i+=1){
-			c.beginPath();
-			if(bounceSpots[3] == 0){
-				c.fillStyle = "rgb(255, 0, 0)";
-			}
-			if(bounceSpots[3] == 1){
-				c.fillStyle = "rgb(0, 255, 0)";
-			}
-			if(bounceSpots[3] == 2){
-				c.fillStyle = "rgb(0, 0, 255)";
-			}
-			var point = projectPoint(bounceSpots[i][0], bounceSpots[i][1], bounceSpots[i][2]);
-			c.arc(point[0], point[1], 10/point[2], 0, Math.PI*2);
-			//c.stroke();
-			c.fill();
+		if(checkKey("KeyS") == true){
+			cameraPos[2] += 0.1;
 		}
+		if(checkKey("KeyW") == true){
+			cameraPos[2] -= 0.1;
+		}
+		
+		cameraPos[0] = cameraPos[0]*0.95+0*0.05
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
