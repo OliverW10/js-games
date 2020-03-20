@@ -75,51 +75,56 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.reset();
+		this.stopped = false;
 	}
 	run(){
-
-		//this.Z = mousePos.y/10
-		this.Yvel -= 0.01;
-		this.X += this.Xvel;
-		this.Y += this.Yvel;
-		this.Z += this.Zvel;
-		// drag
-		this.Xvel *= 0.99
-		this.Zvel *= 0.99
-		// collitions
-		if(this.Y <= 0){
-			this.Y = 0;
-			this.Yvel = -this.Yvel*0.95;
-			bounceSpots.push([this.X, this.Y, this.Z]);
-		}
-		if(this.X > 1.5){
-			this.Xvel = -this.Xvel;
-			this.X = 1.5;
-		}
-		if(this.X < -1.5){
-			this.Xvel = -this.Xvel;
-			this.X = -1.5;
-		}
-		if(this.Z > 3){
-			this.Yvel *= 1.2
-			this.Zvel = -this.Zvel*1.6;
-			this.Z = 3;
-		}
-		if(this.Z < 1){
-			this.Yvel *= 1.2
-			this.Zvel = -this.Zvel*1.6;
-			this.Z = 1;
-		}
-		// net
-		if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
-			this.Zvel = -this.Zvel;
-			this.Zvel *= 0.5;
-			this.Yvel *= 0.9;
-			this.Xvel *= 0.9;
-		}
-		// stopped check
-		if(Math.abs(this.Xvel)+Math.abs(this.Zvel) <= 0.0001){
-			this.reset();
+		if(this.stopped === false){
+			//this.Z = mousePos.y/10
+			this.Yvel -= 0.01;
+			this.X += this.Xvel;
+			this.Y += this.Yvel;
+			this.Z += this.Zvel;
+			// drag
+			this.Yvel *= 0.999
+			this.Xvel *= 0.99
+			this.Zvel *= 0.99
+			// collitions
+			if(this.Y-0.2 <= 0){
+				this.Y = 0.2;
+				this.Yvel = -this.Yvel*0.9;
+				var call = inCheck(this.X, this.Y-0.2, this.Z);
+				console.log(call);
+				bounceSpots.push([this.X, this.Y-0.2, this.Z, call]);
+				if(call === 0){
+					this.stopped = true;
+					balls.push(new Ball(this.startX, this.startY, this.startZ));
+				}
+			}
+			if(this.X > 1.5){
+				this.Xvel = -this.Xvel;
+				this.X = 1.5;
+			}
+			if(this.X < -1.5){
+				this.Xvel = -this.Xvel;
+				this.X = -1.5;
+			}
+			if(this.Z > 3){
+				this.Zvel = -this.Zvel*1.5;
+				this.Z = 3;
+				this.Yvel *= 1.5
+			}
+			if(this.Z < 1){
+				this.Zvel = -this.Zvel * 0.9;
+				this.Z = 1;
+			}
+			// net
+			if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
+				this.Zvel = -this.Zvel;
+				this.Zvel *= 0.5;
+				this.Xvel *= 0.9;
+			}
+		}else{
+			this.Y = 0.2;
 		}
 	}
 	draw(){
@@ -146,15 +151,15 @@ class Ball{
 		this.X = this.startX;
 		this.Y = this.startY;
 		this.Z = this.startZ;
-		this.Xvel = (Math.random()-0.5)*0.1;
+		this.Xvel = (Math.random()-0.5)*0.3;
 		this.Yvel = 0;
-		this.Zvel = (Math.random()-0.5)*0.1;
+		this.Zvel = (Math.random()-0.5)*0.3;
 	}
 }
 
 var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
-var ball = new Ball(0, 2, 1.5);
+var balls = [new Ball(0, 2.5, 2)];
 
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
@@ -170,13 +175,33 @@ mountainPoints.push([-50, -50, 30]);
 
 var bounceSpots = []
 
+function inCheck(pos){
+	// returns 0 for out 1 for your in 2 for their in
+	if(pos[2] > 1 && pos[2] < 2){ // your side
+		if(pos[0] > -1 && pos[0] < 1){
+			return 1
+		}else{
+			return 0
+		}
+	}else if(pos[2] > 2 && pos[2] < 3){ //their side
+		if(pos[0] > -1 && pos[1] < 1){
+			return 2
+		}else{
+			return 0
+		}
+	}
+	else{
+		return 0
+	}
+}
+
 class Game{
 	constructor(){
 		
 	}
 
 	execute(){
-		var horizonPoint = projectPoint(0, 0, 100);
+		var horizonPoint = projectPoint(0, 0, 30);
 		// sky
 		c.beginPath();
 		c.fillStyle = "rgb(150, 150, 255)";
@@ -195,31 +220,52 @@ class Game{
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 
-		if(checkKey("KeyA") == true){
-			cameraPos[0] += 0.1;
-		}
-		if(checkKey("KeyD") == true){
-			cameraPos[0] -= 0.1;
-		}
 		if(checkKey("KeyW") == true){
 			cameraPos[1] += 0.1;
 		}
 		if(checkKey("KeyS") == true){
 			cameraPos[1] -= 0.1;
 		}
+		if(checkKey("KeyA") == true){
+			cameraPos[0] += 0.1;
+		}
+		if(checkKey("KeyD") == true){
+			cameraPos[0] -= 0.1;
+		}
+		cameraPos[0] = cameraPos[0]*0.95+0*0.05
+		
+		for(var i = 0; i < bounceSpots.length; i+=1){
+			c.beginPath();
+			if(bounceSpots[3] == 0){
+				c.fillStyle = "rgb(255, 0, 0)";
+			}
+			if(bounceSpots[3] == 1){
+				c.fillStyle = "rgb(0, 255, 0)";
+			}
+			if(bounceSpots[3] == 2){
+				c.fillStyle = "rgb(0, 0, 255)";
+			}
+			var point = projectPoint(bounceSpots[i][0], bounceSpots[i][1], bounceSpots[i][2]);
+			c.arc(point[0], point[1], 10/point[2], 0, Math.PI*2);
+			//c.stroke();
+			c.fill();
+		}
 
-		// there is an issue with the order of rendering stuff, will need to rework it to do all at once so it can sort it
-		// the ball has to be both above and below the net render order wise.
-		ball.run();
+		for(var i = 0; i < balls.length; i+=1){
+			balls[i].run();
+		}
 		drawPoints(courtPoints, cameraPos, "rgb(255, 255, 255)");
-		if(ball.Z > 2){
-			ball.draw();
+		for(var i = 0; i < balls.length; i+=1){
+			if(balls[i].Z > 2){
+				balls[i].draw();
+			}
 		}
 		drawPoints(netOutlinePoints, cameraPos, "rgb(25, 25, 25)");
 		drawPoints(netInnerPoints, cameraPos, "rgb(25, 25, 25)", 5);
-		if(ball.Z < 2){
-			ball.draw();
+		for(var i = 0; i < balls.length; i+=1){
+			if(balls[i].Z < 2){
+				balls[i].draw();
+			}
 		}
-
 	}
 }
