@@ -4,7 +4,7 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 	// firstly translates by camera pos and scales to screen
 	var ax = x1+camera[0];
 	var ay = -y1+camera[1];
-	var az = z1+camera[2];
+	var az = Math.abs(z1+camera[2]);
 	var x2 = ((ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
 	var y2 = ((ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
 	//returns X and Y position and size (az)
@@ -90,7 +90,7 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.stopped = false;
-		this.courtSize = 0.03; // court base size
+		this.courtSize = 0.015; // court base size
 		this.size = this.courtSize*canvas.width;
 		this.reset();
 	}
@@ -230,6 +230,7 @@ class Racquet{
 		c.beginPath();
 		c.strokeStyle = "rgba(0, 0, 0, 0.5)";
 		var point = projectPoint(pos[0], 0, pos[2])
+		c.lineWidth = point[2]*3;
 		c.moveTo(point[0], point[1]);
 		var point = projectPoint(pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4]), 0, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4]));
 		c.lineTo(point[0], point[1]);
@@ -268,7 +269,7 @@ class Racquet{
 		// var sidePoint = projectPoint(sideVector[0], sideVector[1], sideVector[2]);
 
 		var angle = Math.atan2(midPoint[1]-endPoint[1], midPoint[0]-endPoint[0]); 
-		var lengthDist = dist(midPoint[0], midPoint[1], endPoint[0], endPoint[1]); // calculates the "height" of the racquet
+		var lengthDist = dist(midPoint[0], midPoint[1], endPoint[0], endPoint[1]); // calculates the "length" of the racquet
 		var widthDist = midPoint[2]*scale*10;
 		c.beginPath();
 		c.ellipse(midPoint[0], midPoint[1], lengthDist, widthDist, angle+Math.PI*2, 0, Math.PI*2);
@@ -283,39 +284,60 @@ class mouseController{
 		this.prevPos = [0, 0, 0];
 		this.prevRot = [0, 0, 0];
 		this.velocity = [0, 0, 0, 0, 0, 0];
+		this.pollingPeriod = 10
 	}
 	getPos(){
-		this.prevPos.push([this.position[0], this.position[1], this.position[2]]);
-		if(this.prevPos.length >= 10){
-			this.prevPos.splice(0, 1);
-		}
-		this.prevRot.push([this.rotation[0], this.rotation[1], this.rotation[2]]);
-		if(this.prevRot.length >= 10){
-			this.prevRot.splice(0, 1);
-		}
+		
 		this.velocity = [0, 0, 0, 0, 0, 0];
-
-		for(var i = 1; i<this.prevPos.length; i+=1){
-			this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
-			this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
-			this.velocity[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
-
-			this.velocity[3] += (this.prevRot[i][0]-this.prevRot[i-1][0]);
-			this.velocity[4] += (this.prevRot[i][1]-this.prevRot[i-1][1]);
-			this.velocity[5] += (this.prevRot[i][2]-this.prevRot[i-1][2]);
-		}
 
 		showText(this.prevPos[0], canvas.width/2, 50, 15);
 		showText(this.prevPos[8], canvas.width/2, 100, 15);
 		showText(this.velocity, canvas.width/2, 150, 15);
-		if(mouseButtons[0] === true){
+		if(mouseButtons[0] === true){ // control rotaion
 			this.rotation[0] = ((mousePos.x/canvas.width)-0.5)*5;
 			this.rotation[1] = ((mousePos.y/canvas.height)-0.5)*-4;
-		}else{
+			this.prevRot.push([this.rotation[0], this.rotation[1], this.rotation[2]]);
+			if(this.prevRot.length >= this.pollingPeriod){
+				this.prevRot.splice(0, 1);
+			}
+			for(var i = 1; i<this.prevPos.length; i+=1){
+				this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
+				this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
+				this.velocity[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
+			}
+			this.position[0] += this.velocity[0]/6;
+			this.position[1] += this.velocity[1]/6;
+			this.position[2] += this.velocity[2]/6;
+
+		}else{ //control position
 			this.position[0] = ((mousePos.x/canvas.width)-0.5)*3;
 			//this.position[1] = ((1-(mousePos.y/canvas.height))**2+0.5)*2;
 			this.position[2] = ((1-(mousePos.y/canvas.height)))*2;
+
+			this.prevPos.push([this.position[0], this.position[1], this.position[2]]);
+			if(this.prevPos.length >= this.pollingPeriod){
+				this.prevPos.splice(0, 1);
+			}
+
+			if(this.prevRot.length >= 1){
+				for(var i = 1; i<this.prevRot.length; i+=1){
+					this.velocity[3] += (this.prevRot[i][0]-this.prevRot[i-1][0]);
+					this.velocity[4] += (this.prevRot[i][1]-this.prevRot[i-1][1]);
+					this.velocity[5] += (this.prevRot[i][2]-this.prevRot[i-1][2]);
+				}
+
+				// this.rotation[0] += this.velocity[3]/6;
+				// this.rotation[1] += this.velocity[4]/6;
+				// this.rotation[2] += this.velocity[5]/6;
+			}
 		}
+		this.velocity[0] *= 0.9;
+		this.velocity[1] *= 0.9;
+		this.velocity[2] *= 0.9;
+		this.velocity[3] *= 0.99;
+		this.velocity[4] *= 0.99;
+		this.velocity[5] *= 0.99;
+
 		return [this.position[0], this.position[1], this.position[2], this.rotation[0], this.rotation[1], this.rotation[2]];
 	}
 }
@@ -331,7 +353,7 @@ class AIController{
 
 var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
-var balls = [new Ball(0, 2.5, 1)];
+var balls = [new Ball(0, 1, 1)];
 
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
