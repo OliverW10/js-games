@@ -11,6 +11,12 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 	return [x2, y2, (1/az)*scale];
 }
 
+function rotatePoint(){
+	// rotates a 3d point around another 3d point by a 3d rotation thing
+	// creates and uses a transformation matrix explained here https://www.youtube.com/watch?v=rHLEWRxRGiM
+	// used for rotateing 3d "models", such as the raquet.
+}
+
 var courtPoints = [[-1, 0, 1],
 [-1, 0, 2],
 [1, 0, 2],
@@ -100,7 +106,7 @@ class Ball{
 				bounceSpots.push([this.X, this.Y-this.size, this.Z, call]);
 				if(call === 0 || Math.abs(this.Xvel)+Math.abs(this.Zvel) < 0.001){
 					this.stopped = true;
-					balls.push(new Ball(this.startX, this.startY, this.startZ));
+					// balls.push(new Ball(this.startX, this.startY, this.startZ));
 				}
 			}
 			// if(this.X > 1.5){
@@ -230,17 +236,27 @@ class Racquet{
 		c.stroke();
 
 		// racquet
-		var midPoint = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*2*Math.cos(this.pos[4]), this.pos[1]+Math.sin(this.pos[4])*this.size*2, this.pos[2]+Math.cos(this.pos[3])*this.size*2*Math.cos(this.pos[4]));
-		var endPoint = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*3*Math.cos(this.pos[4]), this.pos[1]+Math.sin(this.pos[4])*this.size*3, this.pos[2]+Math.cos(this.pos[3])*this.size*3*Math.cos(this.pos[4]));
-		var angle = Math.atan2(midPoint[1]-endPoint[1], midPoint[0]-endPoint[0]);
-		var Xdistance = Math.abs(midPoint[0]-endPoint[0]);
-		var Ydistance = Math.abs(midPoint[1]-endPoint[1]);
+		// 3d vectors for the middle, the top tip, the side tip of the raquet to get all dimentions of the ellipse
+		var midVector = [this.pos[0]+Math.sin(this.pos[3])*Math.cos(this.pos[4]*this.size*2),
+		this.pos[1]+Math.sin(this.pos[4])*this.size*2, 
+		this.pos[2]+Math.cos(this.pos[3])*this.size*2*Math.cos(this.pos[4])]
+		var endVector = [this.pos[0]+Math.sin(this.pos[3])*this.size*3*Math.cos(this.pos[4]), 
+		this.pos[1]+Math.sin(this.pos[4])*this.size*3, 
+		this.pos[2]+Math.cos(this.pos[3])*this.size*3*Math.cos(this.pos[4])]
+		var sideVector = [this.pos[0]+Math.sin(this.pos[3])*Math.cos(this.pos[4]*this.size*2),
+		this.pos[1]+Math.sin(this.pos[4])*this.size*2, 
+		this.pos[2]+Math.cos(this.pos[3])*this.size*2*Math.cos(this.pos[4])];
+
+		var midPoint = projectPoint(midVector[0], midVector[1], midVector[2]);
+		var endPoint = projectPoint(endVector[0], endVector[1], endVector[2]);
+		var sidePoint = projectPoint(sideVector[0], sideVector[1], sideVector[2]);
+
+		var angle = Math.atan2(midPoint[1]-endPoint[1], midPoint[0]-endPoint[0]); // the twist of the raqcuet does not affect the position of the center of it so dosen't need to be included in the angle calculation
+		var lengthDist = dist(midPoint[0], midPoint[1], endPoint[0], endPoint[1]); // calculates the "height" of the racquet
+		var widthDist = dist(midPoint[0], midPoint[1], sidePoint[0], sidePoint[1]);
 		c.beginPath();
-		c.ellipse(midPoint[0], midPoint[1], midPoint[2]*Xdistance, midPoint[2]*Ydistance, angle+Math.PI*2, 0, Math.PI*2);
+		c.ellipse(midPoint[0], midPoint[1], widthDist*2, lengthDist*2, angle, 0, Math.PI*2);
 		c.stroke();
-		// c.beginPath();
-		// c.ellipse(endPoint[0], endPoint[1], endPoint[2]*100, endPoint[2]*50, angle, 0, Math.PI*2);
-		// c.stroke();
 	}
 }
 
@@ -251,7 +267,7 @@ class mouseController{
 	getPos(){
 		var angle1 = (mousePos.x/canvas.width)-0.5;
 		var angle2 = (mousePos.y/canvas.height)-0.5;
-		return [0, 1, 0, angle1*5, -angle2*2];
+		return [0, 1, 0, angle1*15, -angle2*2];
 	}
 }
 
