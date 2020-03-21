@@ -53,8 +53,6 @@ for(var i = -1.6; i<1.6; i+=0.1){
 	netInnerPoints.push([i, 1, 2]);
 }
 
-var racquetPos = [0, 0, 0, 0, 0, 0]; // both the position and rotation
-
 function drawPoints(points, cameraPos, colour, width = 10, line = true){
 	c.beginPath();
 	var point = projectPoint(points[0][0], points[0][1], points[0][2], cameraPos);
@@ -78,7 +76,7 @@ class Ball{
 		this.startZ = Z;
 		this.reset();
 		this.stopped = false;
-		this.size = 0.2;
+		this.size = 0.01;
 	}
 	run(){
 		if(this.stopped === false){
@@ -199,6 +197,73 @@ class Ball{
 	}
 }
 
+class Racquet{
+	constructor(size, controller){ 
+		// takes a controller class so that i can use the same raquet for player and ai
+		//the pos will be the position of the base of the handle and also have rotation
+		this.pos = [];
+		this.size = size;
+		this.controller = controller;
+	}
+	run(){
+		this.pos = this.controller.getPos();
+		this.draw();
+	}
+	draw(){
+		//handle shadow
+		c.beginPath();
+		c.strokeStyle = "rgba(0, 0, 0, 0.5)";
+		var point = projectPoint(this.pos[0], 0, this.pos[2])
+		c.moveTo(point[0], point[1]);
+		var point = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4]), 0, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4]));
+		c.lineTo(point[0], point[1]);
+		c.stroke();
+
+
+		// handle
+		c.beginPath();
+		c.strokeStyle = "rgb(0, 0, 0)";
+		var point = projectPoint(this.pos[0], this.pos[1], this.pos[2])
+		c.moveTo(point[0], point[1]);
+		var point = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4]), this.pos[1]+Math.sin(this.pos[4])*this.size, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4]));
+		c.lineTo(point[0], point[1]);
+		c.stroke();
+
+		// racquet
+		var midPoint = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*2*Math.cos(this.pos[4]), this.pos[1]+Math.sin(this.pos[4])*this.size*2, this.pos[2]+Math.cos(this.pos[3])*this.size*2*Math.cos(this.pos[4]));
+		var endPoint = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*3*Math.cos(this.pos[4]), this.pos[1]+Math.sin(this.pos[4])*this.size*3, this.pos[2]+Math.cos(this.pos[3])*this.size*3*Math.cos(this.pos[4]));
+		var angle = Math.atan2(midPoint[1]-endPoint[1], midPoint[0]-endPoint[0]);
+		var Xdistance = Math.abs(midPoint[0]-endPoint[0]);
+		var Ydistance = Math.abs(midPoint[1]-endPoint[1]);
+		c.beginPath();
+		c.ellipse(midPoint[0], midPoint[1], midPoint[2]*Xdistance, midPoint[2]*Ydistance, angle+Math.PI*2, 0, Math.PI*2);
+		c.stroke();
+		// c.beginPath();
+		// c.ellipse(endPoint[0], endPoint[1], endPoint[2]*100, endPoint[2]*50, angle, 0, Math.PI*2);
+		// c.stroke();
+	}
+}
+
+class mouseController{
+	constructor(){
+
+	}
+	getPos(){
+		var angle1 = (mousePos.x/canvas.width)-0.5;
+		var angle2 = (mousePos.y/canvas.height)-0.5;
+		return [0, 1, 0, angle1*5, -angle2*2];
+	}
+}
+
+class AIController{
+	constructor(){
+
+	}
+	getInput(){
+
+	}
+}
+
 var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
 var balls = [new Ball(0, 2.5, 1)];
@@ -216,6 +281,8 @@ mountainPoints.push([50, -50, 30]);
 mountainPoints.push([-50, -50, 30]);
 
 var bounceSpots = []
+
+var racquet = new Racquet(0.3, new mouseController());
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -283,7 +350,7 @@ class Game{
 			cameraPos[2] -= 0.1;
 		}
 		
-		cameraPos[0] = cameraPos[0]*0.95+0*0.05
+		//cameraPos[0] = cameraPos[0]*0.95+0*0.05
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
@@ -301,5 +368,7 @@ class Game{
 				balls[i].draw();
 			}
 		}
+
+		racquet.run();
 	}
 }
