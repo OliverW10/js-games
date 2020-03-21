@@ -8,7 +8,7 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 	var x2 = ((ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
 	var y2 = ((ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
 	//returns X and Y position and size (az)
-	return [x2, y2, 1/az];
+	return [x2, y2, (1/az)*scale];
 }
 
 var courtPoints = [[-1, 0, 1],
@@ -53,6 +53,8 @@ for(var i = -1.6; i<1.6; i+=0.1){
 	netInnerPoints.push([i, 1, 2]);
 }
 
+var racquetPos = [0, 0, 0, 0, 0, 0]; // both the position and rotation
+
 function drawPoints(points, cameraPos, colour, width = 10, line = true){
 	c.beginPath();
 	var point = projectPoint(points[0][0], points[0][1], points[0][2], cameraPos);
@@ -76,6 +78,7 @@ class Ball{
 		this.startZ = Z;
 		this.reset();
 		this.stopped = false;
+		this.size = 0.2;
 	}
 	run(){
 		if(this.stopped === false){
@@ -91,34 +94,35 @@ class Ball{
 			this.Yvel *= 0.999
 			this.Xvel *= 0.99
 			this.Zvel *= 0.99
-			// collitions
-			if(this.Y-0.2 <= 0){
-				this.Y = 0.2;
+			// collitions Math.max(20*point[2], 0)
+			if(this.Y-this.size <= 0){
+				this.Y = this.size;
 				this.Yvel = -this.Yvel*0.9;
-				var call = inCheck([this.X, this.Y-0.2, this.Z]);
-				bounceSpots.push([this.X, this.Y-0.2, this.Z, call]);
+				var call = inCheck([this.X, this.Y-this.size, this.Z]);
+				bounceSpots.push([this.X, this.Y-this.size, this.Z, call]);
 				if(call === 0 || Math.abs(this.Xvel)+Math.abs(this.Zvel) < 0.001){
 					this.stopped = true;
 					balls.push(new Ball(this.startX, this.startY, this.startZ));
 				}
 			}
-			if(this.X > 1.5){
-				this.Xvel = -this.Xvel;
-				this.X = 1.5;
-			}
-			if(this.X < -1.5){
-				this.Xvel = -this.Xvel;
-				this.X = -1.5;
-			}
+			// if(this.X > 1.5){
+			// 	this.Xvel = -this.Xvel;
+			// 	this.X = 1.5;
+			// }
+			// if(this.X < -1.5){
+			// 	this.Xvel = -this.Xvel;
+			// 	this.X = -1.5;
+			// }
 			if(this.Z > 3){
 				this.Zvel = -this.Zvel*1.5;
 				this.Z = 3;
 				this.Yvel *= 1.5
 			}
-			if(this.Z < 1){
-				this.Zvel = -this.Zvel * 0.9;
-				this.Z = 1;
-			}
+			// if(this.Z < 1){
+			// 	this.Zvel = -this.Zvel * 0.9;
+			// 	this.Z = 1;
+			// }
+
 			// net
 			if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
 				this.Zvel = -this.Zvel;
@@ -126,6 +130,7 @@ class Ball{
 				this.Xvel *= 0.9;
 			}
 
+			//
 			if(this.Xangle > 40){
 				this.Xangle = -40;
 			}
@@ -231,6 +236,8 @@ function inCheck(pos){
 		return 0
 	}
 }
+
+var sunAngle = [0, 0]
 
 class Game{
 	constructor(){
