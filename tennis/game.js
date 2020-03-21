@@ -89,17 +89,18 @@ class Ball{
 		this.startX = X;
 		this.startY = Y;
 		this.startZ = Z;
-		this.reset();
 		this.stopped = false;
-		this.size = 0.01;
+		this.courtSize = 0.03; // court base size
+		this.size = this.courtSize*canvas.width;
+		this.reset();
 	}
 	run(){
 		if(this.stopped === false){
 			//this.Z = mousePos.y/10
-			this.Yvel -= 0.01;
-			this.X += this.Xvel;
-			this.Y += this.Yvel;
-			this.Z += this.Zvel;
+			this.Yvel -= 0.003;
+			// this.X += this.Xvel;
+			// this.Y += this.Yvel;
+			// this.Z += this.Zvel;
 
 			this.Xangle += this.Xrot;
 			this.Yangle += this.Yrot;
@@ -107,12 +108,12 @@ class Ball{
 			this.Yvel *= 0.999
 			this.Xvel *= 0.99
 			this.Zvel *= 0.99
-			// collitions Math.max(20*point[2], 0)
-			if(this.Y-this.size <= 0){
-				this.Y = this.size;
+			// collitions
+			if(this.Y-this.courtSize <= 0){
+				this.Y = this.courtSize;
 				this.Yvel = -this.Yvel*0.9;
-				var call = inCheck([this.X, this.Y-this.size, this.Z]);
-				bounceSpots.push([this.X, this.Y-this.size, this.Z, call]);
+				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
+				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
 				if(call === 0 || Math.abs(this.Xvel)+Math.abs(this.Zvel) < 0.001){
 					this.stopped = true;
 					balls.push(new Ball(this.startX, this.startY, this.startZ));
@@ -144,17 +145,17 @@ class Ball{
 			}
 
 			//
-			if(this.Xangle > 40){
-				this.Xangle = -40;
+			if(this.Xangle > this.size*2){
+				this.Xangle = -this.size*2;
 			}
-			if(this.Xangle < -40){
-				this.Xangle = 40;
+			if(this.Xangle < -this.size*2){
+				this.Xangle = this.size*2;
 			}
-			if(this.Yangle > 40){
-				this.Yangle = -40;
+			if(this.Yangle > this.size*2){
+				this.Yangle = -this.size*2;
 			}
-			if(this.Yangle < -40){
-				this.Yangle = 40;
+			if(this.Yangle < -this.size*2){
+				this.Yangle = this.size*2;
 			}
 		}else{
 			this.Y = 0.2;
@@ -171,7 +172,7 @@ class Ball{
 		if(collidePoint(shaPoint, [0, 0, canvas.width, canvas.height]) === true && shaPoint[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgba(0, 0, 0, 0.5)";
-			c.ellipse(shaPoint[0], shaPoint[1], 20*shaPoint[2], 10*shaPoint[2], 0, 0, Math.PI*2);
+			c.ellipse(shaPoint[0], shaPoint[1], this.size*shaPoint[2], this.size*shaPoint[2]*0.5, 0, 0, Math.PI*2);
 			c.fill();
 		}
 
@@ -182,7 +183,7 @@ class Ball{
 		if(collidePoint(point, [0, 0, canvas.width, canvas.height]) === true && point[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
-			c.arc(point[0], point[1], Math.max(20*point[2], 0), 0, Math.PI*2);
+			c.arc(point[0], point[1], Math.max(this.size*point[2], 0), 0, Math.PI*2);
 			c.fill();
 			c.clip();
 
@@ -190,8 +191,8 @@ class Ball{
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
 					c.strokeStyle = "rgb(100, 125, 5)";
-					c.lineWidth = point[2]*5
-					c.arc(point[0]+x*point[2]*40+this.Xangle*point[2], point[1]+y*point[2]*40+this.Yangle*point[2], 20*point[2], Math.PI*x, Math.PI*(x+1));
+					c.lineWidth = point[2]*this.size/5
+					c.arc(point[0]+x*point[2]*this.size*2+this.Xangle*point[2], point[1]+y*point[2]*this.size*2+this.Yangle*point[2], this.size*point[2], Math.PI*x, Math.PI*(x+1));
 					c.stroke();
 				}
 			}
@@ -202,13 +203,13 @@ class Ball{
 		this.X = this.startX;
 		this.Y = this.startY;
 		this.Z = this.startZ;
-		this.Xvel = (Math.random()-0.5)*0.3;
-		this.Yvel = 0;
-		this.Zvel = (Math.random()-0.5)*0.3;
+		this.Xvel = (Math.random()-0.5)*0.02;
+		this.Yvel = 0.1;
+		this.Zvel = (Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
-		this.Xrot = Math.random(); // the roational speed of the ball
-		this.Yrot = Math.random();
+		this.Xrot = Math.random()*this.size*0.1; // the roational speed of the ball
+		this.Yrot = Math.random()*this.size*0.1;
 	}
 }
 
@@ -280,7 +281,8 @@ class Racquet{
 class mouseController{
 	constructor(){
 		this.rotation = [0, 0, 0];
-		this.position = [0, 0, 0];
+		this.position = [0, 0, 0.9];
+		this.velocity = [0, 0, 0];
 	}
 	getPos(){
 		if(mouseButtons[0] === true){
@@ -288,7 +290,7 @@ class mouseController{
 			this.rotation[1] = ((mousePos.y/canvas.height)-0.5)*-4;
 		}else{
 			this.position[0] = ((mousePos.x/canvas.width)-0.5)*3;
-			this.position[1] = (1-(mousePos.y/canvas.height))*2+0.5;
+			this.position[1] = ((1-(mousePos.y/canvas.height))**2+0.5)*2;
 		}
 		return [this.position[0], this.position[1], this.position[2], this.rotation[0], this.rotation[1], this.rotation[2]];
 	}
@@ -321,7 +323,7 @@ mountainPoints.push([-50, -50, 30]);
 
 var bounceSpots = []
 
-var racquet = new Racquet(0.1, new mouseController());
+var playerRacquet = new Racquet(0.1, new mouseController());
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -408,6 +410,6 @@ class Game{
 			}
 		}
 
-		racquet.run();
+		playerRacquet.run();
 	}
 }
