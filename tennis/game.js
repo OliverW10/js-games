@@ -223,21 +223,21 @@ class Racquet{
 	}
 	run(){
 		this.pos = this.controller.getPos();
-		this.draw();
+		this.draw(this.pos);
 	}
-	draw(){
+	draw(pos){
 		//handle shadow
 		c.beginPath();
 		c.strokeStyle = "rgba(0, 0, 0, 0.5)";
-		var point = projectPoint(this.pos[0], 0, this.pos[2])
+		var point = projectPoint(pos[0], 0, pos[2])
 		c.moveTo(point[0], point[1]);
-		var point = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4]), 0, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4]));
+		var point = projectPoint(pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4]), 0, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4]));
 		c.lineTo(point[0], point[1]);
 		c.stroke();
 
 		// racquet
-		var midVector = [this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4])*2, 0, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4])*2]
-		var endVector = [this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4])*3, 0, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4])*3]
+		var midVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*2, 0, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*2]
+		var endVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*3, 0, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*3]
 
 		var midPoint = projectPoint(midVector[0], midVector[1], midVector[2]);
 		var endPoint = projectPoint(endVector[0], endVector[1], endVector[2]);
@@ -250,20 +250,18 @@ class Racquet{
 		c.ellipse(midPoint[0], midPoint[1], lengthDist, widthDist, angle+Math.PI*2, 0, Math.PI*2);
 		c.stroke();
 
-
-
 		// handle
 		c.beginPath();
 		c.strokeStyle = "rgb(0, 0, 0)";
-		var point = projectPoint(this.pos[0], this.pos[1], this.pos[2])
+		var point = projectPoint(pos[0], pos[1], pos[2])
 		c.moveTo(point[0], point[1]);
-		var point = projectPoint(this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4]), this.pos[1]+Math.sin(this.pos[4])*this.size, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4]));
+		var point = projectPoint(pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4]), pos[1]+Math.sin(pos[4])*this.size, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4]));
 		c.lineTo(point[0], point[1]);
 		c.stroke();
 
 		// racquet
-		var midVector = [this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4])*2, this.pos[1]+Math.sin(this.pos[4])*this.size*2, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4])*2]
-		var endVector = [this.pos[0]+Math.sin(this.pos[3])*this.size*Math.cos(this.pos[4])*3, this.pos[1]+Math.sin(this.pos[4])*this.size*3, this.pos[2]+Math.cos(this.pos[3])*this.size*Math.cos(this.pos[4])*3]
+		var midVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*2, pos[1]+Math.sin(pos[4])*this.size*2, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*2]
+		var endVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*3, pos[1]+Math.sin(pos[4])*this.size*3, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*3]
 
 		var midPoint = projectPoint(midVector[0], midVector[1], midVector[2]);
 		var endPoint = projectPoint(endVector[0], endVector[1], endVector[2]);
@@ -281,16 +279,42 @@ class Racquet{
 class mouseController{
 	constructor(){
 		this.rotation = [0, 0, 0];
-		this.position = [0, 0, 0.9];
-		this.velocity = [0, 0, 0];
+		this.position = [0, 1, 0.9];
+		this.prevPos = [0, 0, 0];
+		this.prevRot = [0, 0, 0];
+		this.velocity = [0, 0, 0, 0, 0, 0];
 	}
 	getPos(){
+		this.prevPos.push([this.position[0], this.position[1], this.position[2]]);
+		if(this.prevPos.length >= 10){
+			this.prevPos.splice(0, 1);
+		}
+		this.prevRot.push([this.rotation[0], this.rotation[1], this.rotation[2]]);
+		if(this.prevRot.length >= 10){
+			this.prevRot.splice(0, 1);
+		}
+		this.velocity = [0, 0, 0, 0, 0, 0];
+
+		for(var i = 1; i<this.prevPos.length; i+=1){
+			this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
+			this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
+			this.velocity[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
+
+			this.velocity[3] += (this.prevRot[i][0]-this.prevRot[i-1][0]);
+			this.velocity[4] += (this.prevRot[i][1]-this.prevRot[i-1][1]);
+			this.velocity[5] += (this.prevRot[i][2]-this.prevRot[i-1][2]);
+		}
+
+		showText(this.prevPos[0], canvas.width/2, 50, 15);
+		showText(this.prevPos[8], canvas.width/2, 100, 15);
+		showText(this.velocity, canvas.width/2, 150, 15);
 		if(mouseButtons[0] === true){
 			this.rotation[0] = ((mousePos.x/canvas.width)-0.5)*5;
 			this.rotation[1] = ((mousePos.y/canvas.height)-0.5)*-4;
 		}else{
 			this.position[0] = ((mousePos.x/canvas.width)-0.5)*3;
-			this.position[1] = ((1-(mousePos.y/canvas.height))**2+0.5)*2;
+			//this.position[1] = ((1-(mousePos.y/canvas.height))**2+0.5)*2;
+			this.position[2] = ((1-(mousePos.y/canvas.height)))*2;
 		}
 		return [this.position[0], this.position[1], this.position[2], this.rotation[0], this.rotation[1], this.rotation[2]];
 	}
