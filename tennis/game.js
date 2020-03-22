@@ -92,17 +92,16 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.stopped = false;
-		this.courtSize = 0.115; // court base size
+		this.courtSize = 0.03; // court base size
 		this.size = this.courtSize*canvas.width;
 		this.reset();
 	}
 	run(){
 		if(this.stopped === false){
-			//this.Z = mousePos.y/10
 			this.Yvel -= 0.003;
-			// this.X += this.Xvel;
-			// this.Y += this.Yvel;
-			// this.Z += this.Zvel;
+			this.X += this.Xvel;
+			this.Y += this.Yvel;
+			this.Z += this.Zvel;
 
 			this.Xangle += this.Xrot;
 			this.Yangle += this.Yrot;
@@ -117,8 +116,8 @@ class Ball{
 				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
 				if(call === 0 || Math.abs(this.Xvel)+Math.abs(this.Zvel) < 0.001){
-					this.stopped = true;
-					balls.push(new Ball(this.startX, this.startY, this.startZ));
+					//this.stopped = true;
+					//balls.push(new Ball(this.startX, this.startY, this.startZ));
 				}
 			}
 			if(this.X > 1.5){
@@ -132,12 +131,12 @@ class Ball{
 			if(this.Z > 3){
 				this.Zvel = -this.Zvel*1.5;
 				this.Z = 3;
-				this.Yvel *= 1.5
+				// this.Yvel *= 1.5;
 			}
-			// if(this.Z < 1){
-			// 	this.Zvel = -this.Zvel * 0.9;
-			// 	this.Z = 1;
-			// }
+			if(this.Z < 1){
+				this.Zvel = -this.Zvel * 0.9;
+				this.Z = 1;
+			}
 
 			// net
 			if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
@@ -162,22 +161,29 @@ class Ball{
 
 			// controlling
 			var hovering = playerController.getOver([this.X, this.Y, this.Z], this.size)
-			if(hit === true && mouseButtons[0] === true){
+			if(hovering === true && mouseButtons[0] === true){
 				this.attached = true;
-				showText("hit", canvas.width/2, 50, 15);
+				showText("over", canvas.width/2, 50, 15);
 			}else{
-				showText("miss", canvas.width/2, 50, 15);
+				showText("miss", canvas.width/2, 50, +15);
 			}
 
 			if(this.attached === true){
 				if(mouseButtons[0] === false){
 					this.attached = false;
 					var setVel = playerController.getVel();
+					this.Xvel = setVel[0];
+					this.Yvel = setVel[1];
+					this.Zvel = setVel[2];
 				}
-				this.
+				var newPos = playerController.getPos();
+				this.X = newPos[0];
+				this.Y = newPos[1];
+				this.Z = newPos[2];
 			}
+			showText([this.Xvel, this.Yvel, this.Zvel], canvas.width/2, 150, 15);
 		}else{
-			this.Y = 0.2;
+			this.Y = this.size;
 		}
 	}
 	draw(){
@@ -199,7 +205,7 @@ class Ball{
 		// ball
 		c.beginPath();
 		c.save();
-		if(collidePoint(point, [0, 0, canvas.width, canvas.height]) === true && point[2] > 0){
+		if(collidePoint(point, [0, 0, canvas.width, canvas.height]) === true){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
 			c.arc(point[0], point[1], Math.max(this.size*point[2], 0), 0, Math.PI*2);
@@ -222,9 +228,9 @@ class Ball{
 		this.X = this.startX;
 		this.Y = this.startY;
 		this.Z = this.startZ;
-		this.Xvel = (Math.random()-0.5)*0.02;
-		this.Yvel = 0.1;
-		this.Zvel = (Math.random())*0.05;
+		this.Xvel = 0 //(Math.random()-0.5)*0.02;
+		this.Yvel = 0;
+		this.Zvel = 0 //(Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
 		this.Xrot = Math.random()*this.size*0.1; // the roational speed of the ball
@@ -237,14 +243,17 @@ class Ball{
 class mouseController{
 	constructor(){
 		this.prevPos = [0, 0];
-		this.pollingPeriod = 10;
+		this.pollingPeriod = 3;
+		this.velocity = [0, 0]
 	}
 	getPos(){
-		return [mousePos.x, mousePos.y];
+		var x = (mousePos.x/canvas.width)-0.5;
+		var z = -(mousePos.y/canvas.height)+2;
+		return [x*2, 2.5, z];
 	}
 	update(){ //updates things
-		this.mouseVelocity = [0, 0, 0];
-		this.prevPos.push(this.getPos);
+		this.velocity = [0, 0, 0];
+		this.prevPos.push(this.getPos());
 		if(this.prevPos.length >= this.pollingPeriod){
 			this.prevPos.splice(0, 1); //removes first (oldest) item in list
 		}
@@ -252,9 +261,12 @@ class mouseController{
 		for(var i = 1; i<this.prevPos.length; i+=1){
 			this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
 			this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
+			this.velocity[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
 		}
 		this.velocity[0] /= this.prevPos.length;
 		this.velocity[1] /= this.prevPos.length;
+		this.velocity[2] /= this.prevPos.length;
+		showText(this.velocity, canvas.width/2, 100, 15);
 	}
 	getVel(){
 		// turns mouse velocity to 3d velocity
@@ -284,7 +296,7 @@ class AIController{
 
 var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
-var balls = [new Ball(0, 1, 1)];
+var balls = [new Ball(0, 1, 2)];
 
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
@@ -321,8 +333,6 @@ function inCheck(pos){
 		return 0
 	}
 }
-
-var sunAngle = [0, 0]
 
 class Game{
 	constructor(){
@@ -382,11 +392,11 @@ class Game{
 		drawPoints(netOutlinePoints, cameraPos, "rgb(25, 25, 25)");
 		drawPoints(netInnerPoints, cameraPos, "rgb(25, 25, 25)", 5);
 		for(var i = 0; i < balls.length; i+=1){
-			if(balls[i].Z < 2){
+			if(balls[i].Z <= 2){
 				balls[i].draw();
 			}
 		}
 
-		playerRacquet.run();
+		playerController.update();
 	}
 }
