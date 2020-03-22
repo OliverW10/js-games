@@ -203,6 +203,10 @@ function dist(X1, Y1, X2, Y2){
 	return Math.hypot(X1-X2, Y1-Y2)
 }
 
+function dist3d(x1, y1, z1, x2, y2, z2){
+	return Math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2);
+}
+
 function createArray(fill, size){
 	var temp_array = [];
 	for(var i = 0; i<size; i+=1){
