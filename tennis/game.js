@@ -92,7 +92,7 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.stopped = false;
-		this.courtSize = 0.03; // court base size
+		this.courtSize = 0.02; // court base size
 		this.size = this.courtSize*canvas.width;
 		this.reset();
 	}
@@ -115,28 +115,29 @@ class Ball{
 				this.Yvel = -this.Yvel*0.9;
 				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
-				if(call === 0 || Math.abs(this.Xvel)+Math.abs(this.Zvel) < 0.001){
-					//this.stopped = true;
-					//balls.push(new Ball(this.startX, this.startY, this.startZ));
+				if(call === 0){
+					// this.stopped = true;
+					// balls.push(new Ball(this.startX, this.startY, this.startZ));
+					this.reset();
 				}
 			}
-			if(this.X > 1.5){
-				this.Xvel = -this.Xvel;
-				this.X = 1.5;
-			}
-			if(this.X < -1.5){
-				this.Xvel = -this.Xvel;
-				this.X = -1.5;
-			}
-			if(this.Z > 3){
-				this.Zvel = -this.Zvel*1.5;
-				this.Z = 3;
-				// this.Yvel *= 1.5;
-			}
-			if(this.Z < 1){
-				this.Zvel = -this.Zvel * 0.9;
-				this.Z = 1;
-			}
+			// if(this.X > 1.5){
+			// 	this.Xvel = -this.Xvel;
+			// 	this.X = 1.5;
+			// }
+			// if(this.X < -1.5){
+			// 	this.Xvel = -this.Xvel;
+			// 	this.X = -1.5;
+			// }
+			// if(this.Z > 3){
+			// 	this.Zvel = -this.Zvel*1.5;
+			// 	this.Z = 3;
+			// 	// this.Yvel *= 1.5;
+			// }
+			// if(this.Z < 1){
+			// 	this.Zvel = -this.Zvel * 0.9;
+			// 	this.Z = 1;
+			// }
 
 			// net
 			if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
@@ -243,30 +244,41 @@ class Ball{
 class mouseController{
 	constructor(){
 		this.prevPos = [0, 0];
-		this.pollingPeriod = 3;
-		this.velocity = [0, 0]
+		this.pollingPeriod = [20, 8, 3]; // [recordFor, use for vel, use for spin]
+		this.velocity = [0, 0, 0];
+		this.rotation = [0, 0]
+		this.allowance = 0.01;
 	}
 	getPos(){
 		var x = (mousePos.x/canvas.width)-0.5;
+		var y = -(mousePos.y/canvas.height)+1;
 		var z = -(mousePos.y/canvas.height)+2;
-		return [x*2, 2.5, z];
+		return [x*2, y*2, z];
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
 		this.prevPos.push(this.getPos());
-		if(this.prevPos.length >= this.pollingPeriod){
+		if(this.prevPos.length >= this.pollingPeriod[0]){
 			this.prevPos.splice(0, 1); //removes first (oldest) item in list
 		}
 
-		for(var i = 1; i<this.prevPos.length; i+=1){
+		for(var i = 1; i<this.pollingPeriod[1]; i+=1){
 			this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
 			this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
 			this.velocity[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
 		}
-		this.velocity[0] /= this.prevPos.length;
-		this.velocity[1] /= this.prevPos.length;
-		this.velocity[2] /= this.prevPos.length;
-		showText(this.velocity, canvas.width/2, 100, 15);
+		this.velocity[0] /= this.pollingPeriod[1];
+		this.velocity[1] /= this.pollingPeriod[1];
+		this.velocity[2] /= this.pollingPeriod[1];
+
+		for(var i = 1; i<this.pollingPeriod[2]; i+=1){
+			this.rotation[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
+			this.rotation[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
+			this.rotation[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
+		}
+		this.rotation[0] /= this.pollingPeriod[2];
+		this.rotation[1] /= this.pollingPeriod[2];
+		this.rotation[2] /= this.pollingPeriod[2];
 	}
 	getVel(){
 		// turns mouse velocity to 3d velocity
@@ -275,7 +287,7 @@ class mouseController{
 
 	getOver(pos, size){
 		var point = projectPoint(pos[0], pos[1], pos[2]);
-		return dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*size;
+		return dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(size+this.allowance);
 	}
 }
 
@@ -296,7 +308,7 @@ class AIController{
 
 var cameraPos = [0, 5, 0.5];
 var vanishingPointPos = [0.5, 0.2]
-var balls = [new Ball(0, 1, 2)];
+var balls = [new Ball(0, 1, 1.5)];
 
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
