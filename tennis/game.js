@@ -13,11 +13,13 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 
 
 // this full 3d stuff isn't used or done but I might swap to it in the future
-function rotatePoint(){
+function rotatePoint(pointOffset, angles){
 	// rotates a 3d point around another 3d point by a 3d rotation thing
-	// creates and uses a transformation matrix explained here https://www.youtube.com/watch?v=rHLEWRxRGiM
+	// 3d offset is the relative coordanate of the point that you want to rotate from where it should rotate around
+	// angles is all the angles between
+	// creates and uses a transformation matrix explained here https://www.youtube.com/watch?v=rHLEWRxRGiM and here https://www.youtube.com/watch?v=RqZH-7hlI48
 	// used for rotateing 3d "models", such as the raquet.
-
+	var rotationMatrix = [[]]
 }
 
 function transformation(inputVector, transformationMatrix){
@@ -90,7 +92,7 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.stopped = false;
-		this.courtSize = 0.015; // court base size
+		this.courtSize = 0.115; // court base size
 		this.size = this.courtSize*canvas.width;
 		this.reset();
 	}
@@ -144,7 +146,7 @@ class Ball{
 				this.Xvel *= 0.9;
 			}
 
-			//
+			// rotation renders looping
 			if(this.Xangle > this.size*2){
 				this.Xangle = -this.size*2;
 			}
@@ -156,6 +158,23 @@ class Ball{
 			}
 			if(this.Yangle < -this.size*2){
 				this.Yangle = this.size*2;
+			}
+
+			// controlling
+			var hovering = playerController.getOver([this.X, this.Y, this.Z], this.size)
+			if(hit === true && mouseButtons[0] === true){
+				this.attached = true;
+				showText("hit", canvas.width/2, 50, 15);
+			}else{
+				showText("miss", canvas.width/2, 50, 15);
+			}
+
+			if(this.attached === true){
+				if(mouseButtons[0] === false){
+					this.attached = false;
+					var setVel = playerController.getVel();
+				}
+				this.
 			}
 		}else{
 			this.Y = 0.2;
@@ -210,135 +229,41 @@ class Ball{
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
 		this.Xrot = Math.random()*this.size*0.1; // the roational speed of the ball
 		this.Yrot = Math.random()*this.size*0.1;
+		this.attached = false;
 	}
 }
 
-class Racquet{
-	constructor(size, controller){ 
-		// takes a controller class so that i can use the same raquet for player and ai
-		//the pos will be the position of the base of the handle and also have rotation
-		this.pos = [];
-		this.size = size;
-		this.controller = controller;
-	}
-	run(){
-		this.pos = this.controller.getPos();
-		this.draw(this.pos);
-	}
-	draw(pos){
-		//handle shadow
-		c.beginPath();
-		c.strokeStyle = "rgba(0, 0, 0, 0.5)";
-		var point = projectPoint(pos[0], 0, pos[2])
-		c.lineWidth = point[2]*3;
-		c.moveTo(point[0], point[1]);
-		var point = projectPoint(pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4]), 0, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4]));
-		c.lineTo(point[0], point[1]);
-		c.stroke();
-
-		// racquet
-		var midVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*2, 0, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*2]
-		var endVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*3, 0, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*3]
-
-		var midPoint = projectPoint(midVector[0], midVector[1], midVector[2]);
-		var endPoint = projectPoint(endVector[0], endVector[1], endVector[2]);
-		// var sidePoint = projectPoint(sideVector[0], sideVector[1], sideVector[2]);
-
-		var angle = Math.atan2(midPoint[1]-endPoint[1], midPoint[0]-endPoint[0]); 
-		var lengthDist = dist(midPoint[0], midPoint[1], endPoint[0], endPoint[1]); // calculates the "height" of the racquet
-		var widthDist = midPoint[2]*scale*10;
-		c.beginPath();
-		c.ellipse(midPoint[0], midPoint[1], lengthDist, widthDist, angle+Math.PI*2, 0, Math.PI*2);
-		c.stroke();
-
-		// handle
-		c.beginPath();
-		c.strokeStyle = "rgb(0, 0, 0)";
-		var point = projectPoint(pos[0], pos[1], pos[2])
-		c.moveTo(point[0], point[1]);
-		var point = projectPoint(pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4]), pos[1]+Math.sin(pos[4])*this.size, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4]));
-		c.lineTo(point[0], point[1]);
-		c.stroke();
-
-		// racquet
-		var midVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*2, pos[1]+Math.sin(pos[4])*this.size*2, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*2]
-		var endVector = [pos[0]+Math.sin(pos[3])*this.size*Math.cos(pos[4])*3, pos[1]+Math.sin(pos[4])*this.size*3, pos[2]+Math.cos(pos[3])*this.size*Math.cos(pos[4])*3]
-
-		var midPoint = projectPoint(midVector[0], midVector[1], midVector[2]);
-		var endPoint = projectPoint(endVector[0], endVector[1], endVector[2]);
-		// var sidePoint = projectPoint(sideVector[0], sideVector[1], sideVector[2]);
-
-		var angle = Math.atan2(midPoint[1]-endPoint[1], midPoint[0]-endPoint[0]); 
-		var lengthDist = dist(midPoint[0], midPoint[1], endPoint[0], endPoint[1]); // calculates the "length" of the racquet
-		var widthDist = midPoint[2]*scale*10;
-		c.beginPath();
-		c.ellipse(midPoint[0], midPoint[1], lengthDist, widthDist, angle+Math.PI*2, 0, Math.PI*2);
-		c.stroke();
-	}
-}
 
 class mouseController{
 	constructor(){
-		this.rotation = [0, 0, 0];
-		this.position = [0, 1, 0.9];
-		this.prevPos = [0, 0, 0];
-		this.prevRot = [0, 0, 0];
-		this.velocity = [0, 0, 0, 0, 0, 0];
-		this.pollingPeriod = 10
+		this.prevPos = [0, 0];
+		this.pollingPeriod = 10;
 	}
 	getPos(){
-		
-		this.velocity = [0, 0, 0, 0, 0, 0];
-
-		showText(this.prevPos[0], canvas.width/2, 50, 15);
-		showText(this.prevPos[8], canvas.width/2, 100, 15);
-		showText(this.velocity, canvas.width/2, 150, 15);
-		if(mouseButtons[0] === true){ // control rotaion
-			this.rotation[0] = ((mousePos.x/canvas.width)-0.5)*5;
-			this.rotation[1] = ((mousePos.y/canvas.height)-0.5)*-4;
-			this.prevRot.push([this.rotation[0], this.rotation[1], this.rotation[2]]);
-			if(this.prevRot.length >= this.pollingPeriod){
-				this.prevRot.splice(0, 1);
-			}
-			for(var i = 1; i<this.prevPos.length; i+=1){
-				this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
-				this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
-				this.velocity[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
-			}
-			this.position[0] += this.velocity[0]/6;
-			this.position[1] += this.velocity[1]/6;
-			this.position[2] += this.velocity[2]/6;
-
-		}else{ //control position
-			this.position[0] = ((mousePos.x/canvas.width)-0.5)*3;
-			//this.position[1] = ((1-(mousePos.y/canvas.height))**2+0.5)*2;
-			this.position[2] = ((1-(mousePos.y/canvas.height)))*2;
-
-			this.prevPos.push([this.position[0], this.position[1], this.position[2]]);
-			if(this.prevPos.length >= this.pollingPeriod){
-				this.prevPos.splice(0, 1);
-			}
-
-			if(this.prevRot.length >= 1){
-				for(var i = 1; i<this.prevRot.length; i+=1){
-					this.velocity[3] += (this.prevRot[i][0]-this.prevRot[i-1][0]);
-					this.velocity[4] += (this.prevRot[i][1]-this.prevRot[i-1][1]);
-					this.velocity[5] += (this.prevRot[i][2]-this.prevRot[i-1][2]);
-				}
-
-				// this.rotation[0] += this.velocity[3]/6;
-				// this.rotation[1] += this.velocity[4]/6;
-				// this.rotation[2] += this.velocity[5]/6;
-			}
+		return [mousePos.x, mousePos.y];
+	}
+	update(){ //updates things
+		this.mouseVelocity = [0, 0, 0];
+		this.prevPos.push(this.getPos);
+		if(this.prevPos.length >= this.pollingPeriod){
+			this.prevPos.splice(0, 1); //removes first (oldest) item in list
 		}
-		this.velocity[0] *= 0.9;
-		this.velocity[1] *= 0.9;
-		this.velocity[2] *= 0.9;
-		this.velocity[3] *= 0.99;
-		this.velocity[4] *= 0.99;
-		this.velocity[5] *= 0.99;
 
-		return [this.position[0], this.position[1], this.position[2], this.rotation[0], this.rotation[1], this.rotation[2]];
+		for(var i = 1; i<this.prevPos.length; i+=1){
+			this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
+			this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
+		}
+		this.velocity[0] /= this.prevPos.length;
+		this.velocity[1] /= this.prevPos.length;
+	}
+	getVel(){
+		// turns mouse velocity to 3d velocity
+		return this.velocity;
+	}
+
+	getOver(pos, size){
+		var point = projectPoint(pos[0], pos[1], pos[2]);
+		return dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*size;
 	}
 }
 
@@ -346,7 +271,13 @@ class AIController{
 	constructor(){
 
 	}
-	getInput(){
+	getPos(){
+
+	}
+	getVel(){
+
+	}
+	getOver(){
 
 	}
 }
@@ -369,7 +300,7 @@ mountainPoints.push([-50, -50, 30]);
 
 var bounceSpots = []
 
-var playerRacquet = new Racquet(0.1, new mouseController());
+var playerController = new mouseController();
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
