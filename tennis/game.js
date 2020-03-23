@@ -57,17 +57,19 @@ var courtPoints = [[-1, 0, 1],
 [-1, 0, 3]
 ]
 
+var netHeight = 0.3;
+
 var netOutlinePoints = [[-1.6, 0, 2],
-[-1.6, 1, 2],
-[1.6, 1, 2],
+[-1.6, netHeight, 2],
+[1.6, netHeight, 2],
 [1.6, 0, 2],
 [-1.6, 0, 2]];
 
 var netInnerPoints = [];
 for(var i = -1.6; i<1.6; i+=0.1){
-	netInnerPoints.push([i, 1, 2]);
+	netInnerPoints.push([i, netHeight, 2]);
 	netInnerPoints.push([i, 0, 2]);
-	netInnerPoints.push([i, 1, 2]);
+	netInnerPoints.push([i, netHeight, 2]);
 }
 
 function drawPoints(points, cameraPos, colour, width = 10, line = true){
@@ -94,11 +96,12 @@ class Ball{
 		this.stopped = false;
 		this.courtSize = 0.02; // court base size
 		this.size = this.courtSize*canvas.width;
+		this.gravity = 0.008;
 		this.reset();
 	}
 	run(){
 		if(this.stopped === false){
-			this.Yvel -= 0.003;
+			this.Yvel -= this.gravity;
 			this.X += this.Xvel;
 			this.Y += this.Yvel;
 			this.Z += this.Zvel;
@@ -164,11 +167,9 @@ class Ball{
 			var hovering = playerController.getOver([this.X, this.Y, this.Z], this.size)
 			if(hovering === true && mouseButtons[0] === true){
 				this.attached = true;
-				showText("over", canvas.width/2, 50, 15);
-			}else{
-				showText("miss", canvas.width/2, 50, +15);
+				
 			}
-
+			showText([this.Xrot, this.Yrot], canvas.width/2, 50, 15);
 			if(this.attached === true){
 				if(mouseButtons[0] === false){
 					this.attached = false;
@@ -176,6 +177,9 @@ class Ball{
 					this.Xvel = setVel[0];
 					this.Yvel = setVel[1];
 					this.Zvel = setVel[2];
+					var setRot = playerController.getRot();
+					this.Xrot = setRot[0];
+					this.Yrot = setRot[2];
 				}
 				var newPos = playerController.getPos();
 				this.X = newPos[0];
@@ -244,7 +248,7 @@ class Ball{
 class mouseController{
 	constructor(){
 		this.prevPos = [0, 0];
-		this.pollingPeriod = [61, 5, 3]; // [recordFor, use for vel, use for spin]
+		this.pollingPeriod = [61, 6, 3]; // [recordFor, use for vel, use for spin]
 		this.velocity = [0, 0, 0];
 		this.rotation = [0, 0]
 		this.allowance = 0.01;
@@ -272,7 +276,7 @@ class mouseController{
 			this.velocity[0] += (this.prevPos[l-i][0]-this.prevPos[(l-i)-1][0]);
 			this.velocity[1] += (this.prevPos[l-i][1]-this.prevPos[(l-i)-1][1]);
 			this.velocity[2] += (this.prevPos[l-i][2]-this.prevPos[(l-i)-1][2]);
-			var p = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[i][2]);
+			var p = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[l-i][2]);
 			c.lineTo(p[0], p[1]);
 		}
 		c.stroke();
@@ -280,18 +284,29 @@ class mouseController{
 		this.velocity[1] /= this.pollingPeriod[1];
 		this.velocity[2] /= this.pollingPeriod[1];
 
+		c.beginPath();
+		c.strokeStyle = "rgb(255, 0, 0)";
+		var p = projectPoint(this.prevPos[0][0], this.prevPos[0][1], this.prevPos[0][2]); // rather than having point i used p here
+		c.moveTo(p[l], p[l])
 		for(var i = 1; i<this.pollingPeriod[2]; i+=1){
-			this.rotation[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
-			this.rotation[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
-			this.rotation[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
+			this.rotation[0] += (this.prevPos[l-i][0]-this.prevPos[(l-i)-1][0]);
+			this.rotation[1] += (this.prevPos[l-i][1]-this.prevPos[(l-i)-1][1]);
+			this.rotation[2] += (this.prevPos[l-i][2]-this.prevPos[(l-i)-1][2]);
+			var p = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[(l-i)][2]);
+			c.lineTo(p[0], p[1]);
 		}
+		c.stroke();
 		this.rotation[0] /= this.pollingPeriod[2];
 		this.rotation[1] /= this.pollingPeriod[2];
 		this.rotation[2] /= this.pollingPeriod[2];
+		showText(this.rotation, canvas.width/2, 100, 15);
 	}
 	getVel(){
-		// turns mouse velocity to 3d velocity
 		return this.velocity;
+	}
+
+	getRot(){
+		return this.rotation;
 	}
 
 	getOver(pos, size){
@@ -316,7 +331,8 @@ class AIController{
 }
 
 var cameraPos = [0, 5, 0.5];
-var vanishingPointPos = [0.5, 0.2]
+var vanishingPointPos = [0.5, 0.5];
+var screenOffset = [0, 0];
 var balls = [new Ball(0, 1, 1.5)];
 
 var mountainPoints = [[-50, -50, 30]];
