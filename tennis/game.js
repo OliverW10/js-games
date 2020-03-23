@@ -244,7 +244,7 @@ class Ball{
 class mouseController{
 	constructor(){
 		this.prevPos = [0, 0];
-		this.pollingPeriod = [20, 8, 3]; // [recordFor, use for vel, use for spin]
+		this.pollingPeriod = [61, 5, 3]; // [recordFor, use for vel, use for spin]
 		this.velocity = [0, 0, 0];
 		this.rotation = [0, 0]
 		this.allowance = 0.01;
@@ -262,11 +262,20 @@ class mouseController{
 			this.prevPos.splice(0, 1); //removes first (oldest) item in list
 		}
 
+		c.beginPath();
+		c.strokeStyle = "rgb(0, 0, 255)";
+		c.lineWidth = 10;
+		var p = projectPoint(this.prevPos[0][0], this.prevPos[0][1], this.prevPos[0][2]); // rather than having point i used p here
+		var l = this.prevPos.length;
+		c.moveTo(p[l], p[l])
 		for(var i = 1; i<this.pollingPeriod[1]; i+=1){
-			this.velocity[0] += (this.prevPos[i][0]-this.prevPos[i-1][0]);
-			this.velocity[1] += (this.prevPos[i][1]-this.prevPos[i-1][1]);
-			this.velocity[2] += (this.prevPos[i][2]-this.prevPos[i-1][2]);
+			this.velocity[0] += (this.prevPos[l-i][0]-this.prevPos[(l-i)-1][0]);
+			this.velocity[1] += (this.prevPos[l-i][1]-this.prevPos[(l-i)-1][1]);
+			this.velocity[2] += (this.prevPos[l-i][2]-this.prevPos[(l-i)-1][2]);
+			var p = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[i][2]);
+			c.lineTo(p[0], p[1]);
 		}
+		c.stroke();
 		this.velocity[0] /= this.pollingPeriod[1];
 		this.velocity[1] /= this.pollingPeriod[1];
 		this.velocity[2] /= this.pollingPeriod[1];
