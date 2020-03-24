@@ -132,7 +132,7 @@ class Ball{
 				// 	this.X = -1.5;
 				// }
 				if(this.Z > 3){
-					this.Zvel = -this.Zvel*1.5;
+					this.Zvel = -this.Zvel*1;
 					this.Z = 3;
 				}
 				// if(this.Z < 1){
@@ -187,7 +187,6 @@ class Ball{
 				this.Y = newPos[1];
 				this.Z = newPos[2];
 			}
-			showText([this.Xvel, this.Yvel, this.Zvel], canvas.width/2, 150, 15);
 		}else{
 			this.Y = this.size;
 		}
@@ -251,7 +250,7 @@ class mouseController{
 		this.pollingPeriod = [61, 6, 3]; // [recordFor, use for vel, use for spin]
 		this.velocity = [0, 0, 0];
 		this.rotation = [0, 0]
-		this.allowance = 0.01;
+		this.allowance = 10;
 	}
 	getPos(){
 		var x = (mousePos.x/canvas.width)-0.5;
@@ -291,9 +290,8 @@ class mouseController{
 		this.rotation = [0, 0];
 		for(var i = 1; i<this.pollingPeriod[2]; i+=1){
 			var p = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[(l-i)][2]);
-			console.log(p);
-			this.rotation[0] += (p[0]-oldP[0]);
-			this.rotation[1] += (p[1]-oldP[1]);
+			// this.rotation[0] += (p[0]-oldP[0]);
+			// this.rotation[1] += (p[1]-oldP[1]);
 			var oldP = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[(l-i)][2]);
 			c.lineTo(p[0], p[1]);
 		}
@@ -423,6 +421,7 @@ class Game{
 		playerVel[0] *= 0.9;
 		playerVel[1] *= 0.9;
 		playerVel[2] *= 0.9;
+		showText(playerVel, canvas.width/2, 150, 15);
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
