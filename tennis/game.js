@@ -72,17 +72,19 @@ for(var i = -1.6; i<1.6; i+=0.1){
 	netInnerPoints.push([i, netHeight, 2]);
 }
 
-function drawPoints(points, cameraPos, colour, width = 10, line = true){
+function drawPoints(points, cameraPos, colour, width = 10){
 	var point = projectPoint(points[0][0], points[0][1], points[0][2], cameraPos);
 	for(var i = 1; i<points.length;i+=1){
-		c.beginPath();
-		c.strokeStyle = colour;
-		var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
-		var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
-		c.lineWidth = ((point1[2]+point2[2])/2)*width;
-		c.moveTo(point1[0], point1[1]);
-		c.lineTo(point2[0], point2[1]);
-		c.stroke();
+		if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
+			c.beginPath();
+			c.strokeStyle = colour;
+			var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
+			var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
+			c.lineWidth = Math.min(point1[2], point2[2])*width;
+			c.moveTo(point1[0], point1[1]);
+			c.lineTo(point2[0], point2[1]);
+			c.stroke();
+		}
 	}
 }
 
@@ -129,11 +131,10 @@ class Ball{
 				// 	this.Xvel = -this.Xvel;
 				// 	this.X = -1.5;
 				// }
-				// if(this.Z > 3){
-				// 	this.Zvel = -this.Zvel*1.5;
-				// 	this.Z = 3;
-				// 	// this.Yvel *= 1.5;
-				// }
+				if(this.Z > 3){
+					this.Zvel = -this.Zvel*1.5;
+					this.Z = 3;
+				}
 				// if(this.Z < 1){
 				// 	this.Zvel = -this.Zvel * 0.9;
 				// 	this.Z = 1;
@@ -164,7 +165,7 @@ class Ball{
 			}
 
 			// controlling
-			var hovering = playerController.getOver([this.X, this.Y, this.Z], this.size)
+			var hovering = playerRaqucetController.getOver([this.X, this.Y, this.Z], this.size)
 			if(hovering === true && mouseButtons[0] === true){
 				this.attached = true;
 				
@@ -173,15 +174,15 @@ class Ball{
 			if(this.attached === true){
 				if(mouseButtons[0] === false){
 					this.attached = false;
-					var setVel = playerController.getVel();
+					var setVel = playerRaqucetController.getVel();
 					this.Xvel = setVel[0];
 					this.Yvel = setVel[1];
 					this.Zvel = setVel[2];
-					var setRot = playerController.getRot();
+					var setRot = playerRaqucetController.getRot();
 					this.Xrot = setRot[0];
 					this.Yrot = setRot[1];
 				}
-				var newPos = playerController.getPos();
+				var newPos = playerRaqucetController.getPos();
 				this.X = newPos[0];
 				this.Y = newPos[1];
 				this.Z = newPos[2];
@@ -244,7 +245,6 @@ class Ball{
 	}
 }
 
-
 class mouseController{
 	constructor(){
 		this.prevPos = [0, 0];
@@ -288,17 +288,18 @@ class mouseController{
 		c.strokeStyle = "rgb(255, 0, 0)";
 		var p = projectPoint(this.prevPos[0][0], this.prevPos[0][1], this.prevPos[0][2]); // rather than having point i used p here
 		c.moveTo(p[l], p[l])
+		this.rotation = [0, 0];
 		for(var i = 1; i<this.pollingPeriod[2]; i+=1){
-			this.rotation[0] += (this.prevPos[l-i][0]-this.prevPos[(l-i)-1][0]);
-			this.rotation[1] += (this.prevPos[l-i][1]-this.prevPos[(l-i)-1][1]);
-			this.rotation[2] += (this.prevPos[l-i][2]-this.prevPos[(l-i)-1][2]);
 			var p = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[(l-i)][2]);
+			console.log(p);
+			this.rotation[0] += (p[0]-oldP[0]);
+			this.rotation[1] += (p[1]-oldP[1]);
+			var oldP = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[(l-i)][2]);
 			c.lineTo(p[0], p[1]);
 		}
 		c.stroke();
 		this.rotation[0] /= this.pollingPeriod[2];
 		this.rotation[1] /= this.pollingPeriod[2];
-		this.rotation[2] /= this.pollingPeriod[2];
 		showText(this.rotation, canvas.width/2, 100, 15);
 	}
 	getVel(){
@@ -330,7 +331,7 @@ class AIController{
 	}
 }
 
-var cameraPos = [0, 5, 0.5];
+var cameraPos = [0, 2, -0.9];
 var vanishingPointPos = [0.5, 0.2];
 var balls = [new Ball(0, 1, 1.5)];
 
@@ -348,7 +349,8 @@ mountainPoints.push([-50, -50, 30]);
 
 var bounceSpots = []
 
-var playerController = new mouseController();
+var playerRaqucetController = new mouseController();
+var playerVel = [0, 0, 0];
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -396,25 +398,31 @@ class Game{
 		c.fill();
 
 		if(checkKey("Space") == true){
-			cameraPos[1] += 0.1;
+			playerVel[1] += 0.001;
 		}
 		if(checkKey("ShiftLeft") == true){
-			cameraPos[1] -= 0.1;
+			playerVel[1] -= 0.001;
 		}
 		if(checkKey("KeyA") == true){
-			cameraPos[0] += 0.1;
+			playerVel[0] += 0.001;
 		}
 		if(checkKey("KeyD") == true){
-			cameraPos[0] -= 0.1;
+			playerVel[0] -= 0.001;
 		}
 		if(checkKey("KeyS") == true){
-			cameraPos[2] += 0.1;
+			playerVel[2] += 0.001;
 		}
 		if(checkKey("KeyW") == true){
-			cameraPos[2] -= 0.1;
+			playerVel[2] -= 0.001;
 		}
 		
-		//cameraPos[0] = cameraPos[0]*0.95+0*0.05
+		cameraPos[0] += playerVel[0];
+		cameraPos[1] += playerVel[1];
+		cameraPos[2] += playerVel[2];
+
+		playerVel[0] *= 0.9;
+		playerVel[1] *= 0.9;
+		playerVel[2] *= 0.9;
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
@@ -433,6 +441,6 @@ class Game{
 			}
 		}
 
-		playerController.update();
+		playerRaqucetController.update();
 	}
 }
