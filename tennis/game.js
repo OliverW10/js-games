@@ -73,19 +73,17 @@ for(var i = -1.6; i<1.6; i+=0.1){
 }
 
 function drawPoints(points, cameraPos, colour, width = 10, line = true){
-	c.beginPath();
 	var point = projectPoint(points[0][0], points[0][1], points[0][2], cameraPos);
-	if(line === true){
-		c.moveTo(point[0], point[1]);
-	}
 	for(var i = 1; i<points.length;i+=1){
+		c.beginPath();
 		c.strokeStyle = colour;
 		var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
 		var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
 		c.lineWidth = ((point1[2]+point2[2])/2)*width;
+		c.moveTo(point1[0], point1[1]);
 		c.lineTo(point2[0], point2[1]);
+		c.stroke();
 	}
-	c.stroke();
 }
 
 class Ball{
