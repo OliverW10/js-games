@@ -57,7 +57,7 @@ var courtPoints = [[-1, 0, 1],
 [-1, 0, 3]
 ]
 
-var netHeight = 0.3;
+var netHeight = 0.4;
 
 var netOutlinePoints = [[-1.6, 0, 2],
 [-1.6, netHeight, 2],
@@ -101,55 +101,57 @@ class Ball{
 	}
 	run(){
 		if(this.stopped === false){
-			this.Yvel -= this.gravity;
-			this.X += this.Xvel;
-			this.Y += this.Yvel;
-			this.Z += this.Zvel;
+			if(this.attached === false){
+				this.Yvel -= this.gravity;
+				this.X += this.Xvel;
+				this.Y += this.Yvel;
+				this.Z += this.Zvel;
 
+				// drag
+				this.Yvel *= 0.999
+				this.Xvel *= 0.99
+				this.Zvel *= 0.99
+				// collitions
+				if(this.Y-this.courtSize <= 0){
+					this.Y = this.courtSize;
+					this.Yvel = -this.Yvel*0.9;
+					var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
+					bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
+					if(call === 0){
+						// this.stopped = true;
+						// balls.push(new Ball(this.startX, this.startY, this.startZ));
+						this.reset();
+					}
+				}
+				// if(this.X > 1.5){
+				// 	this.Xvel = -this.Xvel;
+				// 	this.X = 1.5;
+				// }
+				// if(this.X < -1.5){
+				// 	this.Xvel = -this.Xvel;
+				// 	this.X = -1.5;
+				// }
+				// if(this.Z > 3){
+				// 	this.Zvel = -this.Zvel*1.5;
+				// 	this.Z = 3;
+				// 	// this.Yvel *= 1.5;
+				// }
+				// if(this.Z < 1){
+				// 	this.Zvel = -this.Zvel * 0.9;
+				// 	this.Z = 1;
+				// }
+
+				// net
+				if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
+					this.Zvel = -this.Zvel;
+					this.Zvel *= 0.5;
+					this.Xvel *= 0.9;
+				}
+
+			}
+			// rotation renders looping
 			this.Xangle += this.Xrot;
 			this.Yangle += this.Yrot;
-			// drag
-			this.Yvel *= 0.999
-			this.Xvel *= 0.99
-			this.Zvel *= 0.99
-			// collitions
-			if(this.Y-this.courtSize <= 0){
-				this.Y = this.courtSize;
-				this.Yvel = -this.Yvel*0.9;
-				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
-				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
-				if(call === 0){
-					// this.stopped = true;
-					// balls.push(new Ball(this.startX, this.startY, this.startZ));
-					this.reset();
-				}
-			}
-			// if(this.X > 1.5){
-			// 	this.Xvel = -this.Xvel;
-			// 	this.X = 1.5;
-			// }
-			// if(this.X < -1.5){
-			// 	this.Xvel = -this.Xvel;
-			// 	this.X = -1.5;
-			// }
-			// if(this.Z > 3){
-			// 	this.Zvel = -this.Zvel*1.5;
-			// 	this.Z = 3;
-			// 	// this.Yvel *= 1.5;
-			// }
-			// if(this.Z < 1){
-			// 	this.Zvel = -this.Zvel * 0.9;
-			// 	this.Z = 1;
-			// }
-
-			// net
-			if(this.Z > 1.95 && this.Z < 2.05 && this.Y < 1){
-				this.Zvel = -this.Zvel;
-				this.Zvel *= 0.5;
-				this.Xvel *= 0.9;
-			}
-
-			// rotation renders looping
 			if(this.Xangle > this.size*2){
 				this.Xangle = -this.size*2;
 			}
@@ -179,7 +181,7 @@ class Ball{
 					this.Zvel = setVel[2];
 					var setRot = playerController.getRot();
 					this.Xrot = setRot[0];
-					this.Yrot = setRot[2];
+					this.Yrot = setRot[1];
 				}
 				var newPos = playerController.getPos();
 				this.X = newPos[0];
@@ -255,9 +257,9 @@ class mouseController{
 	}
 	getPos(){
 		var x = (mousePos.x/canvas.width)-0.5;
-		var y = -(mousePos.y/canvas.height)+1;
-		var z = -(mousePos.y/canvas.height)+2;
-		return [x*2, y*2, z];
+		var y = -(mousePos.y/canvas.height);
+		var z = -(mousePos.y/canvas.height)+1;
+		return [x*2-cameraPos[0], y*2+cameraPos[1], z-cameraPos[2]];
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
@@ -331,8 +333,7 @@ class AIController{
 }
 
 var cameraPos = [0, 5, 0.5];
-var vanishingPointPos = [0.5, 0.5];
-var screenOffset = [0, 0];
+var vanishingPointPos = [0.5, 0.2];
 var balls = [new Ball(0, 1, 1.5)];
 
 var mountainPoints = [[-50, -50, 30]];
