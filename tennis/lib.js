@@ -229,3 +229,12 @@ function createNdArray(fill, sizes){
 	}
 	return temp_array
 }
+
+
+function random(min, max){
+	return Math.random()*(max-min)+min;
+}
+
+function round(num, places){
+	return Math.round(num*(10**places))/(10**places)
+}
