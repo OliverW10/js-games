@@ -367,10 +367,11 @@ class AIController{
 		this.Z = Z;
 
 		var target = [cameraPos[0], 0, cameraPos[2]]; // loop through random positions take the furthest away from player
-		var angle = Math.atan2(Z-target[2], X-target[0]);
+		var angle = Math.atan2(-X-target[0], Z-target[2]);
 
-		var power = dist(X, Z, target[0], target[2])*0.01;
-		return [power*Math.cos(-angle), 0.1, -power*Math.sin(angle)];
+		var power = dist(X, Z, target[0], target[2])*0.02;
+		console.log(angle);
+		return [power*Math.sin(angle), 0.1, -power*Math.cos(angle)];
 	}
 	getOver(){
 
