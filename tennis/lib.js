@@ -34,7 +34,7 @@ var pressedAnyKey = false;
 document.addEventListener('keydown', function(event) {
 		current_key = event.code;
 		keys[current_key] = true;
-		// console.log(keys);
+		console.log(keys);
 		pressedAnyKey = true;
 	}
 );
@@ -200,7 +200,7 @@ function scaleNumber(n, x1, x2, z1, z2){
 }
 
 function dist(X1, Y1, X2, Y2){
-	return Math.hypot(X1-X2, Y1-Y2)
+	return Math.hypot(X1-X2, Y1-Y2);
 }
 
 function dist3d(x1, y1, z1, x2, y2, z2){
