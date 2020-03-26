@@ -5,10 +5,16 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 	var ax = x1+camera[0];
 	var ay = -y1+camera[1];
 	var az = Math.abs(z1+camera[2]);
-	var x2 = ((ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
-	var y2 = ((ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
+	var x2 = (warp(ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
+	var y2 = (warp(ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
 	//returns X and Y position and size (az)
 	return [x2, y2, (1/az)*scale];
+}
+
+function warp(pos){ // position is one axis with 0 being in the middle and 1 and -1 being the edges
+	//var newPos = Math.tan(pos*1.1)*Math.PI*(1/1.1);
+	var newPos = Math.sign(pos)*(Math.abs(pos)**(1/1.1))
+	return newPos
 }
 
 
@@ -26,6 +32,13 @@ function transformation(inputVector, transformationMatrix){
 
 
 	return outputVector
+}
+
+var gridPoints = [];
+for(var i = 0; i<10; i +=1){
+	for(var j = 0; j<10; j+=1){
+		gridPoints.push([(i/10)-0.5, (j/10), 1.5]);
+	}
 }
 
 var courtPoints = [[-1, 0, 1],
@@ -301,7 +314,12 @@ class mouseController{
 		this.rotation[0] /= this.pollingPeriod[2];
 		this.rotation[1] /= this.pollingPeriod[2];
 
-		// drawRacquet(this.prevPos[l-1][0], this.prevPos[l-1][1], this.prevPos[l-1][2]);
+		this.draw();
+	}
+	draw(){
+		c.beginPath();
+		c.fillStyle = "rgba(255, 0, 0, 0.1)";
+		c.fillRect(canvas.width*0.35, 0, canvas.width*0.3, canvas.height);
 	}
 	getVel(){
 		return this.velocity;
@@ -367,10 +385,10 @@ class AIController{
 		this.Z = Z;
 
 		var target = [cameraPos[0], 0, cameraPos[2]]; // loop through random positions take the furthest away from player
-		var angle = Math.atan2(-X-target[0], Z-target[2]);
+		var angle = Math.atan2(-X-target[0], Z-target[2]-2);
 
-		var power = dist(X, Z, target[0], target[2])*0.02;
-		console.log(angle);
+		var power = 0.05;//dist(X, Z, target[0], target[2])*0.02;
+		console.log(power);
 		return [power*Math.sin(angle), 0.1, -power*Math.cos(angle)];
 	}
 	getOver(){
@@ -497,5 +515,7 @@ class Game{
 
 		playerRacquetController.update();
 		comRacquetController.draw();
+
+		// drawPoints(gridPoints, cameraPos, "rgb(0, 0, 255)", 4);
 	}
 }
