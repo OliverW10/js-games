@@ -271,6 +271,10 @@ class Ball{
 		this.Yrot = Math.random()*this.size*0.1;
 		this.attached = false;
 	}
+	camDist(){
+		// distance from ball to camera
+		return dist3d(this.X, this.Y, this.Z, cameraPos[0], cameraPos[1], -cameraPos[2]);
+	}
 }
 
 class mouseController{
@@ -331,9 +335,9 @@ class mouseController{
 		this.draw();
 	}
 	draw(){
-		c.beginPath();
-		c.fillStyle = "rgba(255, 0, 0, 0.1)";
-		c.fillRect(canvas.width*0.35, 0, canvas.width*0.3, canvas.height);
+		// c.beginPath();
+		// c.fillStyle = "rgba(255, 0, 0, 0.1)";
+		// c.fillRect(canvas.width*0.35, 0, canvas.width*0.3, canvas.height);
 	}
 	getVel(){
 		return this.velocity;
@@ -413,7 +417,8 @@ class AIController{
 	}
 }
 
-var gameSpeed = 0.2;
+var gameSpeed = 1;
+var vingette = 1-gameSpeed;
 
 var cameraPos = [0, 2, -0.9];
 var vanishingPointPos = [0.5, 0.2];
@@ -510,9 +515,12 @@ class Game{
 		playerVel[1] *= 0.9;
 		playerVel[2] *= 0.9;
 
+		gameSpeed = 1;
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
+			gameSpeed = Math.min(1-(1/balls[i].camDist()), gameSpeed);
 		}
+		gameSpeed = Math.max(0.1, gameSpeed);
 		drawPoints(courtPoints, cameraPos, "rgb(255, 255, 255)");
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z > 2){
@@ -531,5 +539,13 @@ class Game{
 		comRacquetController.draw();
 
 		drawLines(gridPoints, cameraPos, "rgb(0, 0, 255)", 4);
+
+
+		var vingette = (1-gameSpeed)+0.1;
+		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
+		grd.addColorStop(0, "rgba(0, 0, 0, 0)");
+		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
+		c.fillStyle = grd;
+		c.fillRect(0, 0, canvas.width, canvas.height);
 	}
 }
