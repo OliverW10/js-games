@@ -273,7 +273,8 @@ class Ball{
 	}
 	camDist(){
 		// distance from ball to camera
-		return dist3d(this.X, this.Y, this.Z, cameraPos[0], cameraPos[1], -cameraPos[2]);
+		showText(-cameraPos[2]-this.Z, canvas.width/2, 50, 15);
+		return Math.abs(-cameraPos[2]-this.Z)+2;
 	}
 }
 
@@ -420,7 +421,7 @@ class AIController{
 var gameSpeed = 1;
 var vingette = 1-gameSpeed;
 
-var cameraPos = [0, 2, -0.9];
+var cameraPos = [0, 1.5, -0.9];
 var vanishingPointPos = [0.5, 0.2];
 var balls = [new Ball(0, 1, 1.5)];
 
@@ -515,12 +516,12 @@ class Game{
 		playerVel[1] *= 0.9;
 		playerVel[2] *= 0.9;
 
-		gameSpeed = 1;
+		gameSpeed = 0;
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 			gameSpeed = Math.min(1-(1/balls[i].camDist()), gameSpeed);
 		}
-		gameSpeed = Math.max(0.1, gameSpeed);
+		gameSpeed = 1;//Math.max(0, gameSpeed);
 		drawPoints(courtPoints, cameraPos, "rgb(255, 255, 255)");
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z > 2){
