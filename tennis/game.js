@@ -13,7 +13,7 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 
 function warp(pos){ // position is one axis with 0 being in the middle and 1 and -1 being the edges
 	//var newPos = Math.tan(pos*1.1)*Math.PI*(1/1.1);
-	var newPos = Math.sign(pos)*(Math.abs(pos)**(1/1.1))
+	var newPos = pos;//Math.sign(pos)*(Math.abs(pos)**(1/1.1))
 	return newPos
 }
 
@@ -35,9 +35,9 @@ function transformation(inputVector, transformationMatrix){
 }
 
 var gridPoints = [];
-for(var i = 0; i<10; i +=1){
-	for(var j = 0; j<10; j+=1){
-		gridPoints.push([(i/10)-0.5, (j/10), 1.5]);
+for(var i = -5; i<5; i +=1){
+	for(var j = -5; j<5; j+=1){
+		gridPoints.push([[i/10, j/10+2, 1.1], [i/10, j/10+2, 1.2]]);
 	}
 }
 
@@ -86,13 +86,27 @@ for(var i = -1.6; i<1.6; i+=0.1){
 }
 
 function drawPoints(points, cameraPos, colour, width = 10){
-	var point = projectPoint(points[0][0], points[0][1], points[0][2], cameraPos);
 	for(var i = 1; i<points.length;i+=1){
 		if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
 			c.beginPath();
 			c.strokeStyle = colour;
 			var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
 			var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
+			c.lineWidth = Math.min(point1[2], point2[2])*width;
+			c.moveTo(point1[0], point1[1]);
+			c.lineTo(point2[0], point2[1]);
+			c.stroke();
+		}
+	}
+}
+
+function drawLines(lines, cameraPos, colour, width = 10){ // same as draw points just takes a series of lines rather than one continus
+	for(var i = 0; i<lines.length; i+=1){
+		if(lines[i][0][2]+cameraPos[2] > 0 || lines[i][1][2]+cameraPos[2] > 0){
+			c.beginPath();
+			c.strokeStyle = colour;
+			var point1 = projectPoint(lines[i][0][0], lines[i][0][1], lines[i][0][1], cameraPos);
+			var point2 = projectPoint(lines[i][1][0], lines[i][1][1], lines[i][1][1], cameraPos);
 			c.lineWidth = Math.min(point1[2], point2[2])*width;
 			c.moveTo(point1[0], point1[1]);
 			c.lineTo(point2[0], point2[1]);
@@ -115,15 +129,15 @@ class Ball{
 	run(){
 		if(this.stopped === false){
 			if(this.attached === false){
-				this.Yvel -= this.gravity;
-				this.X += this.Xvel;
-				this.Y += this.Yvel;
-				this.Z += this.Zvel;
+				this.Yvel -= this.gravity*gameSpeed;
+				this.X += this.Xvel*gameSpeed;
+				this.Y += this.Yvel*gameSpeed;
+				this.Z += this.Zvel*gameSpeed;
 
 				// drag
-				this.Yvel *= 0.999
-				this.Xvel *= 0.99
-				this.Zvel *= 0.99
+				this.Yvel *= 1-0.001*gameSpeed;
+				this.Xvel *= 1-0.01*gameSpeed;
+				this.Zvel *= 1-0.01*gameSpeed;
 				// collitions
 				if(this.Y-this.courtSize <= 0){
 					this.Y = this.courtSize;
@@ -164,8 +178,8 @@ class Ball{
 
 			}
 			// rotation renders looping
-			this.Xangle += this.Xrot;
-			this.Yangle += this.Yrot;
+			this.Xangle += this.Xrot*gameSpeed;
+			this.Yangle += this.Yrot*gameSpeed;
 			if(this.Xangle > this.size*2){
 				this.Xangle = -this.size*2;
 			}
@@ -294,9 +308,9 @@ class mouseController{
 			c.lineTo(p[0], p[1]);
 		}
 		c.stroke();
-		this.velocity[0] /= this.pollingPeriod[1];
-		this.velocity[1] /= this.pollingPeriod[1];
-		this.velocity[2] /= this.pollingPeriod[1];
+		this.velocity[0] /= this.pollingPeriod[1]*gameSpeed;
+		this.velocity[1] /= this.pollingPeriod[1]*gameSpeed;
+		this.velocity[2] /= this.pollingPeriod[1]*gameSpeed;
 
 		c.beginPath();
 		c.strokeStyle = "rgb(255, 0, 0)";
@@ -399,7 +413,7 @@ class AIController{
 	}
 }
 
-var gameSpeed = 1;
+var gameSpeed = 0.2;
 
 var cameraPos = [0, 2, -0.9];
 var vanishingPointPos = [0.5, 0.2];
@@ -470,22 +484,22 @@ class Game{
 		c.fill();
 
 		if(checkKey("Space") == true){
-			playerVel[1] += 0.001;
+			playerVel[1] += 0.001*gameSpeed;
 		}
 		if(checkKey("ShiftLeft") == true){
-			playerVel[1] -= 0.001;
+			playerVel[1] -= 0.001*gameSpeed;
 		}
 		if(checkKey("KeyA") == true){
-			playerVel[0] += playerSpeed[0];
+			playerVel[0] += playerSpeed[0]*gameSpeed;
 		}
 		if(checkKey("KeyD") == true){
-			playerVel[0] -= playerSpeed[0];
+			playerVel[0] -= playerSpeed[0]*gameSpeed;
 		}
 		if(checkKey("KeyS") == true){
-			playerVel[2] += playerSpeed[1];
+			playerVel[2] += playerSpeed[1]*gameSpeed;
 		}
 		if(checkKey("KeyW") == true){
-			playerVel[2] -= playerSpeed[1];
+			playerVel[2] -= playerSpeed[1]*gameSpeed;
 		}
 		
 		cameraPos[0] += playerVel[0];
@@ -516,6 +530,6 @@ class Game{
 		playerRacquetController.update();
 		comRacquetController.draw();
 
-		// drawPoints(gridPoints, cameraPos, "rgb(0, 0, 255)", 4);
+		drawLines(gridPoints, cameraPos, "rgb(0, 0, 255)", 4);
 	}
 }
