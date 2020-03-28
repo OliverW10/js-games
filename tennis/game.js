@@ -394,6 +394,7 @@ class AIController{
 		this.X = 0;
 		this.Y = 1;
 		this.Z = 3;
+		this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7];
 	}
 	getPos(){
 
@@ -403,18 +404,26 @@ class AIController{
 		this.Y = Y;
 		this.Z = Z;
 
-		var target = [cameraPos[0], 0, cameraPos[2]]; // loop through random positions take the furthest away from player
-		var angle = Math.atan2(-X-target[0], Z-target[2]-2);
+		this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7]; // loop through random positions take the furthest away from player
+		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2;
 
 		var power = 0.05;//dist(X, Z, target[0], target[2])*0.02;
 		console.log(power);
-		return [power*Math.sin(angle), 0.1, -power*Math.cos(angle)];
+		return [-power*Math.cos(this.angle), 0.1, power*Math.sin(this.angle)];
 	}
 	getOver(){
 
 	}
 	draw(){
 		drawRacquet(this.X, this.Y, this.Z);
+
+		c.beginPath();
+		c.strokeStyle = "rgb(255, 0, 0)";
+		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+		c.ellipse(point[0], point[1], point[2]*30, point[2]*15, 0, 0, Math.PI*2);
+		c.lineWidth = point[2]*10;
+		c.stroke();
+		showText(this.target, canvas.width/2, 150, 15);
 	}
 }
 
@@ -442,7 +451,7 @@ var bounceSpots = []
 var comRacquetController = new AIController();
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
-var playerSpeed = [0.003, 0.002];
+var playerSpeed = [0.003, 0.01, 0.002];
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -490,10 +499,10 @@ class Game{
 		c.fill();
 
 		if(checkKey("Space") == true){
-			playerVel[1] += 0.001*gameSpeed;
+			playerVel[1] += playerSpeed[1]*gameSpeed;
 		}
 		if(checkKey("ShiftLeft") == true){
-			playerVel[1] -= 0.001*gameSpeed;
+			playerVel[1] -= playerSpeed[1]*gameSpeed;
 		}
 		if(checkKey("KeyA") == true){
 			playerVel[0] += playerSpeed[0]*gameSpeed;
@@ -502,10 +511,10 @@ class Game{
 			playerVel[0] -= playerSpeed[0]*gameSpeed;
 		}
 		if(checkKey("KeyS") == true){
-			playerVel[2] += playerSpeed[1]*gameSpeed;
+			playerVel[2] += playerSpeed[2]*gameSpeed;
 		}
 		if(checkKey("KeyW") == true){
-			playerVel[2] -= playerSpeed[1]*gameSpeed;
+			playerVel[2] -= playerSpeed[2]*gameSpeed;
 		}
 		
 		cameraPos[0] += playerVel[0];
@@ -516,12 +525,9 @@ class Game{
 		playerVel[1] *= 0.9;
 		playerVel[2] *= 0.9;
 
-		gameSpeed = 0;
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
-			gameSpeed = Math.min(1-(1/balls[i].camDist()), gameSpeed);
 		}
-		gameSpeed = 1;//Math.max(0, gameSpeed);
 		drawPoints(courtPoints, cameraPos, "rgb(255, 255, 255)");
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z > 2){
