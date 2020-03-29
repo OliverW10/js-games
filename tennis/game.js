@@ -309,7 +309,7 @@ class mouseController{
 			this.velocity[0] += (this.prevPos[l-i][0]-this.prevPos[(l-i)-1][0]);
 			this.velocity[1] += (this.prevPos[l-i][1]-this.prevPos[(l-i)-1][1]);
 			this.velocity[2] += (this.prevPos[l-i][2]-this.prevPos[(l-i)-1][2]);
-			var p = projectPoint(this.prevPos[l-i][0], this.prevPos[(l-i)][1], this.prevPos[l-i][2]);
+			var p = projectPoint(...this.prevPos[l-i]);
 			c.lineTo(p[0], p[1]);
 		}
 		c.stroke();
@@ -384,17 +384,25 @@ var personPoints = [[0, 1, 0],
 [-0.5, 2, 0],
 [0, 2, 0]];
 
+function evaluateShot(enemyPos, target){
+	return -dist(enemyPos[0], enemyPos[2], target[0], target[2])
+}
+
 class AIController{
-	constructor(){
-		this.accuracy = random(0, 0.01);
-		this.tendency = 1//random(-1, 1);
-		this.power = random(0.75, 2);
+	constructor(difficulty){
+		// difficulty is 1-10
+		this.accuracy = random(0, (10-difficulty)/1000);
+		this.tendency = 0;
+		this.power = random(0.02+difficulty/1000, 0.034)
 		this.speed = random(0, 0.1);
+		this.trials = difficulty**1.4;
+
 
 		this.X = 0;
 		this.Y = 1;
 		this.Z = 3;
 		this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7];
+		console.log(this);
 	}
 	getPos(){
 
@@ -404,10 +412,20 @@ class AIController{
 		this.Y = Y;
 		this.Z = Z;
 
-		this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7]; // loop through random positions take the furthest away from player
-		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2;
+		for(var i = 0; i<this.trials; i +=1){
+			var newTar = [random(-1, 1), 0, random(1, 1.7)];
+			if(evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], newTar) < evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], this.target)){
+				this.target = newTar;
+			}
+			// i couldn't work out how to do min with comparator function so i just do this instead.
+		}
+		//this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7]; // loop through random positions take the furthest away from player
 
-		var power = 0.05;//dist(X, Z, target[0], target[2])*0.02;
+
+
+		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+this.tendency;
+
+		var power = dist(X, Z, this.target[0], this.target[2])*this.power;
 		console.log(power);
 		return [-power*Math.cos(this.angle), 0.1, power*Math.sin(this.angle)];
 	}
@@ -448,7 +466,7 @@ mountainPoints.push([-50, -50, 30]);
 
 var bounceSpots = []
 
-var comRacquetController = new AIController();
+var comRacquetController = new AIController(1);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.01, 0.002];
@@ -497,6 +515,9 @@ class Game{
 		c.fillStyle = "rgb(50, 200, 20)";
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
+
+
+		cameraPos[0] = cameraPos[0]*0.992+-balls[0].X*0.0;
 
 		if(checkKey("Space") == true){
 			playerVel[1] += playerSpeed[1]*gameSpeed;
