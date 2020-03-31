@@ -176,29 +176,15 @@ class Ball{
 					this.Xvel *= 0.9;
 				}
 
-			}
-			// rotation renders looping
-			this.Xangle += this.Xrot*gameSpeed;
-			this.Yangle += this.Yrot*gameSpeed;
-			if(this.Xangle > this.size*2){
-				this.Xangle = -this.size*2;
-			}
-			if(this.Xangle < -this.size*2){
-				this.Xangle = this.size*2;
-			}
-			if(this.Yangle > this.size*2){
-				this.Yangle = -this.size*2;
-			}
-			if(this.Yangle < -this.size*2){
-				this.Yangle = this.size*2;
+				var point = projectPoint(this.X, this.Y, this.Z);
+				if(point[0] > canvas.width*(0.35) && point[0] < canvas.width*(0.65) && checkKey("Space") === true){
+					this.stopped = true;
+				}
+
 			}
 
 			// controlling
-			var hovering = playerRacquetController.getOver([this.X, this.Y, this.Z], this.size)
-			if(hovering === true && mouseButtons[0] === true){
-				this.attached = true;
-				
-			}
+
 			if(this.attached === true){
 				if(mouseButtons[0] === false){
 					this.attached = false;
@@ -215,12 +201,36 @@ class Ball{
 				this.Y = newPos[1];
 				this.Z = newPos[2];
 			}
+			vingette = 0.1;
 		}else{
-			this.Y = this.size;
+			vingette = 0.6;
+		}
+		var hovering = playerRacquetController.getOver([this.X, this.Y, this.Z], this.size)
+		if(hovering === true && mouseButtons[0] === true){
+			this.attached = true;
+			this.stopped = false;
+			
 		}
 		showText([this.Zvel, this.Xvel], canvas.width/2, 100, 15);
 	}
 	draw(){
+		// rotation renders looping
+		this.Xangle += this.Xrot*gameSpeed;
+		this.Yangle += this.Yrot*gameSpeed;
+		if(this.Xangle > this.size*2){
+			this.Xangle = -this.size*2;
+		}
+		if(this.Xangle < -this.size*2){
+			this.Xangle = this.size*2;
+		}
+		if(this.Yangle > this.size*2){
+			this.Yangle = -this.size*2;
+		}
+		if(this.Yangle < -this.size*2){
+			this.Yangle = this.size*2;
+		}
+
+
 		// shadow
 		// shadow should do it by doing three points
 		var shaPoint = projectPoint(this.X, 0, this.Z);
@@ -239,7 +249,7 @@ class Ball{
 		// ball
 		c.beginPath();
 		c.save();
-		if(collidePoint(point, [0, 0, canvas.width, canvas.height]) === true){
+		if(collidePoint(point, [0, 0, canvas.width, canvas.height]) === true && point[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
 			c.arc(point[0], point[1], Math.max(this.size*point[2], 0), 0, Math.PI*2);
@@ -283,7 +293,8 @@ class mouseController{
 		this.prevPos = [0, 0];
 		this.pollingPeriod = [61, 6, 3]; // [recordFor, use for vel, use for spin]
 		this.velocity = [0, 0, 0];
-		this.rotation = [0, 0]
+		this.rotation = [0, 0];
+
 		this.allowance = 10;
 	}
 	getPos(){
@@ -412,6 +423,7 @@ class AIController{
 		this.Y = Y;
 		this.Z = Z;
 
+		this.target = [0, 0, 1.2];
 		for(var i = 0; i<this.trials; i +=1){
 			var newTar = [random(-1, 1), 0, random(1, 1.7)];
 			if(evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], newTar) < evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], this.target)){
@@ -446,10 +458,9 @@ class AIController{
 }
 
 var gameSpeed = 1;
-var vingette = 1-gameSpeed;
 
-var cameraPos = [0, 1.5, -0.9];
-var vanishingPointPos = [0.5, 0.2];
+var cameraPos = [0, 1.2, -0.9];
+var vanishingPointPos = [0.5, 0.3];
 var balls = [new Ball(0, 1, 1.5)];
 
 var mountainPoints = [[-50, -50, 30]];
@@ -466,7 +477,9 @@ mountainPoints.push([-50, -50, 30]);
 
 var bounceSpots = []
 
-var comRacquetController = new AIController(1);
+var vingette = 0.2;
+
+var comRacquetController = new AIController(2);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.01, 0.002];
@@ -519,12 +532,12 @@ class Game{
 
 		cameraPos[0] = cameraPos[0]*0.992+-balls[0].X*0.0;
 
-		if(checkKey("Space") == true){
-			playerVel[1] += playerSpeed[1]*gameSpeed;
-		}
-		if(checkKey("ShiftLeft") == true){
-			playerVel[1] -= playerSpeed[1]*gameSpeed;
-		}
+		// if(checkKey("Space") == true){
+		// 	playerVel[1] += playerSpeed[1]*gameSpeed;
+		// }
+		// if(checkKey("ShiftLeft") == true){
+		// 	playerVel[1] -= playerSpeed[1]*gameSpeed;
+		// }
 		if(checkKey("KeyA") == true){
 			playerVel[0] += playerSpeed[0]*gameSpeed;
 		}
@@ -568,8 +581,6 @@ class Game{
 
 		drawLines(gridPoints, cameraPos, "rgb(0, 0, 255)", 4);
 
-
-		var vingette = (1-gameSpeed)+0.1;
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
 		grd.addColorStop(0, "rgba(0, 0, 0, 0)");
 		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
