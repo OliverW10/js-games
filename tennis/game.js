@@ -177,7 +177,7 @@ class Ball{
 				}
 
 				var point = projectPoint(this.X, this.Y, this.Z);
-				if(point[0] > canvas.width*(0.35) && point[0] < canvas.width*(0.65) && checkKey("Space") === true){
+				if(dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z) < 2 && checkKey("Space") === true && onScreen(point[0], point[1]) === true && this.Z < 2){
 					this.stopped = true;
 				}
 
@@ -205,6 +205,7 @@ class Ball{
 		}else{
 			vingette = 0.6;
 		}
+		showText(dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z), canvas.width/2, 50, 15);
 		var hovering = playerRacquetController.getOver([this.X, this.Y, this.Z], this.size)
 		if(hovering === true && mouseButtons[0] === true){
 			this.attached = true;
