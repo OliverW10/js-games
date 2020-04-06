@@ -306,12 +306,21 @@ class mouseController{
 		this.allowance = 10;
 		this.offset = [[0, 0], [0, 0, 0]];
 	}
-	getPos(mouseX, mouseY){
+	getPosNew(mouseX, mouseY){
 		var x = -(((this.offset[0][1]-mouseX) / canvas.width) * 1 - this.offset[1][0]);
 		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
 		//console.log(x);
 		return [x-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
+	}
+	getPosOld(mouseX, mouseY){
+		var x = (mouseX/canvas.width)-0.5;
+		var y = -(mouseY/canvas.height);
+		var z = -(mouseY/canvas.height)+1;
+		return [x*2-cameraPos[0], y*2+cameraPos[1], z-cameraPos[2]];
+	}
+	getPos(X, Y){
+		return this.getPosNew(X, Y);
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
