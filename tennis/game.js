@@ -307,9 +307,15 @@ class mouseController{
 		this.offset = [[0, 0], [0, 0, 0]];
 	}
 	getPosNew(mouseX, mouseY){
-		var x = -(((this.offset[0][1]-mouseX) / canvas.width) * 1 - this.offset[1][0]);
+		var x = -(((this.offset[0][1]-mouseX) / canvas.width) - this.offset[1][0]);
 		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
+		return [x, clip(y, 0, 100), z-cameraPos[2]];
+	}
+	getPosNewDist(mouseX, mouseY){
+		var x = -(((this.offset[0][1]-mouseX) / canvas.width) - this.offset[1][0]);
+		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
+		var z = scaleNumber(dist(0.5, mouseY/canvas.height, vanishingPointPos[0], vanishingPointPos[1]), 0, 1, 1.5, 0);
 		//console.log(x);
 		return [x-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
@@ -320,7 +326,7 @@ class mouseController{
 		return [x*2-cameraPos[0], y*2+cameraPos[1], z-cameraPos[2]];
 	}
 	getPos(X, Y){
-		return this.getPosNew(X, Y);
+		return this.getPosNewDist(X, Y);
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
