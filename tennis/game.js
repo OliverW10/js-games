@@ -1,4 +1,3 @@
-
 function projectPoint(x1, y1, z1, camera = cameraPos){
 	// takes in a point in 3d space and puts in on the screen
 	// firstly translates by camera pos and scales to screen
@@ -224,7 +223,7 @@ class Ball{
 		if(hovering === true && mouseButtons[0] === true){
 			this.attached = true;
 			this.stopped = false;
-			playerRacquetController.setOffset();
+			playerRacquetController.setOffset(this.X, this.Y, this.Z);
 		}
 	}
 	draw(){
@@ -313,10 +312,10 @@ class mouseController{
 		this.offset = [0, 0];
 	}
 	getPos(X, Y){
-		var x = ((X+this.offset[0])/canvas.width);
-		var y = -((Y+this.offset[1])/canvas.height);
-		var z = -((Y+this.offset[1])/canvas.height)+1;
-		return [x*2-cameraPos[0], y*2+cameraPos[1], z-cameraPos[2]];
+		var x = ((X)/canvas.width)-0.5;
+		var y = -((Y)/canvas.height)*2+this.offset[1]+0.5;
+		var z = -((Y)/canvas.height)+1.5;
+		return [x-cameraPos[0], y+cameraPos[1], z-cameraPos[2]];
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
@@ -360,10 +359,10 @@ class mouseController{
 		var point = projectPoint(pos[0], pos[1], pos[2]);
 		return dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(size+this.allowance);
 	}
-	setOffset(){
+	setOffset(X, Y, Z){
 		// makes the ball be at the mousePos
 		// should be called when you first click on the ball
-		this.offset = [mousePos.x, -mousePos.y];
+		this.offset = [X, Y, Z];
 	}
 }
 
@@ -531,7 +530,7 @@ class Game{
 		c.fill();
 
 
-		cameraPos[0] = cameraPos[0]*0.992+-balls[0].X*0.0;
+		//cameraPos[0] = cameraPos[0]*(1-0.01*gameSpeed)+-balls[0].X*0.0;
 
 		// if(checkKey("Space") == true){
 		// 	playerVel[1] += playerSpeed[1]*gameSpeed;
@@ -540,25 +539,25 @@ class Game{
 		// 	playerVel[1] -= playerSpeed[1]*gameSpeed;
 		// }
 		if(checkKey("KeyA") == true){
-			playerVel[0] += playerSpeed[0]*gameSpeed;
+			playerVel[0] += playerSpeed[0]*(gameSpeed);
 		}
 		if(checkKey("KeyD") == true){
-			playerVel[0] -= playerSpeed[0]*gameSpeed;
+			playerVel[0] -= playerSpeed[0]*(gameSpeed);
 		}
 		if(checkKey("KeyS") == true){
-			playerVel[2] += playerSpeed[2]*gameSpeed;
+			playerVel[2] += playerSpeed[2]*(gameSpeed);
 		}
 		if(checkKey("KeyW") == true){
-			playerVel[2] -= playerSpeed[2]*gameSpeed;
+			playerVel[2] -= playerSpeed[2]*(gameSpeed);
 		}
 		
 		cameraPos[0] += playerVel[0];
 		cameraPos[1] += playerVel[1];
 		cameraPos[2] += playerVel[2];
 
-		playerVel[0] *= 0.9;
-		playerVel[1] *= 0.9;
-		playerVel[2] *= 0.9;
+		playerVel[0] *= 1-0.1*gameSpeed;
+		playerVel[1] *= 1-0.1*gameSpeed;
+		playerVel[2] *= 1-0.1*gameSpeed;
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
