@@ -238,3 +238,7 @@ function random(min, max){
 function round(num, places){
 	return Math.round(num*(10**places))/(10**places)
 }
+
+function clip(n, min, max){
+	return Math.min(Math.max(n, min), max);
+}
