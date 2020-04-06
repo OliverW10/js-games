@@ -216,11 +216,11 @@ class Ball{
 				this.X = newPos[0];
 				this.Y = newPos[1];
 				this.Z = newPos[2];
+				showText(newPos, canvas.width/2, 50, 15);
 			}
 		}
-		showText(dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z), canvas.width/2, 50, 15);
 		var hovering = playerRacquetController.getOver([this.X, this.Y, this.Z], this.size)
-		if(hovering === true && mouseButtons[0] === true){
+		if(hovering === true && mouseButtons[0] === true && this.attached === false){
 			this.attached = true;
 			this.stopped = false;
 			playerRacquetController.setOffset(this.X, this.Y, this.Z);
@@ -294,11 +294,6 @@ class Ball{
 		this.Yrot = Math.random()*this.size*0.1;
 		this.attached = false;
 	}
-	camDist(){
-		// distance from ball to camera
-		showText(-cameraPos[2]-this.Z, canvas.width/2, 50, 15);
-		return Math.abs(-cameraPos[2]-this.Z)+2;
-	}
 }
 
 class mouseController{
@@ -309,13 +304,14 @@ class mouseController{
 		this.rotation = [0, 0];
 
 		this.allowance = 10;
-		this.offset = [0, 0];
+		this.offset = [[0, 0], [0, 0, 0]];
 	}
-	getPos(X, Y){
-		var x = ((X)/canvas.width)-0.5;
-		var y = -((Y)/canvas.height)*2+this.offset[1]+0.5;
-		var z = -((Y)/canvas.height)+1.5;
-		return [x-cameraPos[0], y+cameraPos[1], z-cameraPos[2]];
+	getPos(mouseX, mouseY){
+		var x = -(((this.offset[0][1]-mouseX) / canvas.width) * 1 - this.offset[1][0]);
+		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
+		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
+		//console.log(x);
+		return [x-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
@@ -327,8 +323,11 @@ class mouseController{
 		c.beginPath();
 		var l = this.prevPos.length;
 		for(var i = 1; i<this.pollingPeriod[1]; i+=1){
-			var pos1 = this.getPos(this.prevPos[l-i][0]-this.offset[0], this.prevPos[l-i][1]-this.offset[1]);
-			var pos2 = this.getPos(this.prevPos[(l-i)-1][0]-this.offset[0], this.prevPos[(l-i)-1][1]-this.offset[1]);
+			// beacuse i have now swapped to logging mouse position and converting to 3d space afterwards i have lost the ability to move with wasd and not the mouse and have the ball act properly
+			// i could track both mouse and 3d positions but for now ill just add player velocity to end ball velocity
+			var pos1 = this.getPos(this.prevPos[l-i][0], this.prevPos[l-i][1]);
+			// console.log(pos1);
+			var pos2 = this.getPos(this.prevPos[(l-i)-1][0], this.prevPos[(l-i)-1][1]);
 			this.velocity[0] += (pos1[0]-pos2[0]);
 			this.velocity[1] += (pos1[1]-pos2[1]);
 			this.velocity[2] += (pos1[2]-pos2[2]);
@@ -339,6 +338,11 @@ class mouseController{
 		this.velocity[0] /= this.pollingPeriod[1]*gameSpeed;
 		this.velocity[1] /= this.pollingPeriod[1]*gameSpeed;
 		this.velocity[2] /= this.pollingPeriod[1]*gameSpeed;
+
+		this.velocity[0] -= playerVel[0];
+		this.velocity[1] -= playerVel[1];
+		this.velocity[2] -= playerVel[2];
+
 		showText(this.velocity, canvas.width/2, 150, 15);
 		this.draw();
 	}
@@ -362,7 +366,7 @@ class mouseController{
 	setOffset(X, Y, Z){
 		// makes the ball be at the mousePos
 		// should be called when you first click on the ball
-		this.offset = [X, Y, Z];
+		this.offset = [[mousePos.x, mousePos.y], [X, Y, Z+cameraPos[2]]];
 	}
 }
 
@@ -482,7 +486,8 @@ var vingette = 0.2;
 var comRacquetController = new AIController(2);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
-var playerSpeed = [0.003, 0.01, 0.002];
+var playerSpeed = [0.01, 0.1, 0.007];
+var playerDrag = 0.2;
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -551,13 +556,13 @@ class Game{
 			playerVel[2] -= playerSpeed[2]*(gameSpeed);
 		}
 		
-		cameraPos[0] += playerVel[0];
-		cameraPos[1] += playerVel[1];
-		cameraPos[2] += playerVel[2];
+		cameraPos[0] += playerVel[0]*gameSpeed;
+		cameraPos[1] += playerVel[1]*gameSpeed;
+		cameraPos[2] += playerVel[2]*gameSpeed;
 
-		playerVel[0] *= 1-0.1*gameSpeed;
-		playerVel[1] *= 1-0.1*gameSpeed;
-		playerVel[2] *= 1-0.1*gameSpeed;
+		playerVel[0] *= 1-playerDrag*gameSpeed;
+		playerVel[1] *= 1-playerDrag*gameSpeed;
+		playerVel[2] *= 1-playerDrag*gameSpeed;
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
