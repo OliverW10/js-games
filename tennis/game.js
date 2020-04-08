@@ -138,7 +138,7 @@ class Ball{
 		this.stopped = false;
 		this.courtSize = 0.02; // court base size
 		this.size = this.courtSize*canvas.width;
-		this.gravity = 0.008;
+		this.gravity = 0.004;
 		this.reset();
 	}
 	run(){
@@ -192,7 +192,7 @@ class Ball{
 				}
 
 				var point = projectPoint(this.X, this.Y, this.Z);
-				if(dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z) < 2 && checkKey("Space") === true && onScreen(point[0], point[1]) === true && this.Z < 2){
+				if(checkKey("Space") === true && this.Z < 2){ // dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z) < 2 && onScreen(point[0], point[1]) === true && 
 					gameSpeed = 0.01;
 				}
 
@@ -216,7 +216,6 @@ class Ball{
 				this.X = newPos[0];
 				this.Y = newPos[1];
 				this.Z = newPos[2];
-				showText(newPos, canvas.width/2, 50, 15);
 			}
 		}
 		var hovering = playerRacquetController.getOver([this.X, this.Y, this.Z], this.size)
@@ -307,13 +306,13 @@ class mouseController{
 		this.offset = [[0, 0], [0, 0, 0]];
 	}
 	getPosNew(mouseX, mouseY){
-		var x = -(((this.offset[0][1]-mouseX) / canvas.width) - this.offset[1][0]);
+		var x = -(this.offset[0][1]-mouseX)*1.5 / canvas.width;
 		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
-		return [x, clip(y, 0, 100), z-cameraPos[2]];
+		return [x-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
 	getPosNewDist(mouseX, mouseY){
-		var x = -(((this.offset[0][1]-mouseX) / canvas.width) - this.offset[1][0]);
+		var x = -(this.offset[0][1]-mouseX)*1.5 / canvas.width;
 		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
 		var z = scaleNumber(dist(0.5, mouseY/canvas.height, vanishingPointPos[0], vanishingPointPos[1]), 0, 1, 1.5, 0);
 		//console.log(x);
@@ -326,7 +325,7 @@ class mouseController{
 		return [x*2-cameraPos[0], y*2+cameraPos[1], z-cameraPos[2]];
 	}
 	getPos(X, Y){
-		return this.getPosNewDist(X, Y);
+		return this.getPosNew(X, Y);
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
@@ -457,7 +456,7 @@ class AIController{
 
 		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+this.tendency;
 
-		var power = dist(X, Z, this.target[0], this.target[2])*this.power;
+		var power = dist(X, Z, this.target[0], this.target[2])*this.power*0.004*220;
 		console.log(power);
 		return [-power*Math.cos(this.angle), 0.1, power*Math.sin(this.angle)];
 	}
@@ -501,8 +500,9 @@ var vingette = 0.2;
 var comRacquetController = new AIController(2);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
-var playerSpeed = [0.01, 0.1, 0.007];
-var playerDrag = 0.2;
+var playerSpeed = [0.003, 0.1, 0.002];
+var playerDrag = 0.1;
+var playerMaxSpeed = []
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
