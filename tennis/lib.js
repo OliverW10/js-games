@@ -235,10 +235,18 @@ function random(min, max){
 	return Math.random()*(max-min)+min;
 }
 
-function round(num, places){
+function round(num, places = 0){
 	return Math.round(num*(10**places))/(10**places)
 }
 
 function clip(n, min, max){
 	return Math.min(Math.max(n, min), max);
+}
+
+function roundList(list, places = 0){
+	var newList = []
+	for(var i = 0; i < list.length; i+=1){
+		newList.push(round(list[i], places))
+	}
+	return newList
 }
