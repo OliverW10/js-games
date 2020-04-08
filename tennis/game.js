@@ -193,7 +193,7 @@ class Ball{
 
 				var point = projectPoint(this.X, this.Y, this.Z);
 				if(checkKey("Space") === true && this.Z < 2){ // dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z) < 2 && onScreen(point[0], point[1]) === true && 
-					gameSpeed = 0.01;
+					aimGameSpeed = 0.005;
 				}
 
 			}
@@ -201,7 +201,7 @@ class Ball{
 			// controlling
 
 			if(this.attached === true){
-				gameSpeed = 1;
+				aimGameSpeed = 1;
 				if(mouseButtons[0] === false){
 					this.attached = false;
 					var setVel = playerRacquetController.getVel();
@@ -475,6 +475,7 @@ class AIController{
 	}
 }
 
+var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
 var gameSpeed = 1;
 
 var cameraPos = [0, 1.2, -0.9];
@@ -502,7 +503,7 @@ var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.1, 0.002];
 var playerDrag = 0.1;
-var playerMaxSpeed = []
+var playerMaxSpeed = [0.02, 0, 0.015]
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -559,25 +560,31 @@ class Game{
 		// 	playerVel[1] -= playerSpeed[1]*gameSpeed;
 		// }
 		if(checkKey("KeyA") == true){
-			playerVel[0] += playerSpeed[0]*(gameSpeed);
+			playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
 		}
 		if(checkKey("KeyD") == true){
-			playerVel[0] -= playerSpeed[0]*(gameSpeed);
+			playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
 		}
 		if(checkKey("KeyS") == true){
-			playerVel[2] += playerSpeed[2]*(gameSpeed);
+			playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
 		}
 		if(checkKey("KeyW") == true){
-			playerVel[2] -= playerSpeed[2]*(gameSpeed);
+			playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
 		}
 		
-		cameraPos[0] += playerVel[0]*gameSpeed;
-		cameraPos[1] += playerVel[1]*gameSpeed;
-		cameraPos[2] += playerVel[2]*gameSpeed;
+		cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
+		cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
+		cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
 
-		playerVel[0] *= 1-playerDrag*gameSpeed;
-		playerVel[1] *= 1-playerDrag*gameSpeed;
-		playerVel[2] *= 1-playerDrag*gameSpeed;
+		playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
+		playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
+		playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
+
+		playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
+		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
+		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
+
+		showText(roundList(playerVel, 5), canvas.width/2, 100, 15);
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
@@ -598,6 +605,8 @@ class Game{
 
 		playerRacquetController.update();
 		comRacquetController.draw();
+
+		gameSpeed = aimGameSpeed*0.1 + gameSpeed*0.9
 
 		vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
