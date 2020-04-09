@@ -138,13 +138,12 @@ class Ball{
 		this.stopped = false;
 		this.courtSize = 0.02; // court base size
 		this.size = this.courtSize*canvas.width;
-		this.gravity = 0.004;
 		this.reset();
 	}
 	run(){
 		if(this.stopped === false){
 			if(this.attached === false){
-				this.Yvel -= this.gravity*gameSpeed;
+				this.Yvel -= gravity*gameSpeed;
 				this.X += this.Xvel*gameSpeed;
 				this.Y += this.Yvel*gameSpeed;
 				this.Z += this.Zvel*gameSpeed;
@@ -356,8 +355,11 @@ class mouseController{
 		this.velocity[0] -= playerVel[0];
 		this.velocity[1] -= playerVel[1];
 		this.velocity[2] -= playerVel[2];
+		showText(roundList(this.velocity, 5), canvas.width/2, 15, 15);
 
-		showText(this.velocity, canvas.width/2, 150, 15);
+		this.rotation[0] = (this.prevPos[this.pollingPeriod[1]][0] - this.prevPos[this.pollingPeriod[2]][0])/Math.abs(this.pollingPeriod[2]-this.pollingPeriod[1])
+		this.rotation[1] = (this.prevPos[this.pollingPeriod[1]][1] - this.prevPos[this.pollingPeriod[2]][1])/Math.abs(this.pollingPeriod[2]-this.pollingPeriod[1])
+
 		this.draw();
 	}
 	draw(){
@@ -456,7 +458,7 @@ class AIController{
 
 		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+this.tendency;
 
-		var power = dist(X, Z, this.target[0], this.target[2])*this.power*0.004*220;
+		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*220;
 		console.log(power);
 		return [-power*Math.cos(this.angle), 0.1, power*Math.sin(this.angle)];
 	}
@@ -481,6 +483,7 @@ var gameSpeed = 1;
 var cameraPos = [0, 1.2, -0.9];
 var vanishingPointPos = [0.5, 0.3];
 var balls = [new Ball(0, 1, 1.5)];
+var gravity = 0.003;
 
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
@@ -584,7 +587,7 @@ class Game{
 		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
 		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 
-		showText(roundList(playerVel, 5), canvas.width/2, 100, 15);
+		showText(roundList(playerVel, 5), canvas.width/2, 30, 15);
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
@@ -606,7 +609,7 @@ class Game{
 		playerRacquetController.update();
 		comRacquetController.draw();
 
-		gameSpeed = aimGameSpeed*0.1 + gameSpeed*0.9
+		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8
 
 		vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
