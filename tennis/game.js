@@ -297,24 +297,23 @@ class Ball{
 class mouseController{
 	constructor(){
 		this.prevPos = [];
-		this.pollingPeriod = [61, 6, 3]; // [recordFor, use for vel, use for spin]
+		this.pollingPeriod = [20, 6, 12]; // [recordFor, use for vel, use for spin]
 		this.velocity = [0, 0, 0];
 		this.rotation = [0, 0];
 
 		this.allowance = 10;
 		this.offset = [[0, 0], [0, 0, 0]];
 	}
+	getPosNewOld(mouseX, mouseY){
+		var x = (mouseX/canvas.width)-0.5;
+		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
+		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
+		return [x*1.5-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
+	}
 	getPosNew(mouseX, mouseY){
 		var x = -(this.offset[0][1]-mouseX)*1.5 / canvas.width;
 		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
-		return [x-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
-	}
-	getPosNewDist(mouseX, mouseY){
-		var x = -(this.offset[0][1]-mouseX)*1.5 / canvas.width;
-		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
-		var z = scaleNumber(dist(0.5, mouseY/canvas.height, vanishingPointPos[0], vanishingPointPos[1]), 0, 1, 1.5, 0);
-		//console.log(x);
 		return [x-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
 	getPosOld(mouseX, mouseY){
@@ -324,48 +323,56 @@ class mouseController{
 		return [x*2-cameraPos[0], y*2+cameraPos[1], z-cameraPos[2]];
 	}
 	getPos(X, Y){
-		return this.getPosNew(X, Y);
+		return this.getPosNewOld(X, Y);
 	}
 	update(){ //updates things
 		this.velocity = [0, 0, 0];
 		this.prevPos.push([mousePos.x, mousePos.y]);
-		if(this.prevPos.length >= this.pollingPeriod[0]){
+		if(this.prevPos.length > this.pollingPeriod[0]){
 			this.prevPos.splice(0, 1); //removes first (oldest) item in list
+			c.beginPath();
+			var l = this.prevPos.length;
+			for(var i = 1; i<this.pollingPeriod[1]; i+=1){
+				// beacuse i have now swapped to logging mouse position and converting to 3d space afterwards i have lost the ability to move with wasd and not the mouse and have the ball act properly
+				// i could track both mouse and 3d positions but for now ill just add player velocity to end ball velocity
+				var pos1 = this.getPos(this.prevPos[l-i][0], this.prevPos[l-i][1]);
+				// console.log(pos1);
+				var pos2 = this.getPos(this.prevPos[(l-i)-1][0], this.prevPos[(l-i)-1][1]);
+				this.velocity[0] += (pos1[0]-pos2[0]);
+				this.velocity[1] += (pos1[1]-pos2[1]);
+				this.velocity[2] += (pos1[2]-pos2[2]);
+				var p = projectPoint(...this.prevPos[l-i]);
+				c.lineTo(p[0], p[1]);
+			}
+			c.stroke();
+			this.velocity[0] /= this.pollingPeriod[1]*gameSpeed;
+			this.velocity[1] /= this.pollingPeriod[1]*gameSpeed;
+			this.velocity[2] /= this.pollingPeriod[1]*gameSpeed;
+
+			this.velocity[0] -= playerVel[0];
+			this.velocity[1] -= playerVel[1];
+			this.velocity[2] -= playerVel[2];
+			showText(roundList(this.velocity, 5), canvas.width/2, 15, 15);
+
+
 		}
-
-		c.beginPath();
-		var l = this.prevPos.length;
-		for(var i = 1; i<this.pollingPeriod[1]; i+=1){
-			// beacuse i have now swapped to logging mouse position and converting to 3d space afterwards i have lost the ability to move with wasd and not the mouse and have the ball act properly
-			// i could track both mouse and 3d positions but for now ill just add player velocity to end ball velocity
-			var pos1 = this.getPos(this.prevPos[l-i][0], this.prevPos[l-i][1]);
-			// console.log(pos1);
-			var pos2 = this.getPos(this.prevPos[(l-i)-1][0], this.prevPos[(l-i)-1][1]);
-			this.velocity[0] += (pos1[0]-pos2[0]);
-			this.velocity[1] += (pos1[1]-pos2[1]);
-			this.velocity[2] += (pos1[2]-pos2[2]);
-			var p = projectPoint(...this.prevPos[l-i]);
-			c.lineTo(p[0], p[1]);
-		}
-		c.stroke();
-		this.velocity[0] /= this.pollingPeriod[1]*gameSpeed;
-		this.velocity[1] /= this.pollingPeriod[1]*gameSpeed;
-		this.velocity[2] /= this.pollingPeriod[1]*gameSpeed;
-
-		this.velocity[0] -= playerVel[0];
-		this.velocity[1] -= playerVel[1];
-		this.velocity[2] -= playerVel[2];
-		showText(roundList(this.velocity, 5), canvas.width/2, 15, 15);
-
-		this.rotation[0] = (this.prevPos[this.pollingPeriod[1]][0] - this.prevPos[this.pollingPeriod[2]][0])/Math.abs(this.pollingPeriod[2]-this.pollingPeriod[1])
-		this.rotation[1] = (this.prevPos[this.pollingPeriod[1]][1] - this.prevPos[this.pollingPeriod[2]][1])/Math.abs(this.pollingPeriod[2]-this.pollingPeriod[1])
-
 		this.draw();
 	}
 	draw(){
 		// c.beginPath();
 		// c.fillStyle = "rgba(255, 0, 0, 0.1)";
 		// c.fillRect(canvas.width*0.35, 0, canvas.width*0.3, canvas.height);
+		var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
+		var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
+		showText(round(angle1-angle2, 3), canvas.width/2, 45, 15);
+
+		c.beginPath();
+		c.strokeStyle = "rgb(0, 0, 0)";
+		c.lineWidth = 5;
+		c.moveTo(mousePos.x, mousePos.y)
+		c.lineTo(Math.cos(angle2)*30+mousePos.x, Math.sin(angle2)*30+mousePos.y);
+		c.lineTo(Math.cos(angle1)*60+mousePos.x, Math.sin(angle1)*60+mousePos.y);
+		c.stroke();
 	}
 	getVel(){
 		return this.velocity;
