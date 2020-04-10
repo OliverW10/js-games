@@ -140,92 +140,61 @@ class Ball{
 		this.size = this.courtSize*canvas.width;
 		this.reset();
 	}
+
+	hit(vel, spin){ // set the velocity and spin of the ball
+		this.X, this.Y, this.Z = vel;
+		this.Xrot, this.Yrot = spin;
+	}
+
+	freeze(newPos){
+		this.X = newPos[0];
+		this.Y = newPos[1];
+		this.Z = newPos[2];
+		this.stopped = true;
+	}
+
+	continue(){
+		this.stopped = false;
+	}
+
 	run(){
 		if(this.stopped === false){
-			if(this.attached === false){
-				this.Yvel -= gravity*gameSpeed;
-				this.X += this.Xvel*gameSpeed;
-				this.Y += this.Yvel*gameSpeed;
-				this.Z += this.Zvel*gameSpeed;
+			this.Yvel -= gravity*gameSpeed;
+			this.X += this.Xvel*gameSpeed;
+			this.Y += this.Yvel*gameSpeed;
+			this.Z += this.Zvel*gameSpeed;
 
-				// drag
-				this.Yvel *= 1-0.001*gameSpeed;
-				this.Xvel *= 1-0.01*gameSpeed;
-				this.Zvel *= 1-0.01*gameSpeed;
-				// spin
-				this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.008;
-				// collitions
-				if(this.Y-this.courtSize <= 0){
-					this.Y = this.courtSize;
-					this.Yvel = -this.Yvel*0.9;
-					var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
-					bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
-					if(call === 0){
-						// this.stopped = true;
-						// balls.push(new Ball(this.startX, this.startY, this.startZ));
-						this.reset();
-					}
+			// drag
+			this.Yvel *= 1-0.001*gameSpeed;
+			this.Xvel *= 1-0.01*gameSpeed;
+			this.Zvel *= 1-0.01*gameSpeed;
+			// spin
+			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.008;
+			// collitions
+			if(this.Y-this.courtSize <= 0){ // ground
+				this.Y = this.courtSize;
+				this.Yvel = -this.Yvel*0.9;
+				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
+				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
+				if(call === 0){
+					this.reset();
 				}
-				// if(this.X > 1.5){
-				// 	this.Xvel = -this.Xvel;
-				// 	this.X = 1.5;
-				// }
-				// if(this.X < -1.5){
-				// 	this.Xvel = -this.Xvel;
-				// 	this.X = -1.5;
-				// }
-				if(this.Z > 3){
-					var newVel = comRacquetController.getVel(this.X, this.Y, this.Z);
-					this.Xvel = newVel[0];
-					this.Yvel = newVel[1];
-					this.Zvel = newVel[2];
-				}
-				// if(this.Z < 1){
-				// 	this.Zvel = -this.Zvel * 0.9;
-				// 	this.Z = 1;
-				// }
-
-				// net
-				if(this.Z > 1.99 && this.Z < 2.01 && this.Y < netHeight){
-					this.Zvel = -this.Zvel;
-					this.Zvel *= 0.5;
-					this.Xvel *= 0.9;
-				}
-
-				var point = projectPoint(this.X, this.Y, this.Z);
-				if(checkKey("Space") === true && this.Z < 2){ // dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z) < 2 && onScreen(point[0], point[1]) === true && 
-					aimGameSpeed = 0.005;
-				}
-
 			}
 
-			// controlling
-
-			if(this.attached === true){
-				aimGameSpeed = 1;
-				if(mouseButtons[0] === false){
-					this.attached = false;
-					var setVel = playerRacquetController.getVel();
-					this.Xvel = setVel[0];
-					this.Yvel = setVel[1];
-					this.Zvel = setVel[2];
-					var setRot = playerRacquetController.getSpin();
-					this.Xrot = setRot[0];
-					this.Yrot = setRot[1];
-				}
-				var newPos = playerRacquetController.getPos(mousePos.x, mousePos.y);
-				this.X = newPos[0];
-				this.Y = newPos[1];
-				this.Z = newPos[2];
+			// net
+			if(this.Z > 1.99 && this.Z < 2.01 && this.Y < netHeight){
+				this.Zvel = -this.Zvel;
+				this.Zvel *= 0.5;
+				this.Xvel *= 0.9;
 			}
-		}
-		var hovering = playerRacquetController.getOver([this.X, this.Y, this.Z], this.size)
-		if(hovering === true && mouseButtons[0] === true && this.attached === false){
-			this.attached = true;
-			this.stopped = false;
-			playerRacquetController.setOffset(this.X, this.Y, this.Z);
+
+			// var point = projectPoint(this.X, this.Y, this.Z);
+			if(checkKey("Space") === true && this.Z < 2){ // dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z) < 2 && onScreen(point[0], point[1]) === true && 
+				aimGameSpeed = 0.005;
+			}
 		}
 	}
+
 	draw(){
 		// rotation renders looping
 		this.Xangle += this.Xrot*gameSpeed;
@@ -247,8 +216,6 @@ class Ball{
 		// shadow
 		// shadow should do it by doing three points
 		var shaPoint = projectPoint(this.X, 0, this.Z);
-		var shaPointX = projectPoint(this.X+0.1, 0, this.Z);
-		var shaPointZ = projectPoint(this.X, 0, this.Z+0.1);
 		//currently just does 2:1 ellipse
 
 		if(collidePoint(shaPoint, [0, 0, canvas.width, canvas.height]) === true && shaPoint[2] > 0){
@@ -281,6 +248,7 @@ class Ball{
 			c.restore();
 		}
 	}
+
 	reset(){
 		this.X = this.startX;
 		this.Y = this.startY;
@@ -294,7 +262,17 @@ class Ball{
 		this.Yrot = Math.random()*this.size*0.1;
 		this.attached = false;
 	}
+
+	getPos(){
+		return [this.X, this.Y, this.Z];
+	}
+
+	getVel(){
+		return [this.Xvel, this.Yvel, this.Zvel];
+	}
+
 }
+
 
 class mouseController{
 	constructor(){
@@ -306,29 +284,35 @@ class mouseController{
 		this.allowance = 10;
 		this.offset = [[0, 0], [0, 0, 0]];
 		this.spinMult = 10;
+		this.dragging = false;
 	}
+
 	getPosNewOld(mouseX, mouseY){
 		var x = (mouseX/canvas.width)-0.5;
 		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
 		return [x*1.5-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
+
 	getPosNew(mouseX, mouseY){
 		var x = -(this.offset[0][1]-mouseX)*1.5 / canvas.width;
 		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
 		return [x-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
+
 	getPosOld(mouseX, mouseY){
 		var x = (mouseX/canvas.width)-0.5;
 		var y = -(mouseY/canvas.height);
 		var z = -(mouseY/canvas.height)+1;
 		return [x*2-cameraPos[0], y*2+cameraPos[1], z-cameraPos[2]];
 	}
+
 	getPos(X, Y){
 		return this.getPosNewOld(X, Y);
 	}
-	update(){ //updates things
+
+	update(){ // called every frame
 		this.velocity = [0, 0, 0];
 		this.prevPos.push([mousePos.x, mousePos.y]);
 		if(this.prevPos.length > this.pollingPeriod[0]){
@@ -363,20 +347,38 @@ class mouseController{
 			this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult, Math.sin(angle1)*spinSpeed*this.spinMult];
 			showText(roundList(this.spin, 3), canvas.width/2, 45, 15);
 		}
+
+
+		// manages the grabbing of the ball. I am aware that it could be accessing ball and its properties nicer
+		var point = projectPoint(...balls[0].getPos());
+		if(dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(balls[0].size+this.allowance) && mouseButtons[0] === true){
+			this.dragging = true;
+			// this.setOffset(balls[0].getPos())
+		}
+
+		if(this.dragging === true){
+			var newPos = this.getPos(mousePos.x, mousePos.y);
+			balls[0].freeze(newPos);
+			if(mouseButtons[0] === false){
+				balls[0].hit(this.getVel(), this.getSpin());
+			}
+		}
 		this.draw();
 	}
-	draw(){
-		var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
-		var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
 
-		c.beginPath();
-		c.strokeStyle = "rgb(0, 0, 0)";
-		c.lineWidth = 5;
-		c.moveTo(mousePos.x, mousePos.y)
-		c.lineTo(mousePos.x - Math.cos(angle2)*30, mousePos.y - Math.sin(angle2)*30);
-		c.lineTo(mousePos.x - Math.cos(angle1)*60, mousePos.y - Math.sin(angle1)*60);
-		c.stroke();
+	draw(){
+		// var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
+		// var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
+
+		// c.beginPath();
+		// c.strokeStyle = "rgb(0, 0, 0)";
+		// c.lineWidth = 5;
+		// c.moveTo(mousePos.x, mousePos.y)
+		// c.lineTo(mousePos.x - Math.cos(angle2)*30, mousePos.y - Math.sin(angle2)*30);
+		// c.lineTo(mousePos.x - Math.cos(angle1)*60, mousePos.y - Math.sin(angle1)*60);
+		// c.stroke();
 	}
+
 	getVel(){
 		return this.velocity;
 	}
@@ -395,6 +397,7 @@ class mouseController{
 		this.offset = [[mousePos.x, mousePos.y], [X, Y, Z+cameraPos[2]]];
 	}
 }
+
 
 function drawRacquet(X, Y, Z, a = false){
 		var point = projectPoint(X, Y, Z)
@@ -478,11 +481,12 @@ class AIController{
 	draw(){
 		drawRacquet(this.X, this.Y, this.Z);
 
+		// target circle
 		c.beginPath();
 		c.strokeStyle = "rgb(255, 0, 0)";
 		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-		c.ellipse(point[0], point[1], point[2]*30, point[2]*15, 0, 0, Math.PI*2);
-		c.lineWidth = point[2]*10;
+		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+		c.lineWidth = point[2]*5;
 		c.stroke();
 	}
 }
@@ -492,7 +496,7 @@ var gameSpeed = 1;
 
 var cameraPos = [0, 1.2, -0.5];
 var vanishingPointPos = [0.5, 0.3];
-var balls = [new Ball(0, 1, 1.5)];
+var balls = [new Ball(0, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 var gravity = 0.003;
 
 var mountainPoints = [[-50, -50, 30]];
