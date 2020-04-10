@@ -152,6 +152,8 @@ class Ball{
 				this.Yvel *= 1-0.001*gameSpeed;
 				this.Xvel *= 1-0.01*gameSpeed;
 				this.Zvel *= 1-0.01*gameSpeed;
+				// spin
+				this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.008;
 				// collitions
 				if(this.Y-this.courtSize <= 0){
 					this.Y = this.courtSize;
@@ -207,7 +209,7 @@ class Ball{
 					this.Xvel = setVel[0];
 					this.Yvel = setVel[1];
 					this.Zvel = setVel[2];
-					var setRot = playerRacquetController.getRot();
+					var setRot = playerRacquetController.getSpin();
 					this.Xrot = setRot[0];
 					this.Yrot = setRot[1];
 				}
@@ -240,7 +242,7 @@ class Ball{
 		if(this.Yangle < -this.size*2){
 			this.Yangle = this.size*2;
 		}
-
+		showText([this.Xrot, this.Yrot], canvas.width/2, 60, 15);
 
 		// shadow
 		// shadow should do it by doing three points
@@ -297,12 +299,13 @@ class Ball{
 class mouseController{
 	constructor(){
 		this.prevPos = [];
-		this.pollingPeriod = [20, 6, 12]; // [recordFor, use for vel, use for spin]
+		this.pollingPeriod = [20, 3, 12]; // [recordFor, use for vel, use for spin]
 		this.velocity = [0, 0, 0];
-		this.rotation = [0, 0];
+		this.spin = [0, 0];
 
 		this.allowance = 10;
 		this.offset = [[0, 0], [0, 0, 0]];
+		this.spinMult = 10;
 	}
 	getPosNewOld(mouseX, mouseY){
 		var x = (mouseX/canvas.width)-0.5;
@@ -354,32 +357,32 @@ class mouseController{
 			this.velocity[2] -= playerVel[2];
 			showText(roundList(this.velocity, 5), canvas.width/2, 15, 15);
 
-
+			var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
+			var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
+			var spinSpeed = Math.abs(angle1-angle2);
+			this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult, Math.sin(angle1)*spinSpeed*this.spinMult];
+			showText(roundList(this.spin, 3), canvas.width/2, 45, 15);
 		}
 		this.draw();
 	}
 	draw(){
-		// c.beginPath();
-		// c.fillStyle = "rgba(255, 0, 0, 0.1)";
-		// c.fillRect(canvas.width*0.35, 0, canvas.width*0.3, canvas.height);
 		var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
 		var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
-		showText(round(angle1-angle2, 3), canvas.width/2, 45, 15);
 
 		c.beginPath();
 		c.strokeStyle = "rgb(0, 0, 0)";
 		c.lineWidth = 5;
 		c.moveTo(mousePos.x, mousePos.y)
-		c.lineTo(Math.cos(angle2)*30+mousePos.x, Math.sin(angle2)*30+mousePos.y);
-		c.lineTo(Math.cos(angle1)*60+mousePos.x, Math.sin(angle1)*60+mousePos.y);
+		c.lineTo(mousePos.x - Math.cos(angle2)*30, mousePos.y - Math.sin(angle2)*30);
+		c.lineTo(mousePos.x - Math.cos(angle1)*60, mousePos.y - Math.sin(angle1)*60);
 		c.stroke();
 	}
 	getVel(){
 		return this.velocity;
 	}
 
-	getRot(){
-		return this.rotation;
+	getSpin(){
+		return this.spin;
 	}
 
 	getOver(pos, size){
@@ -487,7 +490,7 @@ class AIController{
 var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
 var gameSpeed = 1;
 
-var cameraPos = [0, 1.2, -0.9];
+var cameraPos = [0, 1.2, -0.5];
 var vanishingPointPos = [0.5, 0.3];
 var balls = [new Ball(0, 1, 1.5)];
 var gravity = 0.003;
