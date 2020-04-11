@@ -69,7 +69,7 @@ var courtPoints = [[-1, 0, 1],
 [-1, 0, 3]
 ]
 
-var netHeight = 0.4;
+var netHeight = 0.3;
 
 var netOutlinePoints = [[-1.6, 0, 2],
 [-1.6, netHeight, 2],
@@ -136,7 +136,7 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.stopped = false;
-		this.courtSize = 0.02; // court base size
+		this.courtSize = 0.015; // court base size
 		this.size = this.courtSize*canvas.width;
 		this.reset();
 	}
@@ -178,7 +178,7 @@ class Ball{
 			this.Zvel *= 1-0.01*gameSpeed;
 			// spin
 			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.008;
-			this.Xvel += (this.Xrot)*-0.00003;
+			this.Xvel += (this.Xrot*this.Zvel)*-0.003;
 			// spin drag
 			this.Xrot *= 1-0.01*gameSpeed;
 			this.Yrot *= 1-0.01*gameSpeed;
@@ -291,7 +291,7 @@ class Ball{
 class mouseController{
 	constructor(){
 		this.prevPos = [];
-		this.pollingPeriod = [20, 3, 9]; // [recordFor, use for vel, use for spin]
+		this.pollingPeriod = [20, 3, 7]; // [recordFor, use for vel, use for spin]
 		this.velocity = [0, 0, 0];
 		this.spin = [0, 0];
 
@@ -357,7 +357,7 @@ class mouseController{
 
 			var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
 			var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
-			var spinSpeed = clip(Math.min(Math.abs(angle1-angle2), Math.abs(angle1-angle2-Math.PI)), 0, 1);
+			var spinSpeed = clip(Math.abs(angle1-angle2), 0, 1.5);
 			this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult, Math.sin(angle1)*spinSpeed*this.spinMult];
 			showText(spinSpeed, canvas.width/2, 45, 15);
 		}
@@ -365,9 +365,10 @@ class mouseController{
 
 		// manages the grabbing of the ball. I am aware that it could be accessing ball and its properties nicer
 		var point = projectPoint(...balls[0].getPos());
-		if(dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(balls[0].size+this.allowance) && mouseButtons[0] === true){
+		if(dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(balls[0].size+this.allowance) && mouseButtons[0] === true && this.dragging === false){
 			this.dragging = true;
 			this.setOffset(balls[0].getPos()[0], balls[0].getPos()[1], balls[0].getPos()[2])
+			aimGameSpeed = 1;
 		}
 
 		if(this.dragging === true){
@@ -418,7 +419,7 @@ class mouseController{
 function drawRacquet(X, Y, Z, a = false){
 		var point = projectPoint(X, Y, Z)
 		if(a === false){
-			var angle = scaleNumber(point[0], canvas.width, 0, 0, -Math.PI);
+			var angle = scaleNumber(X, 1, -1, 0, -Math.PI);
 		}else{
 			var angle = a;
 		}
@@ -455,28 +456,27 @@ class AIController{
 		this.accuracy = random(0, (10-difficulty)/1000);
 		this.tendency = 0;
 		this.power = random(0.02+difficulty/1000, 0.034)
-		this.speed = random(0, 0.1);
-		this.trials = difficulty**1.4;
+		this.speed = random(0.001, 0.0015);
+		this.trials = difficulty**1.4; // how many times to try 
 
 
 		this.X = 0;
-		this.Y = 1;
+		this.Y = 0.7;
 		this.Z = 3;
 		this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7];
 		console.log(this);
-	}
-	getPos(){
+		this.Xvel = 0;
+		this.Yvel = 0;
+		this.Zvel = 0;
 
 	}
-	getVel(X, Y, Z){
-		this.X = X;
-		this.Y = Y;
-		this.Z = Z;
+
+	getVel(X, Y, Z){ // takes the postion of hit
 
 		this.target = [0, 0, 1.2];
 		for(var i = 0; i<this.trials; i +=1){
 			var newTar = [random(-1, 1), 0, random(1, 1.7)];
-			if(evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], newTar) < evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], this.target)){
+			if(evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], newTar) < evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], this.target)){ // takes random guesses and chooses the furthest away from the player
 				this.target = newTar;
 			}
 			// i couldn't work out how to do min with comparator function so i just do this instead.
@@ -490,6 +490,19 @@ class AIController{
 		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*220;
 		console.log(power);
 		return [-power*Math.cos(this.angle), 0.1, power*Math.sin(this.angle)];
+	}
+	update(){
+		this.Xvel *= 0.8
+		if(this.X < balls[0].X){
+			this.Xvel += this.speed;
+		}else{
+			this.Xvel -= this.speed;
+		}
+
+		this.X += this.Xvel*gameSpeed;
+		this.Z += this.Zvel*gameSpeed
+
+		this.draw();
 	}
 	getOver(){
 
@@ -510,7 +523,7 @@ class AIController{
 var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
 var gameSpeed = 1;
 
-var cameraPos = [0, 1.2, -0.5];
+var cameraPos = [0, 1, -0.4];
 var vanishingPointPos = [0.5, 0.3];
 var balls = [new Ball(0, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 var gravity = 0.003;
@@ -635,7 +648,7 @@ class Game{
 		}
 
 		playerRacquetController.update();
-		comRacquetController.draw();
+		comRacquetController.update();
 
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8
 
