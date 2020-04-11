@@ -163,6 +163,10 @@ class Ball{
 
 	run(){
 		if(this.stopped === false){
+			this.lastX = this.X;
+			this.lastZ = this.Z;
+			this.lastY = this.Y;
+
 			this.Yvel -= gravity*gameSpeed;
 			this.X += this.Xvel*gameSpeed;
 			this.Y += this.Yvel*gameSpeed;
@@ -175,6 +179,9 @@ class Ball{
 			// spin
 			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.008;
 			this.Xvel += (this.Xrot)*-0.00003;
+			// spin drag
+			this.Xrot *= 1-0.01*gameSpeed;
+			this.Yrot *= 1-0.01*gameSpeed;
 			// collitions
 			if(this.Y-this.courtSize <= 0){ // ground
 				this.Y = this.courtSize;
@@ -188,14 +195,12 @@ class Ball{
 			}
 
 			// net
-			if(this.Z > 1.99 && this.Z < 2.01 && this.Y < netHeight){
-				this.Zvel = -this.Zvel;
-				this.Zvel *= 0.5;
+			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y < netHeight){
+				this.Zvel = -this.Zvel*0.5;
 				this.Xvel *= 0.9;
 			}
 
-			// var point = projectPoint(this.X, this.Y, this.Z);
-			if(checkKey("Space") === true && this.Z < 2){ // dist3d(-cameraPos[0], cameraPos[1], -cameraPos[2], this.X, this.Y, this.Z) < 2 && onScreen(point[0], point[1]) === true && 
+			if(checkKey("Space") === true && this.Z < 2){ 
 				aimGameSpeed = 0.005;
 			}
 		}
@@ -267,7 +272,9 @@ class Ball{
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
 		this.Xrot = Math.random()*this.size*0.1; // the roational speed of the ball
 		this.Yrot = Math.random()*this.size*0.1;
-		this.attached = false;
+		this.lastX = 0;
+		this.lastY = 0;
+		this.lastZ = 0;
 	}
 
 	getPos(){
@@ -350,9 +357,9 @@ class mouseController{
 
 			var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
 			var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
-			var spinSpeed = Math.min(Math.abs(angle1-angle2), Math.abs(angle1-angle2-Math.PI));
+			var spinSpeed = clip(Math.min(Math.abs(angle1-angle2), Math.abs(angle1-angle2-Math.PI)), 0, 1);
 			this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult, Math.sin(angle1)*spinSpeed*this.spinMult];
-			showText(roundList(this.spin, 3), canvas.width/2, 45, 15);
+			showText(spinSpeed, canvas.width/2, 45, 15);
 		}
 
 
