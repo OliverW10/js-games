@@ -177,8 +177,8 @@ class Ball{
 			this.Xvel *= 1-0.01*gameSpeed;
 			this.Zvel *= 1-0.01*gameSpeed;
 			// spin
-			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.008;
-			this.Xvel += (this.Xrot*this.Zvel)*-0.003;
+			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.01;
+			this.Xvel += (this.Xrot*this.Zvel)*-0.002;
 			// spin drag
 			this.Xrot *= 1-0.01*gameSpeed;
 			this.Yrot *= 1-0.01*gameSpeed;
@@ -190,12 +190,11 @@ class Ball{
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
 				if(call === 0){
 					this.reset();
-					console.log("hit floor");
 				}
 			}
 
 			// net
-			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y < netHeight){
+			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y-this.courtSize < netHeight){
 				this.Zvel = -this.Zvel*0.5;
 				this.Xvel *= 0.9;
 			}
@@ -297,7 +296,7 @@ class mouseController{
 
 		this.allowance = 10;
 		this.offset = [[0, 0], [0, 0, 0]];
-		this.spinMult = 10;
+		this.spinMult = [10, 25];
 		this.dragging = false;
 	}
 
@@ -358,7 +357,7 @@ class mouseController{
 			var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
 			var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
 			var spinSpeed = clip(Math.abs(angle1-angle2), 0, 1.5);
-			this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult, Math.sin(angle1)*spinSpeed*this.spinMult];
+			this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
 			showText(spinSpeed, canvas.width/2, 45, 15);
 		}
 
@@ -384,16 +383,16 @@ class mouseController{
 	}
 
 	draw(){
-		var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
-		var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
+		// var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
+		// var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
 
-		c.beginPath();
-		c.strokeStyle = "rgb(0, 0, 0)";
-		c.lineWidth = 5;
-		c.moveTo(mousePos.x, mousePos.y)
-		c.lineTo(mousePos.x - Math.cos(angle2)*30, mousePos.y - Math.sin(angle2)*30);
-		c.lineTo(mousePos.x - Math.cos(angle1)*60, mousePos.y - Math.sin(angle1)*60);
-		c.stroke();
+		// c.beginPath();
+		// c.strokeStyle = "rgb(0, 0, 0)";
+		// c.lineWidth = 5;
+		// c.moveTo(mousePos.x, mousePos.y)
+		// c.lineTo(mousePos.x - Math.cos(angle2)*30, mousePos.y - Math.sin(angle2)*30);
+		// c.lineTo(mousePos.x - Math.cos(angle1)*60, mousePos.y - Math.sin(angle1)*60);
+		// c.stroke();
 	}
 
 	getVel(){
@@ -456,7 +455,7 @@ class AIController{
 		this.accuracy = random(0, (10-difficulty)/1000);
 		this.tendency = 0;
 		this.power = random(0.02+difficulty/1000, 0.034)
-		this.speed = random(0.001, 0.0015);
+		this.speed = random(0.0002*difficulty, 0.0003*difficulty);
 		this.trials = difficulty**1.4; // how many times to try 
 
 
@@ -487,12 +486,11 @@ class AIController{
 
 		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+this.tendency;
 
-		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*220;
-		console.log(power);
+		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*180;
 		return [-power*Math.cos(this.angle), 0.1, power*Math.sin(this.angle)];
 	}
 	update(){
-		this.Xvel *= 0.8
+		this.Xvel *= 1-0.05*gameSpeed;
 		if(this.X < balls[0].X){
 			this.Xvel += this.speed;
 		}else{
@@ -501,6 +499,11 @@ class AIController{
 
 		this.X += this.Xvel*gameSpeed;
 		this.Z += this.Zvel*gameSpeed
+
+		if(dist3d(this.X, this.Y, this.Z/2, balls[0].X, balls[0].Y, balls[0].Z/2) < 0.2){
+			console.log("Ai shot   "+this.getVel());
+			balls[0].hit(this.getVel(this.X, this.Y, this.Z), [0, 0])
+		}
 
 		this.draw();
 	}
