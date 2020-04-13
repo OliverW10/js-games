@@ -10,12 +10,11 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 	return [x2, y2, (1/az)*scale];
 }
 
-// var gridPoints = [];
-// for(var i = -5; i<5; i +=1){
-// 	for(var j = -5; j<5; j+=1){
-// 		gridPoints.push([[i/10, j/10+2, 1.1], [i/10, j/10+2, 1.2]]);
-// 	}
-// }
+function warp(pos){ // position is one axis with 0 being in the middle and 1 and -1 being the edges
+	//var newPos = Math.tan(pos*1.1)*Math.PI*(1/1.1);
+	var newPos = pos;//Math.sign(pos)*(Math.abs(pos)**(1/1.1))
+	return newPos
+}
 
 var courtPoints = [[-1, 0, 1],
 [-1, 0, 2],
@@ -83,7 +82,7 @@ function drawLines(lines, cameraPos, colour, width = 10){ // same as draw points
 	}
 }
 
-var lineQuality = 0.5; // 1 is full, 0.5 is half and so on
+var lineQuality = 1; // 1 is full, 0.5 is half and so on
 
 function glowLine(point1, point2, colour, width){
 	// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
@@ -106,6 +105,7 @@ var colours = {"background" : "#13001e",
 "ball" : "#dbd936",
 "court" : "rgb(48, 36, 80)",
 "mountains" : "rgb(197, 201, 156)"}
+
 
 
 var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
