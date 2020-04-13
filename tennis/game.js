@@ -60,13 +60,74 @@ for(var i = -1.6; i<1.6; i+=0.1){
 	netInnerPoints.push([i, netHeight, 2]);
 }
 
+class drawing{
+	constructor(quality){
+		this.quality = quality;
+		this.style = 0;
+		this.points = [];
+	}
+	points(points, cameraPos, colour, width = 5){
+		for(var i = 1; i<points.length;i+=1){
+			if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
+				var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
+				var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
+				// c.lineWidth = Math.min(point1[2], point2[2])*width;
+				renderer.line(point1, point2, colour,  Math.min(point1[2], point2[2])*width)
+			}
+		}
+	}
+
+	lines(lines, cameraPos, colour, width = 5){
+		for(var i = 0; i<lines.length; i+=1){
+			if(lines[i][0][2]+cameraPos[2] > 0 || lines[i][1][2]+cameraPos[2] > 0){
+				var point1 = projectPoint(lines[i][0][0], lines[i][0][1], lines[i][0][1], cameraPos);
+				var point2 = projectPoint(lines[i][1][0], lines[i][1][1], lines[i][1][1], cameraPos);
+				// c.lineWidth = Math.min(point1[2], point2[2])*width;
+				renderer.line(point1, point2, colour, Math.min(point1[2], point2[2])*width);
+			}
+		}
+	}
+
+	arc(point, radius, startAngle, endAngle, colour, width){
+		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
+		var rgb = colour.match(/\d+/g);
+		var toDraw = Math.min(Math.round(width*this.quality), 50)
+		for(var i = toDraw; i > 0; i-=1){
+			c.beginPath();
+			c.lineWidth = i*1/this.quality;
+			var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
+			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
+			c.strokeStyle = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
+			c.arc(point[0], point[1], radius, startAngle, endAngle)
+			c.stroke();
+		}
+	}
+
+	line(point1, point2, colour, width){
+		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
+		var rgb = colour.match(/\d+/g);
+		var toDraw = Math.min(Math.round(width*this.quality), 50)
+		for(var i = toDraw; i > 0; i-=1){
+			c.beginPath();
+			c.lineWidth = i*1/this.quality;
+			var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
+			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
+			c.strokeStyle = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
+			c.moveTo(point1[0], point1[1]);
+			c.lineTo(point2[0], point2[1]);
+			c.stroke();
+		}
+	}
+}
+
+
 function drawPoints(points, cameraPos, colour, width = 10){
 	for(var i = 1; i<points.length;i+=1){
 		if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
 			var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
 			var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
 			// c.lineWidth = Math.min(point1[2], point2[2])*width;
-			glowLine(point1, point2, colour,  Math.min(point1[2], point2[2])*width)
+			renderer.line(point1, point2, colour,  Math.min(point1[2], point2[2])*width)
 		}
 	}
 }
@@ -77,34 +138,17 @@ function drawLines(lines, cameraPos, colour, width = 10){ // same as draw points
 			var point1 = projectPoint(lines[i][0][0], lines[i][0][1], lines[i][0][1], cameraPos);
 			var point2 = projectPoint(lines[i][1][0], lines[i][1][1], lines[i][1][1], cameraPos);
 			// c.lineWidth = Math.min(point1[2], point2[2])*width;
-			glowLine(point1, point2, colour, Math.min(point1[2], point2[2])*width);
+			renderer.line(point1, point2, colour, Math.min(point1[2], point2[2])*width);
 		}
 	}
 }
 
-var lineQuality = 1; // 1 is full, 0.5 is half and so on
-
-function glowLine(point1, point2, colour, width){
-	// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
-	var rgb = colour.match(/\d+/g);
-	var toDraw = Math.min(Math.round(width*lineQuality), 50)
-	for(var i = toDraw; i > 0; i-=1){
-		c.beginPath();
-		c.lineWidth = i*1/lineQuality;
-		var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
-		// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
-		c.strokeStyle = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
-		c.moveTo(point1[0], point1[1]);
-		c.lineTo(point2[0], point2[1]);
-		c.stroke();
-	}
-}
-
-var colours = {"background" : "#13001e",
-"net" : "#763d37",
-"ball" : "#dbd936",
-"court" : "rgb(48, 36, 80)",
-"mountains" : "rgb(197, 201, 156)"}
+var colours = {"ground" : "rgb(19, 0, 30)",
+"sky": "rgb(19, 0, 30)",
+"net" : "rgb(255, 0, 255)",
+"ball" : "rgb(219, 217, 54)",
+"court" : "rgb(0, 100, 255)",
+"mountains" : "rgb(150, 153, 122)"}
 
 
 
@@ -138,6 +182,8 @@ var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.1, 0.002];
 var playerDrag = 0.1;
 var playerMaxSpeed = [0.02, 0, 0.015]
+
+var renderer = new drawing(1);
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -224,8 +270,8 @@ class Game{
 				balls[i].draw();
 			}
 		}
-		drawPoints(netOutlinePoints, cameraPos, "rgb(25, 25, 25)");
-		drawPoints(netInnerPoints, cameraPos, "rgb(25, 25, 25)", 5);
+		// renderer.points(netOutlinePoints, cameraPos, colours["net"]);
+		// renderer.points(netInnerPoints, cameraPos, colours["net"], 5);
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z <= 2){
 				balls[i].draw();
@@ -235,7 +281,7 @@ class Game{
 		playerRacquetController.update();
 		comRacquetController.update();
 
-		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8
+		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 
 		vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
@@ -244,24 +290,24 @@ class Game{
 		c.fillStyle = grd;
 		c.fillRect(0, 0, canvas.width, canvas.height);
 	}
-	
+
 	background(){
 		var horizonPoint = projectPoint(0, 0, 30);
 		// sky
 		c.beginPath();
-		c.fillStyle = "rgb(150, 150, 255)";
+		c.fillStyle = colours.sky;
 		c.rect(0, 0, canvas.width, horizonPoint[1]);
 		c.fill();
 
 		//mountains
-		drawPoints(mountainPoints, cameraPos, colours["mountains"], 100);
-		c.fillStyle = "rgb(150, 150, 150)";
+		drawPoints(mountainPoints, cameraPos, colours["mountains"], 50);
+		c.fillStyle = colours.mountains;
 		c.closePath();
 		c.fill();
 
 		//ground
 		c.beginPath();
-		c.fillStyle = "rgb(50, 200, 20)";
+		c.fillStyle = colours.ground;
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 	}

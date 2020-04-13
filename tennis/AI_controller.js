@@ -33,19 +33,18 @@ class AIController{
 				this.target = newTar;
 			}
 			// i couldn't work out how to do min with comparator function so i just do this instead.
-		}
-		//this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7]; // loop through random positions take the furthest away from player
+		}// loop through random positions take the furthest away from player
 
 
 
 		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+random(-this.accuracy, this.accuracy);
 
 		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*180;
-		return [-power*Math.cos(this.angle), 0.1, power*Math.sin(this.angle)];
+		return [-power*Math.cos(this.angle), 0.05, power*Math.sin(this.angle)];
 	}
 	update(){
 		// setting position aims
-		var ballDist = dist3d(this.X, this.Y, this.Z/2, balls[0].X, balls[0].Y, balls[0].Z/2);
+		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
 		if(ballDist < 0.4){ // if its near the ball it just goes for it
 			aimX = balls[0].X;
 			aimY = balls[0].Y;
@@ -86,10 +85,10 @@ class AIController{
 		this.Z += this.Zvel*gameSpeed;
 		this.Y += this.Yvel*gameSpeed;
 
-		var ballDist = dist3d(this.X, this.Y, this.Z*2, balls[0].X, balls[0].Y, balls[0].Z*2);
-		if(ballDist < 0.2){
-			console.log("Ai shot   "+this.getVel());
-			balls[0].hit(this.getVel(this.X, this.Y, this.Z), [0, 0])
+		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
+		if(ballDist < 0.25){
+			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
+			balls[0].hit(this.getVel(this.X, this.Y, this.Z), [random(-1, 1), 1])
 		}
 
 		this.draw();
@@ -120,7 +119,7 @@ function drawRacquet(X, Y, Z, a = false){
 	}
 	// racquet
 	c.beginPath();
-	c.strokeStyle = "rgb(0, 0, 0)";
+	c.strokeStyle = "rgb(255, 255, 255)";
 	c.lineWidth = point[2]*3;
 	c.moveTo(point[0], point[1])
 	c.lineTo(point[0]+Math.cos(angle)*point[2]*15, point[1]+Math.sin(angle)*point[2]*15);

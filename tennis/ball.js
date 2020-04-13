@@ -119,14 +119,15 @@ class Ball{
 		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
-			c.arc(point[0], point[1], Math.max(this.size*point[2], 0), 0, Math.PI*2);
-			c.fill();
-			c.clip();
+			renderer.arc(point, Math.max(this.size*point[2], 0), 0, Math.PI*2, "rgb(200, 255, 10)", point[2]*this.size*0.3);
 
+			c.beginPath();
+			c.arc(point[0], point[1], Math.max(this.size*point[2], 0), 0, Math.PI*2);;
+			c.clip();
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
-					c.strokeStyle = "rgb(100, 125, 5)";
+					c.strokeStyle = "rgb(200, 255, 10)";
 					c.lineWidth = point[2]*this.size/5
 					c.arc(point[0]+x*point[2]*this.size*2+this.Xangle*point[2], point[1]+y*point[2]*this.size*2+this.Yangle*point[2], this.size*point[2], Math.PI*x, Math.PI*(x+1));
 					c.stroke();
