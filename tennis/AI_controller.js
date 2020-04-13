@@ -17,7 +17,7 @@ class AIController{
 		this.Xvel = 0;
 		this.Yvel = 0;
 		this.Zvel = 0;
-
+		this.cooldown = 0;
 	}
 
 	evaluateShot(enemyPos, target){
@@ -40,12 +40,18 @@ class AIController{
 		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+random(-this.accuracy, this.accuracy);
 
 		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*180;
-		return [-power*Math.cos(this.angle), 0.05, power*Math.sin(this.angle)];
+
+		return [-power*Math.cos(this.angle), 0.07, power*Math.sin(this.angle)];
 	}
 	update(){
 		// setting position aims
 		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
-		if(ballDist < 0.4){ // if its near the ball it just goes for it
+		if(this.cooldown  >= 0){
+			aimX = 0;
+			aimY = 1;
+			aimZ = 3;
+			this.cooldown -= 1;
+		}else if(ballDist < 0.4){ // if its near the ball it just goes for it
 			aimX = balls[0].X;
 			aimY = balls[0].Y;
 			aimZ = balls[0].Z;
@@ -86,9 +92,10 @@ class AIController{
 		this.Y += this.Yvel*gameSpeed;
 
 		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
-		if(ballDist < 0.25){
+		if(ballDist < 0.25 && this.cooldown <= 0){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
 			balls[0].hit(this.getVel(this.X, this.Y, this.Z), [random(-1, 1), 1])
+			this.cooldown = 100; // has to wait 10 frames between each hit
 		}
 
 		this.draw();

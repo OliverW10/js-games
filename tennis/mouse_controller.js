@@ -66,11 +66,13 @@ class mouseController{
 			this.velocity[2] -= playerVel[2];
 			showText("mouse velocity: "+roundList(this.velocity, 5), canvas.width/2, 15, 15);
 
-			var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
-			var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
-			var spinSpeed = clip(Math.abs(angle1-angle2), 0, 1.5);
-			this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
-			showText("spin speed: "+spinSpeed, canvas.width/2, 45, 15);
+			// var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
+			// var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
+			// var spinSpeed = clip(Math.abs(angle1-angle2), 0, 1.5);
+			// this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
+			// showText("spin speed: "+spinSpeed, canvas.width/2, 45, 15);
+
+			this.spin = [random(-1, 1), random(0, -2)]
 		}
 
 

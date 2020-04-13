@@ -1,9 +1,11 @@
+
+var FOV = 1;
 function projectPoint(x1, y1, z1, camera = cameraPos){
 	// takes in a point in 3d space and puts in on the screen
 	// firstly translates by camera pos and scales to screen
 	var ax = x1+camera[0];
 	var ay = -y1+camera[1];
-	var az = Math.abs(z1+camera[2]);
+	var az = Math.abs(z1+camera[2])*FOV;
 	var x2 = (warp(ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
 	var y2 = (warp(ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
 	//returns X and Y position and size (az)
@@ -20,10 +22,10 @@ var courtPoints = [[-1, 0, 1],
 [-1, 0, 2],
 [1, 0, 2],
 [1, 0, 1],
-[-1.5, 0, 1],
-[-1.5, 0, 2],
-[1.5, 0, 2],
-[1.5, 0, 1],
+[-1.4, 0, 1],
+[-1.4, 0, 2],
+[1.4, 0, 2],
+[1.4, 0, 1],
 [1, 0, 1],
 [1, 0, 1.5],
 [0, 0, 1.5],
@@ -38,10 +40,10 @@ var courtPoints = [[-1, 0, 1],
 [1, 0, 2.5],
 [-1, 0, 2.5],
 [-1, 0, 3],
-[1.5, 0, 3],
-[1.5, 0, 2],
-[-1.5, 0, 2],
-[-1.5, 0, 3],
+[1.4, 0, 3],
+[1.4, 0, 2],
+[-1.4, 0, 2],
+[-1.4, 0, 3],
 [-1, 0, 3]
 ]
 
@@ -144,11 +146,11 @@ function drawLines(lines, cameraPos, colour, width = 10){ // same as draw points
 }
 
 var colours = {"ground" : "rgb(19, 0, 30)",
-"sky": "rgb(19, 0, 30)",
-"net" : "rgb(255, 0, 255)",
+"sky": "rgb(19, 0, 100)",
+"net" : "rgb(255, 150, 70)",
 "ball" : "rgb(219, 217, 54)",
 "court" : "rgb(0, 100, 255)",
-"mountains" : "rgb(150, 153, 122)"}
+"mountains" : "rgb(200, 0, 255)"}
 
 
 
@@ -165,9 +167,9 @@ for(var i = -20; i<20; i+=1){
 	var X = i*2;
 	var Y = Math.random()*20;
 	var Z = 30+(Math.random()-0.5)*5;
-	mountainPoints.push([X-Math.random()*5, Math.random(), Z])
+	mountainPoints.push([X-Math.random()*5, -Math.random(), Z])
 	mountainPoints.push([X, Y, Z])
-	mountainPoints.push([X+Math.random()*5, Math.random(), Z])
+	mountainPoints.push([X+Math.random()*5, -Math.random(), Z])
 }
 mountainPoints.push([50, -50, 30]);
 mountainPoints.push([-50, -50, 30]);
@@ -262,6 +264,8 @@ class Game{
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 		}
+		
+		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
 
 		drawPoints(courtPoints, cameraPos, colours["court"]);
@@ -270,8 +274,8 @@ class Game{
 				balls[i].draw();
 			}
 		}
-		// renderer.points(netOutlinePoints, cameraPos, colours["net"]);
-		// renderer.points(netInnerPoints, cameraPos, colours["net"], 5);
+		drawPoints(netOutlinePoints, cameraPos, colours["net"]);
+		drawPoints(netInnerPoints, cameraPos, colours["net"], 5);
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z <= 2){
 				balls[i].draw();
@@ -295,7 +299,10 @@ class Game{
 		var horizonPoint = projectPoint(0, 0, 30);
 		// sky
 		c.beginPath();
-		c.fillStyle = colours.sky;
+		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
+		grd.addColorStop(1, colours.ground);
+		grd.addColorStop(0, "rgb(100, 0, 100)");
+		c.fillStyle = grd;
 		c.rect(0, 0, canvas.width, horizonPoint[1]);
 		c.fill();
 
@@ -307,7 +314,10 @@ class Game{
 
 		//ground
 		c.beginPath();
-		c.fillStyle = colours.ground;
+		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
+		grd.addColorStop(1, colours.ground);
+		grd.addColorStop(0, colours.sky);
+		c.fillStyle = grd;
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 	}
