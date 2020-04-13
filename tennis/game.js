@@ -161,33 +161,25 @@ function inCheck(pos){
 
 class Game{
 	constructor(){
-		
+		this.state = this.match;
 	}
 
 	execute(){
-		var horizonPoint = projectPoint(0, 0, 30);
-		// sky
-		c.beginPath();
-		c.fillStyle = "rgb(150, 150, 255)";
-		c.rect(0, 0, canvas.width, horizonPoint[1]);
-		c.fill();
+		this.state();
+	}
 
-		//mountains
-		drawPoints(mountainPoints, cameraPos, colours["mountains"], 100);
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.closePath();
-		c.fill();
+	menu(){
+		this.background();
+	}
 
-		//ground
-		c.beginPath();
-		c.fillStyle = "rgb(50, 200, 20)";
-		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
-		c.fill();
+	match(){
+		this.background();
 
-
-		if(balls[0].stopped === false){
+		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
 			cameraPos[0] = -balls[0].X*0.2 + cameraPos[0]*0.8;
 		}
+
+		// WASD movement
 
 		// if(checkKey("Space") == true){
 		// 	playerVel[1] += playerSpeed[1]*gameSpeed;
@@ -220,9 +212,12 @@ class Game{
 		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
 		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 
+
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 		}
+
+
 		drawPoints(courtPoints, cameraPos, colours["court"]);
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z > 2){
@@ -248,5 +243,26 @@ class Game{
 		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
 		c.fillStyle = grd;
 		c.fillRect(0, 0, canvas.width, canvas.height);
+	}
+	
+	background(){
+		var horizonPoint = projectPoint(0, 0, 30);
+		// sky
+		c.beginPath();
+		c.fillStyle = "rgb(150, 150, 255)";
+		c.rect(0, 0, canvas.width, horizonPoint[1]);
+		c.fill();
+
+		//mountains
+		drawPoints(mountainPoints, cameraPos, colours["mountains"], 100);
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.closePath();
+		c.fill();
+
+		//ground
+		c.beginPath();
+		c.fillStyle = "rgb(50, 200, 20)";
+		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
+		c.fill();
 	}
 }

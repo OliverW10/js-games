@@ -123,8 +123,8 @@ function showText(text, X, Y, Size, colour = "rgb(0, 0, 0)", bold = false){
 	c.fillText(text, X, Y);
 }
 
-function onScreen(X, Y){
-	if(X > 0 && X < canvas.width && Y > 0 && Y < canvas.width){
+function onScreen(X, Y, size){
+	if(X+size > 0 && X-size < canvas.width && Y+size > 0 && Y-size < canvas.width){
 		return true;
 	} else{
 		return false;
