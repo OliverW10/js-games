@@ -1,12 +1,8 @@
 
 class AIController{
 	constructor(difficulty){
-		// difficulty is 1-10
-		this.accuracy = clip(random(10-difficulty**1.5, 25-difficulty**1.5), 0, 25)* Math.PI / 180;
-		this.tendency = 0;
-		this.power = random(0.02+difficulty/1000, 0.034)
-		this.speed = random(0.0002*difficulty, 0.0003*difficulty);
-		this.trials = difficulty**1.4; // how many times to try 
+		this.difficulty = difficulty;
+		this.setDifficulty();
 
 
 		this.X = 0;
@@ -19,17 +15,28 @@ class AIController{
 		this.Zvel = 0;
 		this.cooldown = 0;
 	}
+	setDifficulty(){
+		// difficulty is 1-10
+		this.accuracy = clip(random(10-this.difficulty**1.5, 25-this.difficulty**1.5), 0, 25)* Math.PI / 180;
+		this.tendency = 0;
+		var power = random(this.difficulty-1, this.difficulty+1)
+		this.power = 0.03+power/300
+		this.spin = power/1.7
+		this.speed = random(0.0002*this.difficulty, 0.0003*this.difficulty);
+		this.trials = this.difficulty**1.4; // how many times to try 
+	}
 
 	evaluateShot(enemyPos, target){
-		// console.log(-dist(enemyPos[0], enemyPos[2], target[0], target[2]));
-		return scaleNumber(dist(enemyPos[0], enemyPos[2], target[0], target[2]), 0, 1.5, 0, 1);
+		var playerDist = scaleNumber(dist(enemyPos[0], enemyPos[2], target[0], target[2]), 0, 1.5, 0, 1);
+		// var safeness = scaleNumber(dist(0, 1.2, target[0], target[2]), 0, 1.5, 0, 1);
+		return playerDist*(this.difficulty-5)+random(-1, 1);
 	}
 	getVel(X, Y, Z){ // takes the postion of hit
 
 		this.target = [0, 0, 1.2];
 		for(var i = 0; i<this.trials; i +=1){
 			var newTar = [random(-1, 1), 0, random(1, 1.7)];
-			if(this.evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], newTar) < this.evaluateShot([-cameraPos[0], 0, -cameraPos[2]+0.8], this.target)){ // random shots, keeps min of evaluate shot
+			if(this.evaluateShot([-cameraPos[0], 0, -cameraPos[2]+2], newTar) > this.evaluateShot([-cameraPos[0], 0, -cameraPos[2]+2], this.target)){ // random shots, keeps min of evaluate shot
 				this.target = newTar;
 			}
 			// i couldn't work out how to do min with comparator function so i just do this instead.
@@ -39,9 +46,12 @@ class AIController{
 
 		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+random(-this.accuracy, this.accuracy);
 
-		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*180;
+		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*200;
 
 		return [-power*Math.cos(this.angle), 0.07, power*Math.sin(this.angle)];
+	}
+	getSpin(){
+		return [random(), this.spin]
 	}
 	update(){
 		// setting position aims
@@ -94,7 +104,7 @@ class AIController{
 		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
 		if(ballDist < 0.25 && this.cooldown <= 0){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
-			balls[0].hit(this.getVel(this.X, this.Y, this.Z), [random(-1, 1), 1])
+			balls[0].hit(this.getVel(this.X, this.Y, this.Z), [random(-1, 1), this.spin])
 			this.cooldown = 100; // has to wait 10 frames between each hit
 		}
 

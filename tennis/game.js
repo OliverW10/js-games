@@ -13,8 +13,8 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 }
 
 function warp(pos){ // position is one axis with 0 being in the middle and 1 and -1 being the edges
-	//var newPos = Math.tan(pos*1.1)*Math.PI*(1/1.1);
-	var newPos = pos;//Math.sign(pos)*(Math.abs(pos)**(1/1.1))
+	// var newPos = Math.abs(pos)**1.15*Math.sign(pos);
+	var newPos = Math.atan(pos/3)*3;
 	return newPos
 }
 
@@ -178,7 +178,7 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(5);
+var comRacquetController = new AIController(15);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.1, 0.002];

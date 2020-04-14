@@ -7,6 +7,7 @@ class Ball{
 		this.stopped = false;
 		this.courtSize = 0.015; // court base size
 		this.size = this.courtSize*canvas.width;
+		console.log(this.size);
 		this.reset();
 	}
 
@@ -48,8 +49,8 @@ class Ball{
 			this.Xvel *= 1-0.01*gameSpeed;
 			this.Zvel *= 1-0.01*gameSpeed;
 			// spin
-			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.01;
-			this.Xvel += (this.Xrot*this.Zvel)*-0.002;
+			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.01*gameSpeed;
+			this.Xvel += (this.Xrot*this.Zvel)*-0.002*gameSpeed;
 			// spin drag
 			this.Xrot *= 1-0.01*gameSpeed;
 			this.Yrot *= 1-0.01*gameSpeed;
@@ -84,8 +85,8 @@ class Ball{
 
 	draw(){
 		// rotation renders looping
-		this.Xangle += this.Xrot*gameSpeed;
-		this.Yangle += this.Yrot*gameSpeed;
+		this.Xangle += this.Xrot*gameSpeed*this.size*15;
+		this.Yangle += this.Yrot*gameSpeed*this.size*15;
 		if(this.Xangle > this.size*2){
 			this.Xangle = -this.size*2;
 		}
@@ -146,8 +147,8 @@ class Ball{
 		this.Zvel = 0 //(Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
-		this.Xrot = Math.random()*this.size*0.1; // the roational speed of the ball
-		this.Yrot = Math.random()*this.size*0.1;
+		this.Xrot = 0.5*this.size*0.1; // the roational speed of the ball
+		this.Yrot = 0.5*this.size*0.1;
 		this.lastX = 0;
 		this.lastY = 0;
 		this.lastZ = 0;
