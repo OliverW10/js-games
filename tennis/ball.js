@@ -71,7 +71,7 @@ class Ball{
 			}
 
 			if(checkKey("Space") === true && this.Z < 2){ 
-				aimGameSpeed = 0.005;
+				aimGameSpeed = 0.01;
 			}
 
 			this.apex = Math.max(this.apex, this.Y);

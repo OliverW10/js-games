@@ -66,8 +66,8 @@ class AIController{
 		}
 
 		// drag
-		this.Xvel *= 1-0.05*gameSpeed;
-		this.Zvel *= 1-0.05*gameSpeed;
+		this.Xvel *= 1-0.1*gameSpeed;
+		this.Zvel *= 1-0.1*gameSpeed;
 		this.Yvel *= 1-0.1*gameSpeed;
 
 		// going to aims

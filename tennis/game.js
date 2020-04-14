@@ -147,12 +147,12 @@ function drawLines(lines, cameraPos, colour, width = 10){ // same as draw points
 
 var colours = {"ground" : "rgb(19, 0, 30)",
 "sky": "rgb(19, 0, 100)",
-"net" : "rgb(255, 150, 70)",
+"net" : "rgb(10, 150, 255)",
 "ball" : "rgb(219, 217, 54)",
 "court" : "rgb(0, 100, 255)",
 "mountains" : "rgb(200, 0, 255)"}
 
-
+// "rgb(0, 50, 125)"
 
 var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
 var gameSpeed = 1;
@@ -165,7 +165,7 @@ var gravity = 0.003;
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
 	var X = i*2;
-	var Y = Math.random()*20;
+	var Y = Math.random()*15;
 	var Z = 30+(Math.random()-0.5)*5;
 	mountainPoints.push([X-Math.random()*5, -Math.random(), Z])
 	mountainPoints.push([X, Y, Z])
@@ -178,7 +178,7 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(10);
+var comRacquetController = new AIController(5);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.1, 0.002];
@@ -264,7 +264,7 @@ class Game{
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 		}
-		
+
 		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
 
