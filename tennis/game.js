@@ -185,7 +185,7 @@ var playerSpeed = [0.003, 0.1, 0.002];
 var playerDrag = 0.1;
 var playerMaxSpeed = [0.02, 0, 0.015]
 
-var renderer = new drawing(1);
+var renderer = new drawing(0.5);
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
