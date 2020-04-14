@@ -285,6 +285,8 @@ class Game{
 		playerRacquetController.update();
 		comRacquetController.update();
 
+		showText("Press space when the ball is on your side to freeze time", canvas.width/2, canvas.height*0.9, 30, "rgb(255, 255, 255)");
+
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 
 		vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
