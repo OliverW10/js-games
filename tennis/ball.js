@@ -5,7 +5,7 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.stopped = false;
-		this.courtSize = 0.015; // court base size
+		this.courtSize = 0.02; // court base size
 		this.size = this.courtSize*canvas.width;
 		console.log(this.size);
 		this.reset();
@@ -55,15 +55,18 @@ class Ball{
 			this.Xvel *= 1-0.01*gameSpeed;
 			this.Zvel *= 1-0.01*gameSpeed;
 			// spin
-			this.Yvel += (this.Xrot*this.Xvel + this.Yrot*this.Zvel)*0.01*gameSpeed;
+			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.01*gameSpeed;
 			this.Xvel += (this.Xrot*this.Zvel)*-0.002*gameSpeed;
 			// spin drag
-			this.Xrot *= 1-0.01*gameSpeed;
-			this.Yrot *= 1-0.01*gameSpeed;
+			this.Xrot *= 1-0.003*gameSpeed;
+			this.Yrot *= 1-0.003*gameSpeed;
+
 			// collitions
 			if(this.Y-this.courtSize <= 0){ // ground
 				this.Y = this.courtSize;
 				this.Yvel = -this.Yvel*0.9;
+				this.Xrot *= 0.9;
+				this.Yrot *= 0.9;
 				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
 				if(call === 0){
@@ -72,13 +75,16 @@ class Ball{
 			}
 
 			// net
-			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y-this.courtSize < netHeight){
-				this.Zvel = -this.Zvel*0.5;
-				this.Xvel *= 0.9;
+			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y-this.courtSize/this.Z < netHeight){
+				this.Zvel = -this.Zvel;
+				this.Z += this.Zvel*gameSpeed;
+				this.Zvel *= 0.5
+				this.Xvel *= 0.8;
+				this.Yvel *= 0.8;
 			}
 
 			if(checkKey("Space") === true && this.Z < 2){ 
-				aimGameSpeed = 0.01;
+				aimGameSpeed = 0.1;
 			}
 
 			this.apex = Math.max(this.apex, this.Y);
@@ -126,22 +132,24 @@ class Ball{
 		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
-			renderer.arc(point, Math.max(this.size*point[2], 0), 0, Math.PI*2, "rgb(200, 255, 10)", point[2]*this.size*0.3);
+			renderer.arc(point, this.size/this.Z, 0, Math.PI*2, "rgb(200, 255, 10)", point[2]*this.size*0.2);
 
+			// note to self: do not fuck with this code beacuse you dont know how it works
 			c.beginPath();
-			c.arc(point[0], point[1], Math.max(this.size*point[2], 0), 0, Math.PI*2);;
+			c.arc(point[0], point[1], this.size/this.Z, 0, Math.PI*2);;
 			c.clip();
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
 					c.strokeStyle = "rgb(200, 255, 10)";
 					c.lineWidth = point[2]*this.size/5
-					c.arc(point[0]+x*point[2]*this.size*2+this.Xangle*point[2], point[1]+y*point[2]*this.size*2+this.Yangle*point[2], this.size*point[2], Math.PI*x, Math.PI*(x+1));
+					c.arc(point[0]+x*this.size/this.Z*2+this.Xangle/this.Z, point[1]+y*this.size/this.Z*2+this.Yangle/this.Z, this.size/this.Z, Math.PI*x, Math.PI*(x+1));
 					c.stroke();
 				}
 			}
 			c.restore();
 		}
+		showText(roundList([this.Xangle, this.Yangle, this.size*1.5], 1), canvas.width/2, 30, 15, "rgb(255, 255 ,255)");
 	}
 
 	reset(){
@@ -153,8 +161,8 @@ class Ball{
 		this.Zvel = 0 //(Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
-		this.Xrot = 0.5*this.size*0.1; // the roational speed of the ball
-		this.Yrot = 0.5*this.size*0.1;
+		this.Xrot = 0.2*this.size*0.1; // the roational speed of the ball
+		this.Yrot = -0.5*this.size*0.1;
 		this.lastX = 0;
 		this.lastY = 0;
 		this.lastZ = 0;
