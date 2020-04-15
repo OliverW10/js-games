@@ -250,3 +250,41 @@ function roundList(list, places = 0){
 	}
 	return newList
 }
+
+// def dist2line2(x,y,line):
+//      x1,y1,x2,y2=line
+//      vx = x1 - x
+//      vy = y1 - y
+//      ux = x2-x1
+//      uy = y2-y1
+//      length = ux * ux + uy * uy
+//      det = (-vx * ux) + (-vy * uy) #//if this is < 0 or > length then its outside the line segment
+//      if det < 0:
+//        return (x1 - x)**2 + (y1 - y)**2
+//      if det > length:
+//        return (x2 - x)**2 + (y2 - y)**2
+//      det = ux * vy - uy * vx
+//      return det**2 / length
+//    def dist2line(x,y,line): return math.sqrt(dist2line2(x,y,line))
+
+function dist2line(x, y, line){
+	var x1 = line[0];
+	var y1 = line[1];
+	var x2 = line[2];
+	var y2 = line[3];
+	var vx = x1 - x;
+	var vy = y1 - y;
+	var ux = x2 - x1;
+	var uy = y2 - y1;
+
+	var length = ux * ux + uy * uy;
+	var det = (-vx * ux) + (-vy * uy);
+	if(det < 0){
+    	return Math.sqrt((x1 - x)**2 + (y1 - y)**2);
+	}
+    if(det > length){
+    	return Math.sqrt((x2 - x)**2 + (y2 - y)**2);
+    }
+    det = ux * vy - uy * vx
+    return Math.sqrt(det**2 / length)
+}

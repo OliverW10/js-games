@@ -22,10 +22,16 @@ class Ball{
 		aimGameSpeed = 1;
 	}
 
-	freeze(newPos){
-		this.X = newPos[0];
-		this.Y = newPos[1];
-		this.Z = newPos[2];
+	freeze(newPos, smooth = true, alpha = 0.5){
+		if(smooth === true){
+			this.X = newPos[0] * alpha + this.X * (1-alpha);
+			this.Y = newPos[1] * alpha + this.Y * (1-alpha);
+			this.Z = newPos[2] * alpha + this.Z * (1-alpha);
+		}else{
+			this.X = newPos[0];
+			this.Y = newPos[1];
+			this.Z = newPos[2];
+		}
 		this.stopped = true;
 	}
 
@@ -85,8 +91,8 @@ class Ball{
 
 	draw(){
 		// rotation renders looping
-		this.Xangle += this.Xrot*gameSpeed*this.size*15;
-		this.Yangle += this.Yrot*gameSpeed*this.size*15;
+		this.Xangle += this.Xrot*gameSpeed*this.size/15;
+		this.Yangle += this.Yrot*gameSpeed*this.size/15;
 		if(this.Xangle > this.size*2){
 			this.Xangle = -this.size*2;
 		}

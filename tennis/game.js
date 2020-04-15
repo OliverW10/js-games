@@ -123,6 +123,7 @@ class drawing{
 }
 
 
+
 function drawPoints(points, cameraPos, colour, width = 10){
 	for(var i = 1; i<points.length;i+=1){
 		if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
@@ -178,7 +179,7 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(15);
+var comRacquetController = new AIController(5);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.1, 0.002];
