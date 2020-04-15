@@ -1,23 +1,4 @@
 
-var FOV = 1;
-function projectPoint(x1, y1, z1, camera = cameraPos){
-	// takes in a point in 3d space and puts in on the screen
-	// firstly translates by camera pos and scales to screen
-	var ax = x1+camera[0];
-	var ay = -y1+camera[1];
-	var az = Math.abs(z1+camera[2])*FOV;
-	var x2 = (warp(ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
-	var y2 = (warp(ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
-	//returns X and Y position and size (az)
-	return [x2, y2, (1/az)*scale];
-}
-
-function warp(pos){ // position is one axis with 0 being in the middle and 1 and -1 being the edges
-	// var newPos = Math.abs(pos)**1.15*Math.sign(pos);
-	var newPos = Math.atan(pos/3)*3;
-	return newPos
-}
-
 var courtPoints = [[-1, 0, 1],
 [-1, 0, 2],
 [1, 0, 2],
@@ -67,18 +48,6 @@ for(var i = -1.6; i<1.6; i+=0.1){
 	netInnerPoints.push([i, netHeight, 2]);
 }
 
-
-function drawPoints(points, cameraPos, colour, width = 10){
-	for(var i = 1; i<points.length;i+=1){
-		if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
-			var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
-			var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
-			// c.lineWidth = Math.min(point1[2], point2[2])*width;
-			renderer.line(point1, point2, colour,  Math.min(point1[2], point2[2])*width)
-		}
-	}
-}
-
 var colours = {"ground" : "rgb(19, 0, 30)",
 "sky": "rgb(19, 0, 100)",
 "net" : "rgb(10, 150, 255)",
@@ -112,7 +81,7 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(5);
+var comRacquetController = new AIController(2);
 var playerRacquetController = new mouseController();
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.1, 0.002];
@@ -202,10 +171,10 @@ class Game{
 		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
 
-		renderer.lines(courtLines, cameraPos, colours["court"]);
+		renderer.drawPoints(courtPoints, cameraPos, colours["court"]);
 		balls[0].draw();
-		drawPoints(netOutlinePoints, cameraPos, colours["net"]);
-		drawPoints(netInnerPoints, cameraPos, colours["net"], 5);
+		renderer.drawPoints(netOutlinePoints, cameraPos, colours["net"]);
+		// drawPoints(netInnerPoints, cameraPos, colours["net"], 5);
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z <= 2){
 				balls[i].draw();
@@ -239,7 +208,7 @@ class Game{
 		c.fill();
 
 		//mountains
-		drawPoints(mountainPoints, cameraPos, colours["mountains"], 50);
+		renderer.drawPoints(mountainPoints, cameraPos, colours["mountains"], 50);
 		c.fillStyle = colours.mountains;
 		c.closePath();
 		c.fill();

@@ -132,18 +132,18 @@ class Ball{
 		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
-			renderer.arc(point, this.size/this.Z, 0, Math.PI*2, "rgb(200, 255, 10)", point[2]*this.size*0.2);
+			// renderer.arc(point, point[2], 0, Math.PI*2, "rgb(200, 255, 10)", point[2]);
 
 			// note to self: do not fuck with this code beacuse you dont know how it works
 			c.beginPath();
-			c.arc(point[0], point[1], this.size/this.Z, 0, Math.PI*2);;
+			c.arc(point[0], point[1], point[2]*this.size, 0, Math.PI*2);;
 			c.clip();
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
 					c.strokeStyle = "rgb(200, 255, 10)";
 					c.lineWidth = point[2]*this.size/5
-					c.arc(point[0]+x*this.size/this.Z*2+this.Xangle/this.Z, point[1]+y*this.size/this.Z*2+this.Yangle/this.Z, this.size/this.Z, Math.PI*x, Math.PI*(x+1));
+					c.arc(point[0]+x*this.size*point[2]*2+this.Xangle*point[2], point[1]+y*this.size*point[2]*2+this.Yangle*point[2], this.size*point[2], Math.PI*x, Math.PI*(x+1));
 					c.stroke();
 				}
 			}

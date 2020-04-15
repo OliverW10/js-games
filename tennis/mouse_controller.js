@@ -72,7 +72,7 @@ class mouseController{
 			// this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
 			// showText("spin speed: "+spinSpeed, canvas.width/2, 45, 15);
 
-			this.spin = [clip(random(1, 1.5)*this.velocity[0]*90, -1.5, 1.5), clip(random(1, 1.5)*this.velocity[2]*-90, -7.5, 7.5)]
+			this.spin = [clip(random(1, 1.5)*this.velocity[0]*60, -1.5, 1.5), clip(random(1, 1.5)*this.velocity[2]*-80, -7, 7)]
 		}
 
 

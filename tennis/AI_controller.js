@@ -51,7 +51,7 @@ class AIController{
 		return [-power*Math.cos(this.angle), 0.07, power*Math.sin(this.angle)];
 	}
 	getSpin(){
-		return [random(), this.spin]
+		return [random(-1, 1), this.spin]
 	}
 	update(){
 		// setting position aims

@@ -1,3 +1,21 @@
+var FOV = 1;
+function projectPoint(x1, y1, z1, camera = cameraPos){
+	// takes in a point in 3d space and puts in on the screen
+	// firstly translates by camera pos and scales to screen
+	var ax = x1+camera[0];
+	var ay = -y1+camera[1];
+	var az = Math.abs(z1+camera[2])*FOV;
+	var x2 = (warp(ax/az)*canvas.width*vanishingPointPos[0])+canvas.width*vanishingPointPos[0];
+	var y2 = (warp(ay/az)*canvas.height*vanishingPointPos[1])+canvas.height*vanishingPointPos[1];
+	//returns X and Y position and size (az)
+	return [x2, y2, (1/az)*scale];
+}
+
+function warp(pos){ // position is one axis with 0 being in the middle and 1 and -1 being the edges
+	// var newPos = Math.abs(pos)**1.15*Math.sign(pos);
+	var newPos = Math.atan(pos/3)*3;
+	return newPos
+}
 
 class drawing{
 	constructor(quality){
@@ -5,7 +23,7 @@ class drawing{
 		this.style = 0;
 		this.points = [];
 	}
-	points(points, cameraPos, colour, width = 5){
+	drawPoints(points, cameraPos, colour, width = 5){
 		for(var i = 1; i<points.length;i+=1){
 			if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
 				var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
@@ -21,12 +39,12 @@ class drawing{
 			if(lines[i][0][2]+cameraPos[2] > 0 || lines[i][1][2]+cameraPos[2] > 0){
 				var point1 = projectPoint(lines[i][0][0], lines[i][0][1], lines[i][0][1], cameraPos);
 				var point2 = projectPoint(lines[i][1][0], lines[i][1][1], lines[i][1][1], cameraPos);
-				// c.lineWidth = Math.min(point1[2], point2[2])*width;
-				renderer.line(point1, point2, colour, Math.min(point1[2], point2[2])*width);
+				c.lineWidth = Math.min(point1[2], point2[2])*width;
+				renderer.line(point1, point2, colour, 10);
 			}
 		}
 	}
-	polyFIll(points, ){
+	polyFIll(points){
 
 	}
 
