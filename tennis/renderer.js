@@ -12,7 +12,6 @@ function projectPoint(x1, y1, z1, camera = cameraPos){
 }
 
 function warp(pos){ // position is one axis with 0 being in the middle and 1 and -1 being the edges
-	// var newPos = Math.abs(pos)**1.15*Math.sign(pos);
 	var newPos = Math.atan(pos/3)*3;
 	return newPos
 }
@@ -83,15 +82,23 @@ class drawing{
 	line(point1, point2, colour, width, glowAmount){
 		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
 		var rgb = colour.match(/\d+/g);
-		var toDraw = Math.min(Math.round(width*this.quality), 50)
+		var toDraw = Math.min(Math.round(width*this.quality), 50) // the number of lines to draw, is the width*quality
+		var newColour = colour;
+
+		// this is done to prevent the sudden stepping of sizes caused by doing the glow this way
+		roundedLine(point1, point2, width, colour);
+
+		// drawing the lines
 		for(var i = toDraw; i > 0; i-=1){
 			c.beginPath();
 			c.lineWidth = i*1/this.quality;
-			var lineWidth = i*1/this.quality;
-			var saturation = scaleNumber(i, toDraw, 0, 0.8, 1.5)
+			var thisWidth = i*1/this.quality;
+			var saturation = scaleNumber(i, toDraw, 0, 1, 2)
 			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
-			var newColour = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
-			roundedLine(point1, point2, lineWidth, newColour);
+			newColour = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
+			roundedLine(point1, point2, thisWidth, newColour);
 		}
+
+		// glow
 	}
 }

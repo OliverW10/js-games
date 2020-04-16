@@ -118,7 +118,7 @@ class Ball{
 		var shaPoint = projectPoint(this.X, 0, this.Z);
 		//currently just does 2:1 ellipse
 
-		if(onScreen(shaPoint[0], shaPoint[1], this.size*shaPoint[2]) === true && shaPoint[2] > 0){
+		if(onScreen(shaPoint[0], shaPoint[1], this.size*shaPoint[2]) === true && shaPoint[2] > 0 && this.Z+cameraPos[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgba(0, 0, 0, 0.5)";
 			c.ellipse(shaPoint[0], shaPoint[1], this.size*shaPoint[2], this.size*shaPoint[2]*0.5, 0, 0, Math.PI*2);
@@ -129,7 +129,7 @@ class Ball{
 		// ball
 		c.beginPath();
 		c.save();
-		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0){
+		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0 && this.Z+cameraPos[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
 			// renderer.arc(point, point[2], 0, Math.PI*2, "rgb(200, 255, 10)", point[2]);

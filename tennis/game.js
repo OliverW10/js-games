@@ -34,7 +34,19 @@ var courtLines = [[[-1, 0, 1], [1, 0, 1]],
 [[-1, 0, 2], [-1, 0, 1]],
 [[1, 0, 2], [1, 0, 3]],
 [[1, 0, 3], [-1, 0, 3]],
-[[-1, 0, 3], [-1, 0, 2]]];
+[[-1, 0, 3], [-1, 0, 2]],
+[[-1, 0, 1.5], [1, 0, 1.5]],
+[[-1, 0, 2.5], [1, 0, 2.5]],
+[[0, 0, 1.5], [0, 0, 2]],
+[[0, 0, 2.5], [0, 0, 2]],
+[[-1.4, 0, 1], [-1.4, 0, 2]],
+[[-1.4, 0, 2], [-1.4, 0, 3]],
+[[-1.4, 0, 3], [-1, 0, 3]],
+[[1.4, 0, 1], [1.4, 0, 2]],
+[[1.4, 0, 2], [1.4, 0, 3]],
+[[1.4, 0, 3], [1, 0, 3]],
+[[-1.4, 0, 1], [-1, 0, 1]],
+[[1.4, 0, 1], [1, 0, 1]]];
 console.log(courtLines[0])
 
 var netHeight = 0.3;
@@ -136,18 +148,18 @@ class Game{
 		// if(checkKey("ShiftLeft") == true){
 		// 	playerVel[1] -= playerSpeed[1]*gameSpeed;
 		// }
-		if(checkKey("KeyA") == true){
-			playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
-		}
-		if(checkKey("KeyD") == true){
-			playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
-		}
-		if(checkKey("KeyS") == true){
-			playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
-		}
-		if(checkKey("KeyW") == true){
-			playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
-		}
+		// if(checkKey("KeyA") == true){
+		// 	playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
+		// }
+		// if(checkKey("KeyD") == true){
+		// 	playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
+		// }
+		// if(checkKey("KeyS") == true){
+		// 	playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
+		// }
+		// if(checkKey("KeyW") == true){
+		// 	playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
+		// }
 		
 		cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
 		cameraPos[1] += playerVel[1]*(gameSpeed+0.1);

@@ -117,12 +117,12 @@ class AIController{
 		drawRacquet(this.X, this.Y, this.Z);
 
 		// target circle
-		c.beginPath();
-		c.strokeStyle = "rgb(255, 0, 0)";
-		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
-		c.lineWidth = point[2]*5;
-		c.stroke();
+		// c.beginPath();
+		// c.strokeStyle = "rgb(255, 0, 0)";
+		// var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+		// c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+		// c.lineWidth = point[2]*5;
+		// c.stroke();
 	}
 }
 
