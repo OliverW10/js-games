@@ -17,6 +17,25 @@ function warp(pos){ // position is one axis with 0 being in the middle and 1 and
 	return newPos
 }
 
+function roundedLine(startPos, endPos, width, colour){
+	c.beginPath();
+	c.strokeStyle = colour;
+	c.lineWidth = width;
+	c.moveTo(startPos[0], startPos[1]);
+	c.lineTo(endPos[0], endPos[1]);
+	c.stroke();
+
+	c.beginPath();
+	c.fillStyle = colour;
+	c.arc(startPos[0], startPos[1], width/2, Math.PI*0.5, Math.PI*1.5);
+	c.fill();
+
+	c.beginPath();
+	c.fillStyle = colour;
+	c.arc(endPos[0], endPos[1], width/2, Math.PI*1.5, Math.PI*2.5);
+	c.fill();
+}
+
 class drawing{
 	constructor(quality){
 		this.quality = quality;
@@ -34,7 +53,7 @@ class drawing{
 		}
 	}
 
-	lines(lines, cameraPos, colour, width = 5){
+	drawLines(lines, cameraPos, colour, width = 5){
 		for(var i = 0; i<lines.length; i+=1){
 			if(lines[i][0][2]+cameraPos[2] > 0 || lines[i][1][2]+cameraPos[2] > 0){
 				var point1 = projectPoint(lines[i][0][0], lines[i][0][1], lines[i][0][1], cameraPos);
@@ -70,12 +89,10 @@ class drawing{
 		for(var i = toDraw; i > 0; i-=1){
 			c.beginPath();
 			c.lineWidth = i*1/this.quality;
-			var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
+			var saturation = scaleNumber(i, toDraw, 0, 0.8, 1.5)
 			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
-			c.strokeStyle = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
-			c.moveTo(point1[0], point1[1]);
-			c.lineTo(point2[0], point2[1]);
-			c.stroke();
+			var newColour = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", 0.1)";
+			roundedLine(point1, point2, width, colour)
 		}
 	}
 }
