@@ -29,9 +29,13 @@ var courtPoints = [[-1, 0, 1],
 ]
 
 var courtLines = [[[-1, 0, 1], [1, 0, 1]],
-[[1, 0, 1], [1, 0, 3]],
+[[1, 0, 1], [1, 0, 2]],
+[[1, 0, 2], [-1, 0, 2]],
+[[-1, 0, 2], [-1, 0, 1]],
+[[1, 0, 2], [1, 0, 3]],
 [[1, 0, 3], [-1, 0, 3]],
-[[-1, 0, 3], [-1, 0, 1]]];
+[[-1, 0, 3], [-1, 0, 2]]];
+console.log(courtLines[0])
 
 var netHeight = 0.3;
 
@@ -40,13 +44,6 @@ var netOutlinePoints = [[-1.6, 0, 2],
 [1.6, netHeight, 2],
 [1.6, 0, 2],
 [-1.6, 0, 2]];
-
-var netInnerPoints = [];
-for(var i = -1.6; i<1.6; i+=0.1){
-	netInnerPoints.push([i, netHeight, 2]);
-	netInnerPoints.push([i, 0, 2]);
-	netInnerPoints.push([i, netHeight, 2]);
-}
 
 var colours = {"ground" : "rgb(19, 0, 30)",
 "sky": "rgb(19, 0, 100)",
@@ -61,9 +58,13 @@ var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
 var gameSpeed = 1;
 
 var cameraPos = [0, 1, -0.4];
-var vanishingPointPos = [0.5, 0.3];
-var balls = [new Ball(0, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
+var playerVel = [0, 0, 0];
+var playerSpeed = [0.003, 0.1, 0.002];
+var playerDrag = 0.1;
+var playerMaxSpeed = [0.02, 0, 0.015]
+
 var gravity = 0.003;
+var balls = [new Ball(0, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 
 var mountainPoints = [[-50, -50, 30]];
 for(var i = -20; i<20; i+=1){
@@ -83,11 +84,8 @@ var vingette = 0.2;
 
 var comRacquetController = new AIController(2);
 var playerRacquetController = new mouseController();
-var playerVel = [0, 0, 0];
-var playerSpeed = [0.003, 0.1, 0.002];
-var playerDrag = 0.1;
-var playerMaxSpeed = [0.02, 0, 0.015]
 
+var vanishingPointPos = [0.5, 0.3];
 var renderer = new drawing(0.5);
 
 function inCheck(pos){
@@ -171,10 +169,9 @@ class Game{
 		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
 
-		renderer.drawPoints(courtPoints, cameraPos, colours["court"]);
+		renderer.drawLines(courtLines, cameraPos, colours["court"]);
 		balls[0].draw();
 		renderer.drawPoints(netOutlinePoints, cameraPos, colours["net"]);
-		// drawPoints(netInnerPoints, cameraPos, colours["net"], 5);
 		for(var i = 0; i < balls.length; i+=1){
 			if(balls[i].Z <= 2){
 				balls[i].draw();
