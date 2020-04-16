@@ -21,7 +21,7 @@ class AIController{
 		this.tendency = 0;
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
-		this.spin = power/1.7
+		this.spin = power*0.15
 		this.speed = random(0.0002*this.difficulty, 0.0003*this.difficulty);
 		this.trials = this.difficulty**1.4; // how many times to try 
 	}
@@ -51,7 +51,7 @@ class AIController{
 		return [-power*Math.cos(this.angle), 0.07, power*Math.sin(this.angle)];
 	}
 	getSpin(){
-		return [random(-1, 1), this.spin]
+		return [random(-0.1, 0.1), this.spin]
 	}
 	update(){
 		// setting position aims
@@ -61,7 +61,7 @@ class AIController{
 			aimY = 1;
 			aimZ = 3;
 			this.cooldown -= 1;
-		}else if(ballDist < 0.4){ // if its near the ball it just goes for it
+		}else if(ballDist < 0.4 || balls[0].Z > 2){ // if its near the ball it just goes for it
 			aimX = balls[0].X;
 			aimY = balls[0].Y;
 			aimZ = balls[0].Z;
@@ -104,7 +104,7 @@ class AIController{
 		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
 		if(ballDist < 0.25 && this.cooldown <= 0){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
-			balls[0].hit(this.getVel(this.X, this.Y, this.Z), [random(-1, 1), this.spin])
+			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin())
 			this.cooldown = 100; // has to wait 10 frames between each hit
 		}
 

@@ -94,7 +94,7 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(2);
+var comRacquetController = new AIController(10);
 var playerRacquetController = new mouseController();
 
 var vanishingPointPos = [0.5, 0.3];

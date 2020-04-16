@@ -5,7 +5,7 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.stopped = false;
-		this.courtSize = 0.02; // court base size
+		this.courtSize = 0.025; // court base size
 		this.size = this.courtSize*canvas.width;
 		console.log(this.size);
 		this.reset();
@@ -56,17 +56,20 @@ class Ball{
 			this.Xvel *= 1-0.01*gameSpeed;
 			this.Zvel *= 1-0.01*gameSpeed;
 			// spin
-			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.01*gameSpeed;
-			this.Xvel += (this.Xrot*this.Zvel)*-0.002*gameSpeed;
+			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.05*gameSpeed;
+			this.Xvel += (this.Xrot*this.Zvel)*-0.01*gameSpeed;
 			// spin drag
 			this.Xrot *= 1-0.003*gameSpeed;
 			this.Yrot *= 1-0.003*gameSpeed;
 
 			// collitions
-			if(this.Y+this.courtSize <= 0){ // ground
-				this.Y = this.courtSize;
-				this.Yvel = -this.Yvel*0.9;
-				this.Xrot *= 0.9;
+			if(this.Y-this.courtSize <= 0){ // ground
+				// this.Y = this.courtSize;
+				this.Yvel = -this.Yvel;
+				this.Y += this.Yvel*gameSpeed
+				this.Yvel *= 0.9;
+
+				this.Xrot = this.Xrot*0.6 + this.Xvel*0.4;
 				this.Yrot *= 0.9;
 				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
