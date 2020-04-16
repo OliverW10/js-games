@@ -40,6 +40,7 @@ class Ball{
 	}
 
 	run(){
+		this.size = this.courtSize*canvas.width;
 		if(this.stopped === false){
 			this.lastX = this.X;
 			this.lastZ = this.Z;
@@ -51,7 +52,7 @@ class Ball{
 			this.Z += this.Zvel*gameSpeed;
 
 			// drag
-			this.Yvel *= 1-0.001*gameSpeed;
+			this.Yvel *= 1-0.01*gameSpeed;
 			this.Xvel *= 1-0.01*gameSpeed;
 			this.Zvel *= 1-0.01*gameSpeed;
 			// spin
@@ -62,7 +63,7 @@ class Ball{
 			this.Yrot *= 1-0.003*gameSpeed;
 
 			// collitions
-			if(this.Y-this.courtSize <= 0){ // ground
+			if(this.Y+this.courtSize <= 0){ // ground
 				this.Y = this.courtSize;
 				this.Yvel = -this.Yvel*0.9;
 				this.Xrot *= 0.9;
@@ -97,59 +98,63 @@ class Ball{
 
 	draw(){
 		// rotation renders looping
-		this.Xangle += this.Xrot*gameSpeed*this.size/15;
-		this.Yangle += this.Yrot*gameSpeed*this.size/15;
-		if(this.Xangle > this.size*2){
-			this.Xangle = -this.size*2;
+		this.Xangle += this.Xrot*gameSpeed;
+		this.Yangle += this.Yrot*gameSpeed;
+		if(this.Xangle > 2){
+			this.Xangle = -2;
 		}
-		if(this.Xangle < -this.size*2){
-			this.Xangle = this.size*2;
+		if(this.Xangle < -2){
+			this.Xangle = 2;
 		}
-		if(this.Yangle > this.size*2){
-			this.Yangle = -this.size*2;
+		if(this.Yangle > 2){
+			this.Yangle = -2;
 		}
-		if(this.Yangle < -this.size*2){
-			this.Yangle = this.size*2;
+		if(this.Yangle < -2){
+			this.Yangle = 2;
 		}
 		showText("ball rotational speed: "+[this.Xrot, this.Yrot], canvas.width/2, 60, 15);
 
 		// shadow
-		// shadow should do it by doing three points
 		var shaPoint = projectPoint(this.X, 0, this.Z);
-		//currently just does 2:1 ellipse
+		var shaPointX = projectPoint(this.X+this.courtSize, 0, this.Z);
+		var shaPointZ = projectPoint(this.X, 0, this.Z+this.courtSize);
+
+		var shaW = Math.abs(shaPoint[0] - shaPointX[0]);
+		var shaH = Math.abs(shaPoint[1] - shaPointZ[1]);
 
 		if(onScreen(shaPoint[0], shaPoint[1], this.size*shaPoint[2]) === true && shaPoint[2] > 0 && this.Z+cameraPos[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgba(0, 0, 0, 0.5)";
-			c.ellipse(shaPoint[0], shaPoint[1], this.size*shaPoint[2], this.size*shaPoint[2]*0.5, 0, 0, Math.PI*2);
+			c.ellipse(shaPoint[0], shaPoint[1], shaW, shaH, 0, 0, Math.PI*2);
 			c.fill();
 		}
 
 		var point = projectPoint(this.X, this.Y, this.Z);
+		var edgePoint = projectPoint(this.X+this.courtSize, this.Y, this.Z);
+		var frameSize = Math.abs(point[0]-edgePoint[0]);
 		// ball
 		c.beginPath();
 		c.save();
 		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0 && this.Z+cameraPos[2] > 0){
 			c.beginPath();
 			c.fillStyle = "rgb(200, 255, 10)";
-			// renderer.arc(point, point[2], 0, Math.PI*2, "rgb(200, 255, 10)", point[2]);
+			renderer.arc(point, frameSize, 0, Math.PI*2, "rgb(200, 255, 10)", frameSize/3);
 
-			// note to self: do not fuck with this code beacuse you dont know how it works
 			c.beginPath();
-			c.arc(point[0], point[1], point[2]*this.size, 0, Math.PI*2);;
+			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);;
 			c.clip();
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
 					c.strokeStyle = "rgb(200, 255, 10)";
-					c.lineWidth = point[2]*this.size/5
-					c.arc(point[0]+x*this.size*point[2]*2+this.Xangle*point[2], point[1]+y*this.size*point[2]*2+this.Yangle*point[2], this.size*point[2], Math.PI*x, Math.PI*(x+1));
+					c.lineWidth = frameSize/4
+					c.arc(point[0]+x*frameSize*2+this.Xangle*frameSize, point[1]+y*frameSize*2+this.Yangle*frameSize, frameSize, Math.PI*x, Math.PI*(x+1));
 					c.stroke();
 				}
 			}
 			c.restore();
 		}
-		showText(roundList([this.Xangle, this.Yangle, this.size*1.5], 1), canvas.width/2, 30, 15, "rgb(255, 255 ,255)");
+		showText(roundList([this.Xangle, this.Yangle, frameSize], 1), canvas.width/2, 30, 15, "rgb(255, 255 ,255)");
 	}
 
 	reset(){
@@ -161,8 +166,8 @@ class Ball{
 		this.Zvel = 0 //(Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
-		this.Xrot = 0.2*this.size*0.1; // the roational speed of the ball
-		this.Yrot = -0.5*this.size*0.1;
+		this.Xrot = 0.2*0.1; // the roational speed of the ball
+		this.Yrot = -0.5*0.1;
 		this.lastX = 0;
 		this.lastY = 0;
 		this.lastZ = 0;
