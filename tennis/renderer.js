@@ -64,7 +64,7 @@ class drawing{
 
 	}
 
-	arc(point, radius, startAngle, endAngle, colour, width){
+	arc(point, radius, startAngle, endAngle, colour, width, transparency = 0){
 		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
 		var rgb = colour.match(/\d+/g);
 		var toDraw = Math.min(Math.round(width*this.quality), 50)
@@ -73,13 +73,13 @@ class drawing{
 			c.lineWidth = i*1/this.quality;
 			var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
 			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
-			c.strokeStyle = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
+			c.strokeStyle = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
 			c.arc(point[0], point[1], radius, startAngle, endAngle)
 			c.stroke();
 		}
 	}
 
-	line(point1, point2, colour, width, glowAmount){
+	line(point1, point2, colour, width, glowAmount, transparency = 0){
 		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
 		var rgb = colour.match(/\d+/g);
 		var toDraw = Math.min(Math.round(width*this.quality), 50) // the number of lines to draw, is the width*quality
@@ -95,7 +95,7 @@ class drawing{
 			var thisWidth = i*1/this.quality;
 			var saturation = scaleNumber(i, toDraw, 0, 1, 2)
 			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
-			newColour = "rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")";
+			newColour = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
 			roundedLine(point1, point2, thisWidth, newColour);
 		}
 

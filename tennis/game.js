@@ -69,7 +69,9 @@ var colours = {"ground" : "rgb(19, 0, 30)",
 var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
 var gameSpeed = 1;
 
-var cameraPos = [0, 1, -0.4];
+var cameraPosAim = [0, 1, -0.4];
+var cameraPosAlpha = 0.2;
+var cameraPos = [0, 0, 0];
 var playerVel = [0, 0, 0];
 var playerSpeed = [0.003, 0.1, 0.002];
 var playerDrag = 0.1;
@@ -94,7 +96,7 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(10);
+var comRacquetController = new AIController(1);
 var playerRacquetController = new mouseController();
 
 var vanishingPointPos = [0.5, 0.3];
@@ -130,14 +132,22 @@ class Game{
 	}
 
 	menu(){
+		cameraPosAim = [0, 10, 10];
 		this.background();
+		renderer.drawLines(courtLines, cameraPos, colours["court"]);
+		balls[0].draw();
+		if(random(0, 100) > 99){
+			this.state = this.match;
+			cameraPosAim = [0, 1, -0.4];
+		}
 	}
 
 	match(){
+		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 		this.background();
-
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
-			cameraPos[0] = -balls[0].X*0.2 + cameraPos[0]*0.8;
+			// cameraPos[0] = -balls[0].X*0.2 + cameraPos[0]*0.8;
+			cameraPosAim[0] = -balls[0].X;
 		}
 
 		// WASD movement
@@ -173,21 +183,17 @@ class Game{
 		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
 		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 
-
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 		}
 
-		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
-
-
 		renderer.drawLines(courtLines, cameraPos, colours["court"]);
-		balls[0].draw();
+		if(balls[0].Z > 2){
+			balls[0].draw();
+		}
 		renderer.drawPoints(netOutlinePoints, cameraPos, colours["net"]);
-		for(var i = 0; i < balls.length; i+=1){
-			if(balls[i].Z <= 2){
-				balls[i].draw();
-			}
+		if(balls[0].Z <= 2){
+			balls[0].draw();
 		}
 
 		playerRacquetController.update();
@@ -206,6 +212,11 @@ class Game{
 	}
 
 	background(){
+
+		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
+
 		var horizonPoint = projectPoint(0, 0, 30);
 		// sky
 		c.beginPath();
@@ -230,5 +241,7 @@ class Game{
 		c.fillStyle = grd;
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
+
+		
 	}
 }

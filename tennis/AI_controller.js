@@ -21,7 +21,7 @@ class AIController{
 		this.tendency = 0;
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
-		this.spin = power*0.15
+		this.spin = power*0.07
 		this.speed = random(0.0002*this.difficulty, 0.0003*this.difficulty);
 		this.trials = this.difficulty**1.4; // how many times to try 
 	}
@@ -117,12 +117,12 @@ class AIController{
 		drawRacquet(this.X, this.Y, this.Z);
 
 		// target circle
-		// c.beginPath();
-		// c.strokeStyle = "rgb(255, 0, 0)";
-		// var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-		// c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
-		// c.lineWidth = point[2]*5;
-		// c.stroke();
+		c.beginPath();
+		c.strokeStyle = "rgb(255, 0, 0)";
+		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+		c.lineWidth = point[2]*5;
+		c.stroke();
 	}
 }
 

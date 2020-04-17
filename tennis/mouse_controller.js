@@ -6,7 +6,7 @@ class mouseController{
 		this.velocity = [0, 0, 0];
 		this.spin = [0, 0];
 
-		this.allowance = 10;
+		this.allowance = 5;
 		this.offset = [[0, 0], [0, 0, 0]];
 		this.spinMult = [10, 25];
 		this.dragging = false;
@@ -72,7 +72,7 @@ class mouseController{
 			// this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
 			// showText("spin speed: "+spinSpeed, canvas.width/2, 45, 15);
 
-			this.spin = [this.velocity[0]*1, this.velocity[2]*-6]
+			this.spin = [this.velocity[0]*3, this.velocity[2]*-10]
 		}
 
 

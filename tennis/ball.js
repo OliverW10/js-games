@@ -56,8 +56,23 @@ class Ball{
 			this.Xvel *= 1-0.01*gameSpeed;
 			this.Zvel *= 1-0.01*gameSpeed;
 			// spin
-			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.05*gameSpeed;
+			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.1*gameSpeed;
 			this.Xvel += (this.Xrot*this.Zvel)*-0.01*gameSpeed;
+			// rotation renders looping
+			this.Xangle += this.Xrot*gameSpeed;
+			this.Yangle += this.Yrot*gameSpeed;
+			if(this.Xangle > 2){
+				this.Xangle = -2;
+			}
+			if(this.Xangle < -2){
+				this.Xangle = 2;
+			}
+			if(this.Yangle > 2){
+				this.Yangle = -2;
+			}
+			if(this.Yangle < -2){
+				this.Yangle = 2;
+			}
 			// spin drag
 			this.Xrot *= 1-0.003*gameSpeed;
 			this.Yrot *= 1-0.003*gameSpeed;
@@ -99,22 +114,8 @@ class Ball{
 		showText("ball speed: "+roundList([this.Xvel, this.Yvel, this.Zvel], 4), canvas.width/2, 75, 15)
 	}
 
-	draw(){
-		// rotation renders looping
-		this.Xangle += this.Xrot*gameSpeed;
-		this.Yangle += this.Yrot*gameSpeed;
-		if(this.Xangle > 2){
-			this.Xangle = -2;
-		}
-		if(this.Xangle < -2){
-			this.Xangle = 2;
-		}
-		if(this.Yangle > 2){
-			this.Yangle = -2;
-		}
-		if(this.Yangle < -2){
-			this.Yangle = 2;
-		}
+	draw(pos = false, rot = false){
+		if(rot == )
 		showText("ball rotational speed: "+[this.Xrot, this.Yrot], canvas.width/2, 60, 15);
 
 		// shadow
@@ -135,13 +136,18 @@ class Ball{
 		var point = projectPoint(this.X, this.Y, this.Z);
 		var edgePoint = projectPoint(this.X+this.courtSize, this.Y, this.Z);
 		var frameSize = Math.abs(point[0]-edgePoint[0]);
+		var patternSize = frameSize*0.8
 		// ball
 		c.beginPath();
 		c.save();
 		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0 && this.Z+cameraPos[2] > 0){
 			c.beginPath();
-			c.fillStyle = "rgb(200, 255, 10)";
-			renderer.arc(point, frameSize, 0, Math.PI*2, "rgb(200, 255, 10)", frameSize/3);
+			if(this.Z < 2){
+				var trans = clip(scaleNumber(dist(mousePos.x, mousePos.y, point[0], point[1]), 0, canvas.width*0.05, 1, 0), 0, 1);
+			}else{
+				var trans = 0;
+			}
+			renderer.arc(point, frameSize, 0, Math.PI*2, "rgba(200, 255, 10)", frameSize/3, trans);
 
 			c.beginPath();
 			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);;
@@ -150,8 +156,8 @@ class Ball{
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
 					c.strokeStyle = "rgb(200, 255, 10)";
-					c.lineWidth = frameSize/4
-					c.arc(point[0]+x*frameSize*2+this.Xangle*frameSize, point[1]+y*frameSize*2+this.Yangle*frameSize, frameSize, Math.PI*x, Math.PI*(x+1));
+					c.lineWidth = patternSize/3
+					c.arc(point[0]+x*patternSize*2+this.Xangle*patternSize, point[1]+y*patternSize*2+this.Yangle*patternSize, patternSize, Math.PI*x, Math.PI*(x+1));
 					c.stroke();
 				}
 			}
