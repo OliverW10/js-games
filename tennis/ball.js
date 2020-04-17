@@ -115,7 +115,6 @@ class Ball{
 	}
 
 	draw(pos = false, rot = false){
-		if(rot == )
 		showText("ball rotational speed: "+[this.Xrot, this.Yrot], canvas.width/2, 60, 15);
 
 		// shadow

@@ -49,6 +49,11 @@ var courtLines = [[[-1, 0, 1], [1, 0, 1]],
 [[1.4, 0, 1], [1, 0, 1]]];
 console.log(courtLines[0])
 
+var courtEdges = [[-1, 0, 1],
+[1, 0, 1],
+[1, 0, 3],
+[-1, 0, 3]];
+
 var netHeight = 0.3;
 
 var netOutlinePoints = [[-1.6, 0, 2],
@@ -56,13 +61,6 @@ var netOutlinePoints = [[-1.6, 0, 2],
 [1.6, netHeight, 2],
 [1.6, 0, 2],
 [-1.6, 0, 2]];
-
-var colours = {"ground" : "rgb(19, 0, 30)",
-"sky": "rgb(19, 0, 100)",
-"net" : "rgb(10, 150, 255)",
-"ball" : "rgb(219, 217, 54)",
-"court" : "rgb(0, 100, 255)",
-"mountains" : "rgb(200, 0, 255)"}
 
 // "rgb(0, 50, 125)"
 
@@ -171,22 +169,23 @@ class Game{
 		// 	playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
 		// }
 		
-		cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
-		cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
-		cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
+		// cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
+		// cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
+		// cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
 
-		playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
-		playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
-		playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
+		// playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
+		// playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
+		// playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
 
-		playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
-		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
-		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
+		// playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
+		// playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
+		// playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 		}
 
+		// renderer.polygon(courtEdges, "rgb(255, 0, 0)");
 		renderer.drawLines(courtLines, cameraPos, colours["court"]);
 		if(balls[0].Z > 2){
 			balls[0].draw();

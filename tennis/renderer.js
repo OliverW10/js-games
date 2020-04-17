@@ -34,6 +34,13 @@ function roundedLine(startPos, endPos, width, colour){
 	c.fill();
 }
 
+var colours = {"ground" : "rgb(19, 0, 30)",
+"sky": "rgb(19, 0, 100)",
+"net" : "rgb(10, 150, 255)",
+"ball" : "rgb(219, 217, 54)",
+"court" : "rgb(0, 100, 255)",
+"mountains" : "rgb(200, 0, 255)"}
+
 class drawing{
 	constructor(quality){
 		this.quality = quality;
@@ -60,8 +67,28 @@ class drawing{
 			}
 		}
 	}
-	polyFIll(points){
-
+	polygon(points, colour, project = false){ // should remove colour so that you can have the option for gradients
+		if(project = false){
+			c.beginPath();
+			c.moveTo(points[0][0], points[0][1]);
+			for(var i = 1; i < points.length; i +=1){
+				c.lineTo(points[i][0], points[i][1]);
+			}
+			c.closePath();
+			c.fillStyle = colour;
+			c.fill();
+		}else{
+			c.beginPath();
+			var p = projectPoint(points[0][0], points[0][1], points[0][2])
+			c.moveTo(p[0], p[1]);
+			for(var i = 1; i < points.length; i +=1){
+				var p = projectPoint(points[i][0], points[i][1], points[i][2])
+				c.lineTo(p[0], p[1]);
+			}
+			c.closePath();
+			c.fillStyle = colour;
+			c.fill();
+		}
 	}
 
 	arc(point, radius, startAngle, endAngle, colour, width, transparency = 0){
