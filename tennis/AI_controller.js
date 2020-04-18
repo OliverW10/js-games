@@ -117,12 +117,14 @@ class AIController{
 		drawRacquet(this.X, this.Y, this.Z);
 
 		// target circle
-		c.beginPath();
-		c.strokeStyle = "rgb(255, 0, 0)";
-		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
-		c.lineWidth = point[2]*5;
-		c.stroke();
+		if(this.target[2].Z+cameraPos[2] > 0.2){
+			c.beginPath();
+			c.strokeStyle = "rgb(255, 0, 0)";
+			var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+			c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+			c.lineWidth = point[2]*5;
+			c.stroke();
+		}
 	}
 }
 
@@ -136,7 +138,7 @@ function drawRacquet(X, Y, Z, a = false){
 	}
 	// racquet
 	c.beginPath();
-	c.strokeStyle = "rgb(0, 0, 0)";
+	c.strokeStyle = "rgb(100, 100, 100)";
 	c.lineWidth = point[2]*3;
 	c.moveTo(point[0], point[1])
 	c.lineTo(point[0]+Math.cos(angle)*point[2]*15, point[1]+Math.sin(angle)*point[2]*15);

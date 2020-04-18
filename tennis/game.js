@@ -48,6 +48,14 @@ var courtLines = [[[-1, 0, 1], [1, 0, 1]],
 [[-1.4, 0, 1], [-1, 0, 1]],
 [[1.4, 0, 1], [1, 0, 1]]];
 
+var courtLinesMin = [[[-1, 0, 1], [1, 0, 1]],
+[[1, 0, 1], [1, 0, 2]],
+[[-1, 0, 2], [-1, 0, 1]],
+[[1, 0, 2], [1, 0, 3]],
+[[1, 0, 3], [-1, 0, 3]],
+[[-1, 0, 3], [-1, 0, 2]],
+];
+
 var courtEdges = [[-1, 0, 1],
 [1, 0, 1],
 [1, 0, 3],
@@ -77,14 +85,13 @@ var playerMaxSpeed = [0.02, 0, 0.015]
 var gravity = 0.003;
 var balls = [new Ball(0, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 
-var mountainPoints = [[-50, -50, 30]];
-for(var i = -20; i<20; i+=1){
-	var X = i*2;
-	var Y = Math.random()*15;
-	var Z = 30+(Math.random()-0.5)*5;
-	mountainPoints.push([X-Math.random()*5, -Math.random(), Z])
-	mountainPoints.push([X, Y, Z])
-	mountainPoints.push([X+Math.random()*5, -Math.random(), Z])
+var mountainPoints = [];
+for(var i = 0; i<4; i+=1){
+	mountainPoints.push([[-25, i-0.5, 10+i/4]]);
+	for(var j = -10; j < 10; j+=1){
+		mountainPoints[i].push([j*2+random(-1, 1), random(i, i+1)+1, 10+i/4])
+	}
+	mountainPoints[i].push([25, i-0.5, 10+i/4]);
 }
 mountainPoints.push([50, -50, 30]);
 mountainPoints.push([-50, -50, 30]);
@@ -98,7 +105,8 @@ var playerRacquetController = new mouseController();
 
 var vanishingPointPos = [0.5, 0.3];
 var renderer = new drawing(0.5);
-renderer.spawnDrifters(courtLines, "rgb(0, 0, 0)");
+renderer.spawnDrifters(courtLines, "rgb(0, 0, 0)", 3);
+renderer.spawnDrifters(courtLinesMin, "rgb(0, 0, 0)", 4);
 console.log(renderer.points);
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -150,43 +158,43 @@ class Game{
 
 		// WASD movement
 
-		// if(checkKey("Space") == true){
-		// 	playerVel[1] += playerSpeed[1]*gameSpeed;
-		// }
-		// if(checkKey("ShiftLeft") == true){
-		// 	playerVel[1] -= playerSpeed[1]*gameSpeed;
-		// }
-		// if(checkKey("KeyA") == true){
-		// 	playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
-		// }
-		// if(checkKey("KeyD") == true){
-		// 	playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
-		// }
-		// if(checkKey("KeyS") == true){
-		// 	playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
-		// }
-		// if(checkKey("KeyW") == true){
-		// 	playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
-		// }
+		if(checkKey("Space") == true){
+			playerVel[1] += playerSpeed[1]*gameSpeed;
+		}
+		if(checkKey("ShiftLeft") == true){
+			playerVel[1] -= playerSpeed[1]*gameSpeed;
+		}
+		if(checkKey("KeyA") == true){
+			playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
+		}
+		if(checkKey("KeyD") == true){
+			playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
+		}
+		if(checkKey("KeyS") == true){
+			playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
+		}
+		if(checkKey("KeyW") == true){
+			playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
+		}
 		
-		// cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
-		// cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
-		// cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
+		cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
+		cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
+		cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
 
-		// playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
-		// playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
-		// playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
+		playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
+		playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
+		playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
 
-		// playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
-		// playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
-		// playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
+		playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
+		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
+		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 		}
+		// renderer.polygon(courtEdges, "rgb(255, 255, 255)");
 		renderer.drawDrifters()
-		renderer.polygon(courtEdges, "rgb(255, 255, 255)");
-		renderer.drawLines(courtLines, cameraPos, colours["court"]);
+		// renderer.drawLines(courtLines, cameraPos, colours["court"]);
 		if(balls[0].Z > 2){
 			balls[0].draw();
 		}
@@ -226,11 +234,18 @@ class Game{
 		c.rect(0, 0, canvas.width, horizonPoint[1]);
 		c.fill();
 
-		// //mountains
-		// renderer.drawPoints(mountainPoints, cameraPos, colours["mountains"], 50);
-		// c.fillStyle = colours.mountains;
-		// c.closePath();
-		// c.fill();
+		// mountains
+		showText("mousePos: "+roundList([mousePos.x/canvas.width, mousePos.y/canvas.height], 3), canvas.width/2, 45, 15)
+		for(var range = mountainPoints.length-1; range > 0; range-=1){
+			renderer.polygon(mountainPoints[range], false, true);
+			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
+			var dark = range*15-5;
+			var light = range*15+5;
+			grd.addColorStop(0, "rgb("+dark+", "+dark+", "+dark+")");
+			grd.addColorStop(1, "rgb("+light+", "+light+", "+light+")");
+			c.fillStyle = grd;
+			c.fill();
+		}
 
 		//ground
 		c.beginPath();
@@ -240,7 +255,5 @@ class Game{
 		c.fillStyle = grd;
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
-
-		
 	}
 }

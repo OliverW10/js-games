@@ -67,25 +67,23 @@ class drawing{
 			}
 		}
 	}
-	polygon(points, colour, project = false){ // should remove colour so that you can have the option for gradients
+	polygon(points, colour = false, project = false){ // should remove colour so that you can have the option for gradients
+		c.beginPath();
 		if(project = false){
-			c.beginPath();
 			c.moveTo(points[0][0], points[0][1]);
 			for(var i = 1; i < points.length; i +=1){
 				c.lineTo(points[i][0], points[i][1]);
 			}
-			c.closePath();
-			c.fillStyle = colour;
-			c.fill();
 		}else{
-			c.beginPath();
 			var p = projectPoint(points[0][0], points[0][1], points[0][2])
 			c.moveTo(p[0], p[1]);
 			for(var i = 1; i < points.length; i +=1){
 				var p = projectPoint(points[i][0], points[i][1], points[i][2])
 				c.lineTo(p[0], p[1]);
 			}
-			c.closePath();
+		}
+		c.closePath();
+		if(colour !== false){
 			c.fillStyle = colour;
 			c.fill();
 		}
@@ -131,43 +129,54 @@ class drawing{
 			this.points[i].update();
 		}
 	}
-	spawnDrifters(lines, colour, density = 20){
+	spawnDrifters(lines, colour, size = 3, density = 50){
 		for(var i = 0; i < lines.length; i +=1){
 			var dist = dist3d(lines[i][0][0], lines[i][0][1], lines[i][0][2], lines[i][1][0], lines[i][1][1], lines[i][1][2]);
 			for(var j = 0; j<round(dist*density); j+=1){
-				var X = scaleNumber(j/(dist*density), 0, 1, lines[i][0][0], lines[i][1][0]);
-				var Y = scaleNumber(j/(dist*density), 0, 1, lines[i][0][1], lines[i][1][1]);
-				var Z = scaleNumber(j/(dist*density), 0, 1, lines[i][0][2], lines[i][1][2]);
-				this.points.push(new drifter([X, Y, Z], colour));
+				this.points.push(new drifter(lines[i], j/(dist*density) ,colour, size));
 			}
 		}
 	}
 }
 
 class drifter{
-	constructor(pos, colour, driftAxis = [1, 0, 1]){
+	constructor(line, along, colour, size){
 		// pos is the starting pos that the point wont go beyond maxDrift away from
 		// drift axis is the axis's that it will drift on (eg the default would drift on the x and z but not y)
-		[this.X, this.Y, this.Z] = pos
-		this.driftAxis = driftAxis
-		this.sizeContraints = [random(5, 10), random(10, 20)];
+		this.X = scaleNumber(along, 0, 1, line[0][0], line[1][0]);
+		this.Y = scaleNumber(along, 0, 1, line[0][1], line[1][1]);
+		this.Z = scaleNumber(along, 0, 1, line[0][2], line[1][2]);
+		this.sizeContraints = [random(size, size*2), random(size*2, size*3)];
 		this.size = (this.sizeContraints[0]+this.sizeContraints[1])/2
 		this.colour = colour;
 		this.direction = false; // direction to change size
 		this.speed = random(0.1, 0.3); // rate at which the dot changes in size
+		this.moveSpeed = random(-0.0003, 0.0003)/100
+		this.along = along
+		this.line = line;
 	}
 	update(){
-		this.size += this.speed;
+		this.size += this.speed*gameSpeed;
+		// this.along += this.moveSpeed*gameSpeed;
+
+		// this.X = scaleNumber(this.along, 0, 1, this.line[0][0], this.line[1][0]);
+		// this.Y = scaleNumber(this.along, 0, 1, this.line[0][1], this.line[1][1]);
+		// this.Z = scaleNumber(this.along, 0, 1, this.line[0][2], this.line[1][2]);
 		if(this.size > this.sizeContraints[1] || this.size < this.sizeContraints[0]){
 			this.speed = -this.speed;
 		}
+		// if(this.along > 1 || this.along < 0){
+		// 	this.moveSpeed = -this.moveSpeed;
+		// }
 		this.draw();
 	}
 	draw(){
-		var point = projectPoint(this.X, this.Y, this.Z);
-		c.beginPath();
-		c.fillStyle = this.colour;
-		c.arc(point[0], point[1], this.size*point[2], 0, Math.PI*2);
-		c.fill();
+		if(this.Z+cameraPos[2] > 0.2){
+			var point = projectPoint(this.X, this.Y, this.Z);
+			c.beginPath();
+			c.fillStyle = this.colour;
+			c.arc(point[0], point[1], this.size*point[2], 0, Math.PI*2);
+			c.fill();
+		}
 	}
 }
