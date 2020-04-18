@@ -86,7 +86,7 @@ var gravity = 0.003;
 var balls = [new Ball(0, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 
 var mountainPoints = [];
-for(var i = 0; i<4; i+=1){
+for(var i = 0; i<6; i+=1){
 	mountainPoints.push([[-25, i-0.5, 10+i/4]]);
 	for(var j = -10; j < 10; j+=1){
 		mountainPoints[i].push([j*2+random(-1, 1), random(i, i+1)+1, 10+i/4])
@@ -158,12 +158,12 @@ class Game{
 
 		// WASD movement
 
-		if(checkKey("Space") == true){
-			playerVel[1] += playerSpeed[1]*gameSpeed;
-		}
-		if(checkKey("ShiftLeft") == true){
-			playerVel[1] -= playerSpeed[1]*gameSpeed;
-		}
+		// if(checkKey("Space") == true){
+		// 	playerVel[1] += playerSpeed[1]*gameSpeed;
+		// }
+		// if(checkKey("ShiftLeft") == true){
+		// 	playerVel[1] -= playerSpeed[1]*gameSpeed;
+		// }
 		if(checkKey("KeyA") == true){
 			playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
 		}
@@ -224,7 +224,7 @@ class Game{
 		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
 		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
 
-		var horizonPoint = projectPoint(0, 0, 30);
+		var horizonPoint = projectPoint(0, 0.5, 10);
 		// sky
 		c.beginPath();
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
@@ -239,8 +239,8 @@ class Game{
 		for(var range = mountainPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainPoints[range], false, true);
 			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
-			var dark = range*15-5;
-			var light = range*15+5;
+			var dark = range**1.6*15-5;
+			var light = range**1.6*15+5;
 			grd.addColorStop(0, "rgb("+dark+", "+dark+", "+dark+")");
 			grd.addColorStop(1, "rgb("+light+", "+light+", "+light+")");
 			c.fillStyle = grd;

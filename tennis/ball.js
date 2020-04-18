@@ -101,9 +101,9 @@ class Ball{
 				this.Yvel *= 0.8;
 			}
 
-			// if(checkKey("Space") === true && this.Z < 2){ 
-			// 	aimGameSpeed = 0.1;
-			// }
+			if(checkKey("Space") === true && this.Z < 2){ 
+				aimGameSpeed = 0.1;
+			}
 
 			this.apex = Math.max(this.apex, this.Y);
 		}
