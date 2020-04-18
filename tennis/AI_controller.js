@@ -9,11 +9,11 @@ class AIController{
 		this.Y = 0.7;
 		this.Z = 3;
 		this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7];
-		console.log(this);
 		this.Xvel = 0;
 		this.Yvel = 0;
 		this.Zvel = 0;
 		this.cooldown = 0;
+		console.log(this);
 	}
 	setDifficulty(){
 		// difficulty is 1-10
@@ -136,7 +136,7 @@ function drawRacquet(X, Y, Z, a = false){
 	}
 	// racquet
 	c.beginPath();
-	c.strokeStyle = "rgb(255, 255, 255)";
+	c.strokeStyle = "rgb(0, 0, 0)";
 	c.lineWidth = point[2]*3;
 	c.moveTo(point[0], point[1])
 	c.lineTo(point[0]+Math.cos(angle)*point[2]*15, point[1]+Math.sin(angle)*point[2]*15);

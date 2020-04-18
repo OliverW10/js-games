@@ -34,11 +34,11 @@ function roundedLine(startPos, endPos, width, colour){
 	c.fill();
 }
 
-var colours = {"ground" : "rgb(19, 0, 30)",
-"sky": "rgb(19, 0, 100)",
-"net" : "rgb(10, 150, 255)",
-"ball" : "rgb(219, 217, 54)",
-"court" : "rgb(0, 100, 255)",
+var colours = {"ground" : "rgb(220, 220, 220)",
+"sky": "rgb(250, 250, 250)",
+"net" : "rgb(0 ,0, 0)",
+"ball" : "rgb(100, 100, 100)",
+"court" : "rgb(0, 0, 0)",
 "mountains" : "rgb(200, 0, 255)"}
 
 class drawing{
@@ -99,7 +99,6 @@ class drawing{
 			c.beginPath();
 			c.lineWidth = i*1/this.quality;
 			var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
-			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
 			c.strokeStyle = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
 			c.arc(point[0], point[1], radius, startAngle, endAngle)
 			c.stroke();
@@ -121,11 +120,54 @@ class drawing{
 			c.lineWidth = i*1/this.quality;
 			var thisWidth = i*1/this.quality;
 			var saturation = scaleNumber(i, toDraw, 0, 1, 2)
-			// console.log("rgb("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+")")
 			newColour = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
 			roundedLine(point1, point2, thisWidth, newColour);
 		}
 
 		// glow
+	}
+	drawDrifters(){
+		for(var i = 0; i < this.points.length; i +=1){
+			this.points[i].update();
+		}
+	}
+	spawnDrifters(lines, colour, density = 20){
+		for(var i = 0; i < lines.length; i +=1){
+			var dist = dist3d(lines[i][0][0], lines[i][0][1], lines[i][0][2], lines[i][1][0], lines[i][1][1], lines[i][1][2]);
+			for(var j = 0; j<round(dist*density); j+=1){
+				var X = scaleNumber(j/(dist*density), 0, 1, lines[i][0][0], lines[i][1][0]);
+				var Y = scaleNumber(j/(dist*density), 0, 1, lines[i][0][1], lines[i][1][1]);
+				var Z = scaleNumber(j/(dist*density), 0, 1, lines[i][0][2], lines[i][1][2]);
+				this.points.push(new drifter([X, Y, Z], colour));
+			}
+		}
+	}
+}
+
+class drifter{
+	constructor(pos, colour, driftAxis = [1, 0, 1]){
+		// pos is the starting pos that the point wont go beyond maxDrift away from
+		// drift axis is the axis's that it will drift on (eg the default would drift on the x and z but not y)
+		[this.X, this.Y, this.Z] = pos
+		this.driftAxis = driftAxis
+		this.sizeContraints = [random(5, 10), random(10, 20)];
+		this.size = (this.sizeContraints[0]+this.sizeContraints[1])/2
+		this.colour = colour;
+		this.direction = false; // direction to change size
+		this.speed = random(0.1, 0.3); // rate at which the dot changes in size
+	}
+	update(){
+		this.size += this.speed;
+		if(this.size > this.sizeContraints[1] || this.size < this.sizeContraints[0]){
+			this.speed = -this.speed;
+		}
+		this.draw();
+	}
+	draw(){
+		var point = projectPoint(this.X, this.Y, this.Z);
+		c.beginPath();
+		c.fillStyle = this.colour;
+		c.arc(point[0], point[1], this.size*point[2], 0, Math.PI*2);
+		c.fill();
 	}
 }

@@ -47,7 +47,6 @@ var courtLines = [[[-1, 0, 1], [1, 0, 1]],
 [[1.4, 0, 3], [1, 0, 3]],
 [[-1.4, 0, 1], [-1, 0, 1]],
 [[1.4, 0, 1], [1, 0, 1]]];
-console.log(courtLines[0])
 
 var courtEdges = [[-1, 0, 1],
 [1, 0, 1],
@@ -94,12 +93,13 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(1);
+var comRacquetController = new AIController(5);
 var playerRacquetController = new mouseController();
 
 var vanishingPointPos = [0.5, 0.3];
 var renderer = new drawing(0.5);
-
+renderer.spawnDrifters(courtLines, "rgb(0, 0, 0)");
+console.log(renderer.points);
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
 	if(pos[2] > 1 && pos[2] < 2){ // your side
@@ -184,8 +184,8 @@ class Game{
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
 		}
-
-		// renderer.polygon(courtEdges, "rgb(255, 0, 0)");
+		renderer.drawDrifters()
+		renderer.polygon(courtEdges, "rgb(255, 255, 255)");
 		renderer.drawLines(courtLines, cameraPos, colours["court"]);
 		if(balls[0].Z > 2){
 			balls[0].draw();
@@ -221,16 +221,16 @@ class Game{
 		c.beginPath();
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
 		grd.addColorStop(1, colours.ground);
-		grd.addColorStop(0, "rgb(100, 0, 100)");
+		grd.addColorStop(0, colours.ground);
 		c.fillStyle = grd;
 		c.rect(0, 0, canvas.width, horizonPoint[1]);
 		c.fill();
 
-		//mountains
-		renderer.drawPoints(mountainPoints, cameraPos, colours["mountains"], 50);
-		c.fillStyle = colours.mountains;
-		c.closePath();
-		c.fill();
+		// //mountains
+		// renderer.drawPoints(mountainPoints, cameraPos, colours["mountains"], 50);
+		// c.fillStyle = colours.mountains;
+		// c.closePath();
+		// c.fill();
 
 		//ground
 		c.beginPath();

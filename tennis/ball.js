@@ -7,7 +7,6 @@ class Ball{
 		this.stopped = false;
 		this.courtSize = 0.025; // court base size
 		this.size = this.courtSize*canvas.width;
-		console.log(this.size);
 		this.reset();
 	}
 
@@ -146,7 +145,7 @@ class Ball{
 			}else{
 				var trans = 0;
 			}
-			renderer.arc(point, frameSize, 0, Math.PI*2, "rgba(200, 255, 10)", frameSize/3, trans);
+			renderer.arc(point, frameSize, 0, Math.PI*2, colours.ball, frameSize/3, trans);
 
 			c.beginPath();
 			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);;
@@ -154,7 +153,7 @@ class Ball{
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
-					c.strokeStyle = "rgb(200, 255, 10)";
+					c.strokeStyle = colours.ball;
 					c.lineWidth = patternSize/3
 					c.arc(point[0]+x*patternSize*2+this.Xangle*patternSize, point[1]+y*patternSize*2+this.Yangle*patternSize, patternSize, Math.PI*x, Math.PI*(x+1));
 					c.stroke();

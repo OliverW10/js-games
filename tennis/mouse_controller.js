@@ -48,7 +48,6 @@ class mouseController{
 				// beacuse i have now swapped to logging mouse position and converting to 3d space afterwards i have lost the ability to move with wasd and not the mouse and have the ball act properly
 				// i could track both mouse and 3d positions but for now ill just add player velocity to end ball velocity
 				var pos1 = this.getPos(this.prevPos[l-i][0], this.prevPos[l-i][1]);
-				// console.log(pos1);
 				var pos2 = this.getPos(this.prevPos[(l-i)-1][0], this.prevPos[(l-i)-1][1]);
 				this.velocity[0] += (pos1[0]-pos2[0]);
 				this.velocity[1] += (pos1[1]-pos2[1]);
@@ -89,7 +88,6 @@ class mouseController{
 			if(mouseButtons[0] === false){
 				balls[0].continue();
 				balls[0].hit(this.getVel(), this.getSpin());
-				console.log(this.getSpin())
 				this.dragging = false;
 			}
 		}
