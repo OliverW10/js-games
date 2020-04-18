@@ -34,10 +34,10 @@ function roundedLine(startPos, endPos, width, colour){
 	c.fill();
 }
 
-var colours = {"ground" : "rgb(220, 220, 220)",
+var colours = {"ground" : "rgb(150, 150, 150)",
 "sky": "rgb(250, 250, 250)",
-"net" : "rgb(0 ,0, 0)",
-"ball" : "rgb(100, 100, 100)",
+"net" : "rgb(0, 0, 0)",
+"ball" : "rgb(255, 50, 50)",
 "court" : "rgb(0, 0, 0)",
 "mountains" : "rgb(200, 0, 255)"}
 
@@ -147,27 +147,18 @@ class drifter{
 		this.Y = scaleNumber(along, 0, 1, line[0][1], line[1][1]);
 		this.Z = scaleNumber(along, 0, 1, line[0][2], line[1][2]);
 		this.sizeContraints = [random(size, size*2), random(size*2, size*3)];
-		this.size = (this.sizeContraints[0]+this.sizeContraints[1])/2
+		this.size = random(this.sizeContraints[0], this.sizeContraints[1])
 		this.colour = colour;
 		this.direction = false; // direction to change size
-		this.speed = random(0.1, 0.3); // rate at which the dot changes in size
-		this.moveSpeed = random(-0.0003, 0.0003)/100
+		this.speed = random(0.005, 0.05); // rate at which the dot changes in size
 		this.along = along
 		this.line = line;
 	}
 	update(){
 		this.size += this.speed*gameSpeed;
-		// this.along += this.moveSpeed*gameSpeed;
-
-		// this.X = scaleNumber(this.along, 0, 1, this.line[0][0], this.line[1][0]);
-		// this.Y = scaleNumber(this.along, 0, 1, this.line[0][1], this.line[1][1]);
-		// this.Z = scaleNumber(this.along, 0, 1, this.line[0][2], this.line[1][2]);
 		if(this.size > this.sizeContraints[1] || this.size < this.sizeContraints[0]){
 			this.speed = -this.speed;
 		}
-		// if(this.along > 1 || this.along < 0){
-		// 	this.moveSpeed = -this.moveSpeed;
-		// }
 		this.draw();
 	}
 	draw(){

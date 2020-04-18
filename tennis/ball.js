@@ -139,14 +139,14 @@ class Ball{
 		c.beginPath();
 		c.save();
 		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0 && this.Z+cameraPos[2] > 0){
-			c.beginPath();
-			if(this.Z < 2){
-				var trans = clip(scaleNumber(dist(mousePos.x, mousePos.y, point[0], point[1]), 0, canvas.width*0.05, 1, 0), 0, 1);
-			}else{
-				var trans = 0;
-			}
-			renderer.arc(point, frameSize, 0, Math.PI*2, colours.ball, frameSize/3, trans);
 
+			var brightness = clip(scaleNumber(Math.abs(this.Y), 0, 1.5, 0.5, 0), 0, 0.4);
+			var glow = c.createRadialGradient(point[0], point[1], frameSize/2, point[0], point[1], frameSize*3);
+			glow.addColorStop(0, "rgba(255, 175, 175,"+brightness+")")
+			glow.addColorStop(1, "rgba(150, 150, 150, 0)")
+			c.fillStyle = glow;
+			c.fillRect(point[0]-frameSize*10, point[1]-frameSize*10, frameSize*20, frameSize*20);
+			
 			c.beginPath();
 			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);;
 			c.clip();

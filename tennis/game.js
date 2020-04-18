@@ -48,6 +48,15 @@ var courtLines = [[[-1, 0, 1], [1, 0, 1]],
 [[-1.4, 0, 1], [-1, 0, 1]],
 [[1.4, 0, 1], [1, 0, 1]]];
 
+var courtLinesOuter = [[[-1.4, 0, 1], [-1.4, 0, 2]],
+[[-1.4, 0, 2], [-1.4, 0, 3]],
+[[-1.4, 0, 3], [-1, 0, 3]],
+[[1.4, 0, 1], [1.4, 0, 2]],
+[[1.4, 0, 2], [1.4, 0, 3]],
+[[1.4, 0, 3], [1, 0, 3]],
+[[-1.4, 0, 1], [-1, 0, 1]],
+[[1.4, 0, 1], [1, 0, 1]]];
+
 var courtLinesMin = [[[-1, 0, 1], [1, 0, 1]],
 [[1, 0, 1], [1, 0, 2]],
 [[-1, 0, 2], [-1, 0, 1]],
@@ -105,7 +114,7 @@ var playerRacquetController = new mouseController();
 
 var vanishingPointPos = [0.5, 0.3];
 var renderer = new drawing(0.5);
-renderer.spawnDrifters(courtLines, "rgb(0, 0, 0)", 3);
+renderer.spawnDrifters(courtLinesOuter, "rgb(0, 0, 0)", 2);
 renderer.spawnDrifters(courtLinesMin, "rgb(0, 0, 0)", 4);
 console.log(renderer.points);
 function inCheck(pos){
@@ -198,7 +207,8 @@ class Game{
 		if(balls[0].Z > 2){
 			balls[0].draw();
 		}
-		renderer.drawPoints(netOutlinePoints, cameraPos, colours["net"]);
+		renderer.drawPoints(netOutlinePoints, cameraPos, colours["net"], 10);
+		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(255, 255, 255)", 5);
 		if(balls[0].Z <= 2){
 			balls[0].draw();
 		}
