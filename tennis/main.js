@@ -1,4 +1,4 @@
-main = new Game();
+var main = new Game();
 
 function update(){
 	h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;

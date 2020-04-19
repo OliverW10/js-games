@@ -111,7 +111,7 @@ function drawRotatedRect(X, Y, W, H, colour, rotation){
 	c.restore();
 }
 
-function showText(text, X, Y, Size, colour = "rgb(0, 0, 0)", bold = false){
+function showText(text, X, Y, Size, colour = "rgb(0, 0, 0)", bold = false, stroke = false){
 	c.beginPath();
 	if(bold === true){
 		c.font = "bold "+Size+"px Arial";
@@ -120,8 +120,14 @@ function showText(text, X, Y, Size, colour = "rgb(0, 0, 0)", bold = false){
 		c.font = Size+"px Arial"
 	}
 	c.textAlign = "center";
-	c.fillStyle=colour;
-	c.fillText(text, X, Y);
+	if(stroke === false){
+		c.fillStyle=colour;
+		c.fillText(text, X, Y);
+	}else{
+		c.lineWidth = Size/25;
+		c.strokeStyle = colour;
+		c.strokeText(text, X, Y)
+	}
 }
 
 function onScreen(X, Y, size){
