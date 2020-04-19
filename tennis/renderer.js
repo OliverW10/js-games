@@ -93,14 +93,19 @@ class drawing{
 		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
 		var rgb = colour.match(/\d+/g);
 		var toDraw = Math.min(Math.round(width*this.quality), 50)
-		for(var i = toDraw; i > 0; i-=1){
-			c.beginPath();
-			c.lineWidth = i*1/this.quality;
-			var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
-			c.strokeStyle = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
-			c.arc(point[0], point[1], radius, startAngle, endAngle)
-			c.stroke();
-		}
+		// for(var i = toDraw; i > 0; i-=1){
+		// 	c.beginPath();
+		// 	c.lineWidth = i*1/this.quality;
+		// 	var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
+		// 	c.strokeStyle = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
+		// 	c.arc(point[0], point[1], radius, startAngle, endAngle)
+		// 	c.stroke();
+		// }
+		c.beginPath();
+		c.strokeStyle = colour;
+		c.lineWidth = width;
+		c.arc(point[0], point[1], radius, startAngle, endAngle);
+		c.fill();
 	}
 
 	line(point1, point2, colour, width, glowAmount, transparency = 0){
@@ -113,21 +118,23 @@ class drawing{
 		roundedLine(point1, point2, width, colour);
 
 		// drawing the lines
-		for(var i = toDraw; i > 0; i-=1){
-			c.beginPath();
-			c.lineWidth = i*1/this.quality;
-			var thisWidth = i*1/this.quality;
-			var saturation = scaleNumber(i, toDraw, 0, 1, 2)
-			newColour = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
-			roundedLine(point1, point2, thisWidth, newColour);
-		}
+		// for(var i = toDraw; i > 0; i-=1){
+		// 	c.beginPath();
+		// 	c.lineWidth = i*1/this.quality;
+		// 	var thisWidth = i*1/this.quality;
+		// 	var saturation = scaleNumber(i, toDraw, 0, 1, 2)
+		// 	newColour = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
+		// 	roundedLine(point1, point2, thisWidth, newColour);
+		// }
 
 		// glow
 	}
 	drawDrifters(){
+		c.beginPath();
 		for(var i = 0; i < this.points.length; i +=1){
 			this.points[i].update();
 		}
+		c.fill();
 	}
 	spawnDrifters(lines, colour, size = 3, density = 50){
 		for(var i = 0; i < lines.length; i +=1){
@@ -164,10 +171,9 @@ class drifter{
 	draw(){
 		if(this.Z+cameraPos[2] > 0.2){
 			var point = projectPoint(this.X, this.Y, this.Z);
-			c.beginPath();
 			c.fillStyle = this.colour;
-			c.arc(point[0], point[1], this.size*point[2], 0, Math.PI*2);
-			c.fill();
+			c.moveTo(Math.round(point[0]), Math.round(point[1]));
+			c.arc(Math.round(point[0]), Math.round(point[1]), this.size*point[2], 0, Math.PI*2);
 		}
 	}
 }
