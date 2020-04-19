@@ -92,7 +92,8 @@ var playerDrag = 0.1;
 var playerMaxSpeed = [0.02, 0, 0.015]
 
 var gravity = 0.003;
-var balls = [new Ball(0, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
+var balls = [new Ball(0, 1, 1.5), new Ball(0, 0, 1.5)]; // origonally planned for multiple balls but so far only used one
+// now contrary to the origonal purose it is now used to store the game AND menu bals
 
 var mountainPoints = [];
 for(var i = 0; i<6; i+=1){
@@ -120,8 +121,11 @@ renderer.spawnDrifters(courtLinesMin, "rgb(0, 0, 0)", 4);
 var menuPosAngle = 0;
 var menuTextOffsetAngle = 0;
 var menuTextOffset = [0, 0];
+var skillTextOffsetAngle = 0;
+var skillTextOffset = [0, 0];
 
-var menuPlayButton = new Button([0.25, 0.5, 0.5, 0.3], drawPlayButton);
+var menuPlayButton = new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
+var menuFade = 1;
 
 function inCheck(pos){
 	// returns 0 for out 1 for your in 2 for their in
@@ -159,16 +163,24 @@ class Game{
 
 	drawMenu(trans){
 		menuPosAngle += 0.003;
-		cameraPosAim = [Math.cos(menuPosAngle)*5, 5, -5];
+		cameraPosAim = [Math.sin(menuPosAngle)*5, 5, -5];
 		menuTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.15, mousePos.x-canvas.width/2);
 		menuTextOffset = [Math.cos(menuTextOffsetAngle)*canvas.width*0.003, Math.sin(menuTextOffsetAngle)*canvas.width*0.003];
 		showText("Down the line tennis", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, "+trans+")", true, true);
 		showText("Down the line tennis", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, "+trans+")", true, true);
 
+		skillTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.9, mousePos.x-canvas.width/2);
+		skillTextOffset = [Math.cos(skillTextOffsetAngle)*canvas.width*0.003, Math.sin(skillTextOffsetAngle)*canvas.width*0.003];
+		showText("Skill: ", canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.05, "rgba(0, 0, 0, "+trans+")", true, true);
+		showText("Skill:", canvas.width/2, canvas.height*0.9, canvas.width*0.05, "rgba(255, 255, 255, "+trans+")", true, true);
+
 		if(menuPlayButton.update() === true){
 			this.state = this.match;
 			cameraPosAim = [0, 1, -0.4];
 		}
+		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
+		balls[1].freeze([-cameraPos[0]+0.5*dist, 5-1.4*dist, 5+dist], false);
+		balls[1].draw();
 	}
 
 	match(){
@@ -179,38 +191,10 @@ class Game{
 			cameraPosAim[0] = -balls[0].X;
 		}
 
-		// WASD movement
-
-		// if(checkKey("Space") == true){
-		// 	playerVel[1] += playerSpeed[1]*gameSpeed;
-		// }
-		// if(checkKey("ShiftLeft") == true){
-		// 	playerVel[1] -= playerSpeed[1]*gameSpeed;
-		// }
-		// if(checkKey("KeyA") == true){
-		// 	playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
-		// }
-		// if(checkKey("KeyD") == true){
-		// 	playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
-		// }
-		// if(checkKey("KeyS") == true){
-		// 	playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
-		// }
-		// if(checkKey("KeyW") == true){
-		// 	playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
-		// }
-		
-		// cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
-		// cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
-		// cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
-
-		// playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
-		// playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
-		// playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
-
-		// playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
-		// playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
-		// playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
+		if(menuFade > 0){
+			this.drawMenu(menuFade);
+			menuFade -= 0.05;
+		}
 
 		for(var i = 0; i < balls.length; i+=1){
 			balls[i].run();
@@ -279,5 +263,37 @@ class Game{
 		c.fillStyle = grd;
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
+	}
+	movement(){
+		if(checkKey("Space") == true){
+			playerVel[1] += playerSpeed[1]*gameSpeed;
+		}
+		if(checkKey("ShiftLeft") == true){
+			playerVel[1] -= playerSpeed[1]*gameSpeed;
+		}
+		if(checkKey("KeyA") == true){
+			playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
+		}
+		if(checkKey("KeyD") == true){
+			playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
+		}
+		if(checkKey("KeyS") == true){
+			playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
+		}
+		if(checkKey("KeyW") == true){
+			playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
+		}
+		
+		cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
+		cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
+		cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
+
+		playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
+		playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
+		playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
+
+		playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
+		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
+		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 	}
 }

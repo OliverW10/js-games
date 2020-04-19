@@ -1,11 +1,19 @@
 function drawPlayButton(X, Y, W, H, hovering){
 	c.beginPath();
 	if(hovering === true){
-		c.fillStyle = "rgb(200, 200, 200)";
+		c.fillStyle = "rgb(255, 100, 100)";
 	}else{
 		c.fillStyle = "rgb(150, 150, 150)";
 	}
-	c.fillRect(X, Y, W, H);
+	c.moveTo(X, Y);
+	c.lineTo(X+W, Y);
+	c.lineTo(X+W, Y+H*0.5);
+	c.arc(X+W, Y+H, H*0.45, Math.PI*1.5, Math.PI*1, true);
+	c.lineTo(X, Y+H);
+	c.closePath();
+	c.fill();
+
+	showText("Play", X+W/2, Y+H*0.65, W/4, "rgb(0, 0, 0)", true, true);
 }
 
 class Button{

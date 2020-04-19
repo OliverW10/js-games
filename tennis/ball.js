@@ -57,21 +57,6 @@ class Ball{
 			// spin
 			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.1*gameSpeed;
 			this.Xvel += (this.Xrot*this.Zvel)*-0.01*gameSpeed;
-			// rotation renders looping
-			this.Xangle += this.Xrot*gameSpeed;
-			this.Yangle += this.Yrot*gameSpeed;
-			if(this.Xangle > 2){
-				this.Xangle = -2;
-			}
-			if(this.Xangle < -2){
-				this.Xangle = 2;
-			}
-			if(this.Yangle > 2){
-				this.Yangle = -2;
-			}
-			if(this.Yangle < -2){
-				this.Yangle = 2;
-			}
 			// spin drag
 			this.Xrot *= 1-0.003*gameSpeed;
 			this.Yrot *= 1-0.003*gameSpeed;
@@ -113,7 +98,23 @@ class Ball{
 		showText("ball speed: "+roundList([this.Xvel, this.Yvel, this.Zvel], 4), canvas.width/2, 75, 15)
 	}
 
-	draw(pos = false, rot = false){
+	draw(){
+		// rotation renders looping
+		// done here so the menu ball spins
+		this.Xangle += this.Xrot*gameSpeed;
+		this.Yangle += this.Yrot*gameSpeed;
+		if(this.Xangle > 2){
+			this.Xangle = -2;
+		}
+		if(this.Xangle < -2){
+			this.Xangle = 2;
+		}
+		if(this.Yangle > 2){
+			this.Yangle = -2;
+		}
+		if(this.Yangle < -2){
+			this.Yangle = 2;
+		}
 		showText("ball rotational speed: "+[this.Xrot, this.Yrot], canvas.width/2, 60, 15);
 
 		// shadow
