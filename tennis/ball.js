@@ -149,6 +149,11 @@ class Ball{
 				this.resetCountdown -= 1;
 				if(this.resetCountdown <= 0){
 					this.reset();
+					if(this.loser === 1){
+						score[0]+=1;
+					}else{
+						score[1]+=1;
+					}
 				}
 			}
 

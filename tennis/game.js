@@ -134,6 +134,9 @@ var skillTextOffset = [0, 0];
 var menuPlayButton = new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
 var menuFade = 1;
 
+var score = [0, 0];
+var scoreLegend = {0:"Love", 1:"15", 2:"30", 3:"40", 4:"Advantage", 5:"What", 6:"No, thats too many points", 7:"The game should be over whats going on"};
+
 class Game{
 	constructor(){
 		this.state = this.menu;
@@ -208,6 +211,7 @@ class Game{
 		comRacquetController.update();
 
 		showText("Press space when the ball is on your side to freeze time", canvas.width/2, canvas.height*0.9, 30, "rgb(255, 255, 255)");
+		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
 
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 
