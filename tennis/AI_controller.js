@@ -102,7 +102,7 @@ class AIController{
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
 		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
-			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin())
+			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), 2)
 			this.cooldown = 10; // has to wait 10 frames between each hit
 		}
 

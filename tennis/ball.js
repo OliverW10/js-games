@@ -1,16 +1,40 @@
 
+function inCheck(pos){
+	// returns 0 for out 1 for your in 2 for their in
+	if(pos[2] > 1 && pos[2] < 2){ // your side
+		if(pos[0] > -1 && pos[0] < 1){
+			return 1
+		}else{
+			return 0
+		}
+	}else if(pos[2] > 2 && pos[2] < 3){ //their side
+		if(pos[0] > -1 && pos[0] < 1){
+			return 2
+		}else{
+			return 0
+		}
+	}
+	else{
+		return 0
+	}
+}
+
+var resetTimeNet = 60; // amount of frames between getting out and resetting
+var resetTimeOut = 1;
+var resetTimeDouble = 60;
+var resetTimeWrong = 30;
+
 class Ball{
 	constructor(X, Y, Z){
 		this.startX = X;
 		this.startY = Y;
 		this.startZ = Z;
-		this.stopped = false;
 		this.courtSize = 0.025; // court base size
 		this.size = this.courtSize*canvas.width;
 		this.reset();
 	}
 
-	hit(vel, spin){ // set the velocity and spin of the ball
+	hit(vel, spin, by){ // set the velocity and spin of the ball
 		this.Xvel = vel[0];
 		this.Yvel = vel[1];
 		this.Zvel = vel[2];
@@ -19,6 +43,7 @@ class Ball{
 		this.Yrot = spin[1];
 
 		aimGameSpeed = 1;
+		this.hitBy = by;
 	}
 
 	freeze(newPos, smooth = true, alpha = 0.5){
@@ -75,7 +100,54 @@ class Ball{
 				this.Yrot *= 0.9;
 				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
-				if(call === 0){
+
+				if(this.loser === false){
+					if(call === 0){ // hit out
+						if(this.hitBy === 2){ // by AI
+							this.resetCountdown = resetTimeOut;
+							this.loser = 2;
+						}else{
+							this.resetCountdown = resetTimeOut;
+							this.loser = 1;
+						}
+					}else{
+						if(this.hitBy != 0){ // if its not the start bounces
+							if(this.Z > 2){ // if its on the enemy side
+								if(this.hitBy === 2){ // and hit by the enemy
+									// ai hit its own side
+									this.resetCountdown = resetTimeWrong;
+									this.loser = 2;
+								}else{ // hit by the player
+									// ai let double bounce
+									if(this.bounces >= 2){
+										this.resetCountdown = resetTimeDouble;
+										this.loser = 2;
+									}
+								}
+							}
+							if(this.Z <= 2){ // on player side
+								if(this.hitBy === 1){ // hit by player
+									// player hit own side
+									this.resetCountdown = resetTimeWrong;
+									this.loser = 1;
+								}else{ // hit by enemy
+									// player let double bounce
+									if(this.bounces >= 2){
+										this.resetCountdown = resetTimeDouble;
+										this.loser = 1
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// scoring logic
+
+			if(this.resetCountdown != "no"){
+				this.resetCountdown -= 1;
+				if(this.resetCountdown <= 0){
 					this.reset();
 				}
 			}
@@ -87,9 +159,21 @@ class Ball{
 				this.Zvel *= 0.5
 				this.Xvel *= 0.8;
 				this.Yvel *= 0.8;
+				console.log("hit net")
+
+				if(this.loser === false){
+					if(this.hitBy === 1){
+						this.resetCountdown = resetTimeNet;
+						this.loser = 1;
+					}
+					if(this.hitBy === 2){
+						this.resetCountdown = resetTimeNet;
+						this.loser = 2;
+					}
+				}
 			}
 
-			if(checkKey("Space") === true && this.Z < 2){ 
+			if(checkKey("Space") === true && this.Z < 2.2){ 
 				aimGameSpeed = 0.1;
 			}
 
@@ -98,7 +182,6 @@ class Ball{
 		else{
 			this.apex = 0;
 		}
-		showText("ball speed: "+roundList([this.Xvel, this.Yvel, this.Zvel], 4), canvas.width/2, 75, 15)
 	}
 
 	draw(){
@@ -118,7 +201,6 @@ class Ball{
 		if(this.Yangle < -2){
 			this.Yangle = 2;
 		}
-		showText("ball rotational speed: "+[this.Xrot, this.Yrot], canvas.width/2, 60, 15);
 
 		// shadow
 		var shaPoint = projectPoint(this.X, 0, this.Z);
@@ -165,7 +247,6 @@ class Ball{
 			}
 			c.restore();
 		}
-		showText(roundList([this.Xangle, this.Yangle, frameSize], 1), canvas.width/2, 30, 15, "rgb(255, 255 ,255)");
 	}
 
 	reset(){
@@ -177,12 +258,18 @@ class Ball{
 		this.Zvel = 0 //(Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
-		this.Xrot = 0.2*0.1; // the roational speed of the ball
-		this.Yrot = -0.5*0.1;
+		this.Xrot = 0.02*0; // the roational speed of the ball
+		this.Yrot = -0.05*0;
 		this.lastX = 0;
 		this.lastY = 0;
 		this.lastZ = 0;
 		this.apex = 0;
+		this.hitBy = 0; // 0 no-one, 1 player, 2 AI
+		this.bounces = 0;
+		this.stopped = false;
+		this.resetCountdown = "no";
+		aimGameSpeed = 1;
+		this.loser = false;
 	}
 
 	getPos(){

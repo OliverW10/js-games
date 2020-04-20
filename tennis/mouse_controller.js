@@ -12,9 +12,9 @@ class mouseController{
 		this.dragging = false;
 	}
 
-	getPosNewOld(mouseX, mouseY){
+	getPosNewOld(mouseX, mouseY){ // USING THIS ONE
 		var x = (mouseX/canvas.width)-0.5;
-		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1, 0);
+		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+0.9, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
 		return [x*1.5-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
@@ -63,13 +63,11 @@ class mouseController{
 			this.velocity[0] -= playerVel[0];
 			this.velocity[1] -= playerVel[1];
 			this.velocity[2] -= playerVel[2];
-			showText("mouse velocity: "+roundList(this.velocity, 5), canvas.width/2, 15, 15);
 
 			// var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
 			// var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
 			// var spinSpeed = clip(Math.abs(angle1-angle2), 0, 1.5);
 			// this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
-			// showText("spin speed: "+spinSpeed, canvas.width/2, 45, 15);
 
 			var shotAngle = Math.atan2(this.velocity[0], this.velocity[2]);
 			this.spin = [Math.sin(shotAngle)*0.6, Math.cos(shotAngle)*-0.7]
@@ -78,7 +76,7 @@ class mouseController{
 
 		// manages the grabbing of the ball. I am aware that it could be accessing ball and its properties nicer
 		var point = projectPoint(...balls[0].getPos());
-		if(dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(balls[0].size+this.allowance) && mouseButtons[0] === true && this.dragging === false){
+		if(dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(balls[0].size+this.allowance) && mouseButtons[0] === true && this.dragging === false && balls[0].Z < 2){
 			this.dragging = true;
 			this.setOffset(balls[0].getPos()[0], balls[0].getPos()[1], balls[0].getPos()[2])
 		}
@@ -89,7 +87,7 @@ class mouseController{
 			aimGameSpeed = 0.1;
 			if(mouseButtons[0] === false){
 				balls[0].continue();
-				balls[0].hit(this.getVel(), this.getSpin());
+				balls[0].hit(this.getVel(), this.getSpin(), 1);
 				this.dragging = false;
 			}
 		}
