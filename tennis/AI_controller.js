@@ -22,7 +22,7 @@ class AIController{
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
 		this.spin = power*0.07
-		this.speed = random(0.0002*this.difficulty, 0.0003*this.difficulty);
+		this.speed = random(0.0003*this.difficulty, 0.0004*this.difficulty);
 		this.trials = this.difficulty**1.4; // how many times to try 
 	}
 
@@ -54,25 +54,23 @@ class AIController{
 		return [random(-0.1, 0.1), this.spin]
 	}
 	update(){
+		if(this.cooldown > 0){
+			this.cooldown -= 1;
+		}
 		// setting position aims
 		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
-		if(this.cooldown  >= 0){
-			aimX = 0;
-			aimY = 1;
-			aimZ = 3;
-			this.cooldown -= 1;
-		}else if(ballDist < 0.4 || balls[0].Z > 2){ // if its near the ball it just goes for it
-			aimX = balls[0].X;
-			aimY = balls[0].Y;
-			aimZ = balls[0].Z;
+
+		if(balls[0].Zvel === 0){
+			this.aimZ = 2.75;
+			this.aimX = -balls[0].X/2;
 		}else{
-			if(balls[0].stopeed === true || balls[0].Zvel === 0 || balls[0].Zvel < 0){
-				var aimZ = 3;
-			}else{
-				var aimZ = scaleNumber(balls[0].Zvel, 0.001, 0.03, 2.1, 3.5);
-			}
-			var aimX = balls[0].X;
-			var aimY = balls[0].apex/2;
+			this.aimZ = 2.5;//clip(scaleNumber(balls[0].Z, ))
+			this.aimX = balls[0].X - balls[0].Xvel* (balls[0].Z-this.aimZ)/balls[0].Zvel;
+		}
+		if(Math.abs(balls[0].Z-this.Z) < 0.5){
+			this.aimY = balls[0].Y;
+		}else{
+			this.aimY = balls[0].apex/2;
 		}
 
 		// drag
@@ -81,17 +79,17 @@ class AIController{
 		this.Yvel *= 1-0.1*gameSpeed;
 
 		// going to aims
-		if(this.X < aimX){
+		if(this.X < this.aimX){
 			this.Xvel += this.speed*gameSpeed;
 		}else{
 			this.Xvel -= this.speed*gameSpeed;
 		}
-		if(this.Z < aimZ){
+		if(this.Z < this.aimZ){
 			this.Zvel += this.speed*gameSpeed;
 		}else{
 			this.Zvel -= this.speed*gameSpeed;
 		}
-		if(this.Y < aimY){
+		if(this.Y < this.aimY){
 			this.Yvel += this.speed*gameSpeed;
 		}else{
 			this.Yvel -= this.speed*gameSpeed;
@@ -101,11 +99,11 @@ class AIController{
 		this.Z += this.Zvel*gameSpeed;
 		this.Y += this.Yvel*gameSpeed;
 
-		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
-		if(ballDist < 0.25 && this.cooldown <= 0){
+		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
+		if(ballDist < 0.05 && this.cooldown <= 0){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
 			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin())
-			this.cooldown = 100; // has to wait 10 frames between each hit
+			this.cooldown = 10; // has to wait 10 frames between each hit
 		}
 
 		this.draw();
@@ -115,16 +113,15 @@ class AIController{
 	}
 	draw(){
 		drawRacquet(this.X, this.Y, this.Z);
+		// drawRacquet(this.aimX, this.aimY, this.aimZ);
 
 		// target circle
-		if(this.target[2].Z+cameraPos[2] > 0.2){
-			c.beginPath();
-			c.strokeStyle = "rgb(255, 0, 0)";
-			var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-			c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
-			c.lineWidth = point[2]*5;
-			c.stroke();
-		}
+		c.beginPath();
+		c.strokeStyle = "rgb(255, 0, 0)";
+		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+		c.lineWidth = point[2]*5;
+		c.stroke();
 	}
 }
 

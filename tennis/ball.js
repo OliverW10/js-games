@@ -22,6 +22,9 @@ class Ball{
 	}
 
 	freeze(newPos, smooth = true, alpha = 0.5){
+		this.Zvel = 0;
+		this.Xvel = 0;
+		this.Yvel = 0;
 		if(smooth === true){
 			this.X = newPos[0] * alpha + this.X * (1-alpha);
 			this.Y = newPos[1] * alpha + this.Y * (1-alpha);
@@ -78,7 +81,7 @@ class Ball{
 			}
 
 			// net
-			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y-this.courtSize/this.Z < netHeight){
+			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y-this.courtSize < netHeight){
 				this.Zvel = -this.Zvel;
 				this.Z += this.Zvel*gameSpeed;
 				this.Zvel *= 0.5
