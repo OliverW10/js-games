@@ -110,8 +110,15 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var comRacquetController = new AIController(5);
+var skill = 5;
+var comRacquetController = new AIController(skill);
 var playerRacquetController = new mouseController();
+
+function changeSkill(newSkill){
+	skill = newSkill;
+	comRacquetController.setDifficulty(newSkill);
+	console.log(comRacquetController);
+}
 
 var vanishingPointPos = [0.5, 0.3];
 var renderer = new drawing(0.5);

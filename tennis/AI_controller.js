@@ -1,8 +1,7 @@
 
 class AIController{
 	constructor(difficulty){
-		this.difficulty = difficulty;
-		this.setDifficulty();
+		this.setDifficulty(difficulty);
 
 
 		this.X = 0;
@@ -13,16 +12,21 @@ class AIController{
 		this.Yvel = 0;
 		this.Zvel = 0;
 		this.cooldown = 0;
-		console.log(this);
 	}
-	setDifficulty(){
-		// difficulty is 1-10
-		this.accuracy = clip(random(10-this.difficulty**1.5, 25-this.difficulty**1.5), 0, 25)* Math.PI / 180;
+	minAccuracy(x){
+		return 20-x**1.3
+	}
+	maxAccuracy(x){
+		return 60-60/(1+Math.exp(-1.5*(x/5-2.2)))
+	}
+	setDifficulty(dif){
+		this.difficulty = dif;
+		this.accuracy = clip(random(this.minAccuracy(this.difficulty), this.maxAccuracy(this.difficulty)), 0, 60)* Math.PI / 180;
 		this.tendency = 0;
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
 		this.spin = power*0.07
-		this.speed = random(0.0003*this.difficulty, 0.0004*this.difficulty);
+		this.speed = random(0.00025*this.difficulty, 0.00035*this.difficulty);
 		this.trials = this.difficulty**1.4; // how many times to try 
 	}
 
@@ -79,11 +83,7 @@ class AIController{
 		this.Yvel *= 1-0.1*gameSpeed;
 
 		// going to aims
-		if(this.X < this.aimX){
-			this.Xvel += this.speed*gameSpeed;
-		}else{
-			this.Xvel -= this.speed*gameSpeed;
-		}
+		this.Xvel += Math.sign(this.aimX - this.X)*(Math.abs(this.aimX-this.X)+0.75)*gameSpeed*this.speed;
 		if(this.Z < this.aimZ){
 			this.Zvel += this.speed*gameSpeed;
 		}else{
@@ -100,7 +100,7 @@ class AIController{
 		this.Y += this.Yvel*gameSpeed;
 
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
-		if(ballDist < 0.05 && this.cooldown <= 0){
+		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
 			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin())
 			this.cooldown = 10; // has to wait 10 frames between each hit
@@ -112,7 +112,7 @@ class AIController{
 
 	}
 	draw(){
-		drawRacquet(this.X, this.Y, this.Z);
+		drawRacquet(this.X/1.1, this.Y, this.Z);
 		// drawRacquet(this.aimX, this.aimY, this.aimZ);
 
 		// target circle

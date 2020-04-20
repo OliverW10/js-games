@@ -71,7 +71,8 @@ class mouseController{
 			// this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
 			// showText("spin speed: "+spinSpeed, canvas.width/2, 45, 15);
 
-			this.spin = [this.velocity[0]*10, this.velocity[2]*-10]
+			var shotAngle = Math.atan2(this.velocity[0], this.velocity[2]);
+			this.spin = [Math.sin(shotAngle)*0.6, Math.cos(shotAngle)*-0.7]
 		}
 
 
@@ -85,6 +86,7 @@ class mouseController{
 		if(this.dragging === true){
 			var newPos = this.getPos(mousePos.x, mousePos.y);
 			balls[0].freeze(newPos);
+			aimGameSpeed = 0.1;
 			if(mouseButtons[0] === false){
 				balls[0].continue();
 				balls[0].hit(this.getVel(), this.getSpin());
