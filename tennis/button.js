@@ -1,9 +1,9 @@
-function drawPlayButton(X, Y, W, H, hovering){
+function drawPlayButton(X, Y, W, H, hovering, alpha){
 	c.beginPath();
 	if(hovering === true){
-		c.fillStyle = "rgb(255, 100, 100)";
+		c.fillStyle = "rgba(100, 100, 100, 0.5)";
 	}else{
-		c.fillStyle = "rgb(150, 150, 150)";
+		c.fillStyle = "rgba(150, 150, 150, 0.8)";
 	}
 	c.moveTo(X, Y);
 	c.lineTo(X+W, Y);
@@ -13,7 +13,7 @@ function drawPlayButton(X, Y, W, H, hovering){
 	c.closePath();
 	c.fill();
 
-	showText("Play", X+W/2, Y+H*0.65, W/4, "rgb(0, 0, 0)", true, true);
+	showText("Play", X+W/2, Y+H*0.65, W/4, "rgba(0, 0, 0, "+alpha+")", true, true);
 }
 
 class Button{
@@ -42,12 +42,15 @@ class Button{
 		}else{
 			this.state = 0;
 		}
+	}
+	draw(alpha){
 		// this.drawFunc(this.X + this.state*this.W*this.clickRatio/2, this.Y + this.state*this.H*this.clickRatio/2, this.W*(1-this.clickRatio*this.state), this.H*(1-this.clickRatio*this.state), !!this.state);
 		this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
 			this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
 			this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
 			this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
-			!!this.state);
+			!!this.state,
+			alpha);
 		return false
 	}
 }

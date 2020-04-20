@@ -110,7 +110,7 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var skill = 5;
+var skill = 3;
 var comRacquetController = new AIController(skill);
 var playerRacquetController = new mouseController();
 
@@ -134,26 +134,6 @@ var skillTextOffset = [0, 0];
 var menuPlayButton = new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
 var menuFade = 1;
 
-function inCheck(pos){
-	// returns 0 for out 1 for your in 2 for their in
-	if(pos[2] > 1 && pos[2] < 2){ // your side
-		if(pos[0] > -1 && pos[0] < 1){
-			return 1
-		}else{
-			return 0
-		}
-	}else if(pos[2] > 2 && pos[2] < 3){ //their side
-		if(pos[0] > -1 && pos[0] < 1){
-			return 2
-		}else{
-			return 0
-		}
-	}
-	else{
-		return 0
-	}
-}
-
 class Game{
 	constructor(){
 		this.state = this.menu;
@@ -169,8 +149,10 @@ class Game{
 	}
 
 	drawMenu(trans){
-		menuPosAngle += 0.003;
-		cameraPosAim = [Math.sin(menuPosAngle)*5, 5, -5];
+		if(this.state === this.menu){
+			menuPosAngle += 0.003;
+			cameraPosAim = [Math.sin(menuPosAngle)*5, 5, -5];
+		}
 		menuTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.15, mousePos.x-canvas.width/2);
 		menuTextOffset = [Math.cos(menuTextOffsetAngle)*canvas.width*0.003, Math.sin(menuTextOffsetAngle)*canvas.width*0.003];
 		showText("Down the line tennis", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, "+trans+")", true, true);
@@ -178,13 +160,17 @@ class Game{
 
 		skillTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.9, mousePos.x-canvas.width/2);
 		skillTextOffset = [Math.cos(skillTextOffsetAngle)*canvas.width*0.003, Math.sin(skillTextOffsetAngle)*canvas.width*0.003];
-		showText("Skill: ", canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.05, "rgba(0, 0, 0, "+trans+")", true, true);
-		showText("Skill:", canvas.width/2, canvas.height*0.9, canvas.width*0.05, "rgba(255, 255, 255, "+trans+")", true, true);
+		showText("Skill: "+round(skill*100), canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.05, "rgba(0, 0, 0, "+trans+")", true, true);
+		showText("Skill: "+round(skill*100), canvas.width/2, canvas.height*0.9, canvas.width*0.05, "rgba(255, 255, 255, "+trans+")", true, true);
 
-		if(menuPlayButton.update() === true){
-			this.state = this.match;
-			cameraPosAim = [0, 1, -0.4];
+		if(this.state === this.menu){
+			if(menuPlayButton.update() === true){
+				this.state = this.match;
+				cameraPosAim = [0, 1, -0.4];
+				return true;
+			}
 		}
+		menuPlayButton.draw(trans);
 		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
 		balls[1].freeze([-cameraPos[0]+0.5*dist, 5-1.4*dist, 5+dist], false);
 		balls[1].draw();
@@ -250,7 +236,6 @@ class Game{
 		c.fill();
 
 		// mountains
-		// showText("mousePos: "+roundList([mousePos.x/canvas.width, mousePos.y/canvas.height], 3), canvas.width/2, 45, 15)
 		for(var range = mountainPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainPoints[range], false, true);
 			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
