@@ -1,10 +1,11 @@
-
+var old = false
 class mouseController{
 	constructor(){
 		this.prevPos = [];
-		this.pollingPeriod = [20, 3, 4]; // [recordFor, use for vel, use for spin]
+		this.pollingPeriod = [20, 8, 8]; // [recordFor, use for vel, use for anti-stop]
 		this.velocity = [0, 0, 0];
 		this.spin = [0, 0];
+		this.prevSpeed = [];
 
 		this.allowance = 5;
 		this.offset = [[0, 0], [0, 0, 0]];
@@ -60,14 +61,10 @@ class mouseController{
 			this.velocity[1] /= this.pollingPeriod[1];
 			this.velocity[2] /= this.pollingPeriod[1];
 
-			this.velocity[0] -= playerVel[0];
-			this.velocity[1] -= playerVel[1];
-			this.velocity[2] -= playerVel[2];
-
-			// var angle1 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[1]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[1]-1][0]); // angle between end of polling period and spin
-			// var angle2 =  Math.atan2(this.prevPos[this.pollingPeriod[0]-1][1]-this.prevPos[this.pollingPeriod[2]-1][1], this.prevPos[this.pollingPeriod[0]-1][0]-this.prevPos[this.pollingPeriod[2]-1][0]);
-			// var spinSpeed = clip(Math.abs(angle1-angle2), 0, 1.5);
-			// this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
+			this.prevSpeed.push(Math.sqrt(this.velocity[0]**2 + this.velocity[1]**2 + this.velocity[2]**2));
+			if(this.prevSpeed.length > this.pollingPeriod[2]){
+				this.prevSpeed.splice(0, 1);
+			}
 
 			var shotAngle = Math.atan2(this.velocity[0], this.velocity[2]);
 			var spinSpeed = Math.sqrt(this.velocity[0]**2+this.velocity[2]**2)*10;
@@ -109,8 +106,35 @@ class mouseController{
 		// c.stroke();
 	}
 
-	getVel(){
+	getVelNew(){
+
+		// takes the angle from the most recent velocity and the highest speed from the last n frames
+		var angles = [Math.atan2(this.velocity[2], this.velocity[0]), Math.atan2(this.velocity[1], this.velocity[2])];
+		var returnVel = [Math.max(...this.prevSpeed)*Math.cos(angles[0]),
+			Math.max(...this.prevSpeed)*Math.cos(angles[1]),
+			Math.max(...this.prevSpeed)*Math.sin(angles[0])];
+
+		returnVel[0] -= playerVel[0];
+		returnVel[1] -= playerVel[1];
+		returnVel[2] -= playerVel[2];
+		console.log(returnVel);
+		return returnVel;
+	}
+
+	getVelOld(){
+		this.velocity[0] -= playerVel[0];
+		this.velocity[1] -= playerVel[1];
+		this.velocity[2] -= playerVel[2];
+		console.log(this.velocity);
 		return this.velocity;
+	}
+
+	getVel(){
+		if(old === true){
+			return this.getVelOld();
+		}else{
+			return this.getVelNew();
+		}
 	}
 
 	getSpin(){
