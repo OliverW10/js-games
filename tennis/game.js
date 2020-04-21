@@ -157,6 +157,9 @@ var menuFade = 1;
 var score = [0, 0];
 var scoreLegend = {0:"Love", 1:"15", 2:"30", 3:"40", 4:"Advantage", 5:"Game", 6:"No, thats too many points", 7:"What"};
 
+var skillChangeTrans = 0;
+var skillChange = 0;
+
 class Game{
 	constructor(){
 		this.state = this.menu;
@@ -199,6 +202,11 @@ class Game{
 		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
 		balls[1].freeze([-cameraPos[0]+0.5*dist, 5-1.4*dist, 5+dist], false);
 		balls[1].draw();
+
+		if(skillChangeTrans > 0){
+			skillChangeTrans -= 0.01;
+			showText("+"+round(skillChange*100), canvas.width/2, canvas.height/2, canvas.height*0.1, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
+		}
 	}
 
 	match(){
@@ -229,7 +237,9 @@ class Game{
 		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
 		if((score[0] >= 4 && score[0] > score[1]+1)||
 			score[1] >= 4 && score[1] > score[0]+1){
-			skill += (score[0]-score[1])/3 + random(-0.1, 0.1);
+			skillChange = Math.sign(score[0]-score[1])/2+(score[0]-score[1])/3;
+			skill += skillChange;
+			skillChangeTrans = 1;
 			this.state = this.menu;
 			menuPlayButton.reset();
 		}

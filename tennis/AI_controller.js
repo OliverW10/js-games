@@ -28,9 +28,9 @@ class AIController{
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
 		this.spin = power*0.07
-		this.speed = random(0.00025*this.difficulty, 0.00035*this.difficulty);
+		this.speed = 0.001+0.0001*this.difficulty;
 		this.trials = this.difficulty**1.4; // how many times to try 
-		this.predictionRate = this.difficulty
+		this.predictionRate = 0.01;
 		this.predict = 0;
 	}
 
@@ -67,17 +67,21 @@ class AIController{
 		}
 		// setting position aims
 		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
-		if(balls[0].Zvel === 0){
+		if(balls[0].Zvel <= 0){
 			this.aimZ = 2.75;
 			this.aimX = this.predict;
+			this.aimY = 0.5;
 		}else{
 			this.aimZ = 2.5;//clip(scaleNumber(balls[0].Z, ))
 			this.aimX = balls[0].X - balls[0].Xvel* (balls[0].Z-this.aimZ)/balls[0].Zvel;
-		}
-		if(Math.abs(balls[0].Z-this.Z) < 0.5){
+
+			if(Math.abs(balls[0].Z-this.Z) < 0.5){
 			this.aimY = balls[0].Y;
-		}else{
-			this.aimY = balls[0].apex/2;
+			}else{
+				this.aimY = balls[0].apex/2;
+			}
+
+			this.predict = this.aimX*this.predictionRate + this.predict*(1-this.predictionRate);
 		}
 
 		// drag
@@ -111,7 +115,7 @@ class AIController{
 	}
 	draw(){
 		drawRacquet(this.X/1.1, this.Y, this.Z);
-		drawRacquet(this.aimX, this.aimY, this.aimZ);
+		// drawRacquet(this.aimX, this.aimY, this.aimZ);
 
 		// target circle
 		// c.beginPath();

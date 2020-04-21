@@ -144,8 +144,6 @@ class Ball{
 					}
 				}
 			}
-
-			showText([this.hitBy, this.loser], canvas.width/2, canvas.height*0.02, 15);
 			// scoring logic
 
 			if(this.resetCountdown != "no"){
