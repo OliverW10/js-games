@@ -53,4 +53,7 @@ class Button{
 			alpha);
 		return false
 	}
+	reset(){
+		this.state = 0;
+	}
 }

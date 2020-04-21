@@ -70,7 +70,9 @@ class mouseController{
 			// this.spin = [Math.cos(angle1)*spinSpeed*this.spinMult[0], Math.sin(angle1)*spinSpeed*this.spinMult[1]];
 
 			var shotAngle = Math.atan2(this.velocity[0], this.velocity[2]);
-			this.spin = [Math.sin(shotAngle)*0.6, Math.cos(shotAngle)*-0.7]
+			var spinSpeed = Math.sqrt(this.velocity[0]**2+this.velocity[2]**2)*10;
+			// spinSpeed = Math.log(spinSpeed*+1);
+			this.spin = [Math.sin(shotAngle)*0.6, Math.cos(shotAngle)*-0.7*spinSpeed]
 		}
 
 

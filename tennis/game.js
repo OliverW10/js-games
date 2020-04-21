@@ -155,7 +155,7 @@ var menuPlayButton = new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
 var menuFade = 1;
 
 var score = [0, 0];
-var scoreLegend = {0:"Love", 1:"15", 2:"30", 3:"40", 4:"Advantage", 5:"What", 6:"No, thats too many points", 7:"The game should be over whats going on"};
+var scoreLegend = {0:"Love", 1:"15", 2:"30", 3:"40", 4:"Advantage", 5:"Game", 6:"No, thats too many points", 7:"What"};
 
 class Game{
 	constructor(){
@@ -188,6 +188,8 @@ class Game{
 
 		if(this.state === this.menu){
 			if(menuPlayButton.update() === true){
+				score = [0, 0];
+				changeSkill(skill);
 				this.state = this.match;
 				cameraPosAim = [0, 1, -0.4];
 				return true;
@@ -215,15 +217,26 @@ class Game{
 			this.drawMenu(menuFade);
 			menuFade -= 0.05;
 		}
-		this.drawReflections();
+		// this.drawReflections();
 
 		this.draw();
 
 		playerRacquetController.update();
 		comRacquetController.update();
 
+
 		showText("Press space when the ball is on your side to freeze time", canvas.width/2, canvas.height*0.9, 30, "rgb(255, 255, 255)");
 		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
+		if((score[0] >= 4 && score[0] > score[1]+1)||
+			score[1] >= 4 && score[1] > score[0]+1){
+			skill += (score[0]-score[1])/3 + random(-0.1, 0.1);
+			this.state = this.menu;
+			menuPlayButton.reset();
+		}
+		if(score[0] === 4 && score[1] === 4){
+			score[0] = 3;
+			score[1] = 3;
+		}
 
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 
@@ -234,7 +247,6 @@ class Game{
 		c.fillStyle = grd;
 		c.fillRect(0, 0, canvas.width, canvas.height);
 	}
-
 	drawReflections(){
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainReflectionPoints[range], false, true);

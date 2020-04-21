@@ -12,6 +12,8 @@ class AIController{
 		this.Yvel = 0;
 		this.Zvel = 0;
 		this.cooldown = 0;
+
+		this.predict = 0;
 	}
 	minAccuracy(x){
 		return 20-x**1.3
@@ -28,6 +30,8 @@ class AIController{
 		this.spin = power*0.07
 		this.speed = random(0.00025*this.difficulty, 0.00035*this.difficulty);
 		this.trials = this.difficulty**1.4; // how many times to try 
+		this.predictionRate = this.difficulty
+		this.predict = 0;
 	}
 
 	evaluateShot(enemyPos, target){
@@ -63,10 +67,9 @@ class AIController{
 		}
 		// setting position aims
 		var ballDist = dist3d(this.X, this.Y, this.Z, balls[0].X, balls[0].Y, balls[0].Z);
-
 		if(balls[0].Zvel === 0){
 			this.aimZ = 2.75;
-			this.aimX = -balls[0].X/2;
+			this.aimX = this.predict;
 		}else{
 			this.aimZ = 2.5;//clip(scaleNumber(balls[0].Z, ))
 			this.aimX = balls[0].X - balls[0].Xvel* (balls[0].Z-this.aimZ)/balls[0].Zvel;
@@ -102,13 +105,13 @@ class AIController{
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
 		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 1){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
-			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), 2)
+			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), -1)
 			this.cooldown = 10; // has to wait 10 frames between each hit
 		}
 	}
 	draw(){
 		drawRacquet(this.X/1.1, this.Y, this.Z);
-		// drawRacquet(this.aimX, this.aimY, this.aimZ);
+		drawRacquet(this.aimX, this.aimY, this.aimZ);
 
 		// target circle
 		// c.beginPath();

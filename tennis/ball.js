@@ -20,9 +20,9 @@ function inCheck(pos){
 }
 
 var resetTimeNet = 60; // amount of frames between getting out and resetting
-var resetTimeOut = 1;
+var resetTimeOut = 0;
 var resetTimeDouble = 60;
-var resetTimeWrong = 30;
+var resetTimeWrong = 60;
 
 class Ball{
 	constructor(X, Y, Z){
@@ -44,6 +44,18 @@ class Ball{
 
 		aimGameSpeed = 1;
 		this.hitBy = by;
+		this.actualHitBy = by;
+		this.bounces = 0;
+
+		if(this.actualHitBy === -1){
+			coloursRGB["ball"] = [255, 50, 50];
+		}
+		if(this.actualHitBy === 1){
+			coloursRGB["ball"] = [50, 50, 255];
+		}
+		if(this.actualHitBy === 0){
+			coloursRGB["ball"] = [75, 75, 75];
+		}
 	}
 
 	freeze(newPos, smooth = true, alpha = 0.5){
@@ -103,9 +115,9 @@ class Ball{
 
 				if(this.loser === false){
 					if(call === 0){ // hit out
-						if(this.hitBy === 2){ // by AI
+						if(this.hitBy === -1){ // by AI
 							this.resetCountdown = resetTimeOut;
-							this.loser = 2;
+							this.loser = -1;
 						}else{
 							this.resetCountdown = resetTimeOut;
 							this.loser = 1;
@@ -113,47 +125,38 @@ class Ball{
 					}else{
 						if(this.hitBy != 0){ // if its not the start bounces
 							if(this.Z > 2){ // if its on the enemy side
-								if(this.hitBy === 2){ // and hit by the enemy
+								if(this.hitBy === -1){ // and hit by the enemy
 									// ai hit its own side
 									this.resetCountdown = resetTimeWrong;
-									this.loser = 2;
-								}else{ // hit by the player
-									// ai let double bounce
-									if(this.bounces >= 2){
-										this.resetCountdown = resetTimeDouble;
-										this.loser = 2;
-									}
+									this.loser = -1;
 								}
+								this.hitBy = -this.hitBy;
 							}
 							if(this.Z <= 2){ // on player side
 								if(this.hitBy === 1){ // hit by player
 									// player hit own side
 									this.resetCountdown = resetTimeWrong;
 									this.loser = 1;
-								}else{ // hit by enemy
-									// player let double bounce
-									if(this.bounces >= 2){
-										this.resetCountdown = resetTimeDouble;
-										this.loser = 1
-									}
 								}
+								this.hitBy = -this.hitBy;
 							}
 						}
 					}
 				}
 			}
 
+			showText([this.hitBy, this.loser], canvas.width/2, canvas.height*0.02, 15);
 			// scoring logic
 
 			if(this.resetCountdown != "no"){
 				this.resetCountdown -= 1;
 				if(this.resetCountdown <= 0){
-					this.reset();
 					if(this.loser === 1){
-						score[0]+=1;
-					}else{
 						score[1]+=1;
+					}else{
+						score[0]+=1;
 					}
+					this.reset();
 				}
 			}
 
@@ -171,9 +174,9 @@ class Ball{
 						this.resetCountdown = resetTimeNet;
 						this.loser = 1;
 					}
-					if(this.hitBy === 2){
+					if(this.hitBy === -1){
 						this.resetCountdown = resetTimeNet;
-						this.loser = 2;
+						this.loser = -1;
 					}
 				}
 			}
@@ -233,7 +236,7 @@ class Ball{
 
 			var brightness = clip(scaleNumber(Math.abs(this.Y), 0, 1.5, 0.5, 0), 0, 0.4);
 			var glow = c.createRadialGradient(point[0], point[1], frameSize/2, point[0], point[1], frameSize*3);
-			glow.addColorStop(0, "rgba(255, 175, 175,"+brightness+")")
+			glow.addColorStop(0, "rgba("+coloursRGB["ball"][0]+", "+coloursRGB["ball"][1]+","+coloursRGB["ball"][2]+","+brightness+")")
 			glow.addColorStop(1, "rgba(150, 150, 150, 0)")
 			c.fillStyle = glow;
 			c.fillRect(point[0]-frameSize*10, point[1]-frameSize*10, frameSize*20, frameSize*20);
@@ -244,7 +247,7 @@ class Ball{
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
-					c.strokeStyle = colours.ball;
+					c.strokeStyle = "rgb("+coloursRGB["ball"][0]+", "+coloursRGB["ball"][1]+","+coloursRGB["ball"][2]+")";
 					c.lineWidth = patternSize/3
 					c.arc(point[0]+x*patternSize*2+this.Xangle*patternSize, point[1]+y*patternSize*2+this.Yangle*patternSize, patternSize, Math.PI*x, Math.PI*(x+1));
 					c.stroke();
@@ -269,12 +272,14 @@ class Ball{
 		this.lastY = 0;
 		this.lastZ = 0;
 		this.apex = 0;
-		this.hitBy = 0; // 0 no-one, 1 player, 2 AI
+		this.hitBy = 0; // 0 no-one, 1 player, -1 AI
 		this.bounces = 0;
 		this.stopped = false;
 		this.resetCountdown = "no";
 		aimGameSpeed = 1;
 		this.loser = false;
+		this.actualHitBy = 0;
+		coloursRGB["ball"] = [75, 75, 75];
 	}
 
 	getPos(){

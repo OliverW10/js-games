@@ -41,6 +41,8 @@ var colours = {"ground" : "rgb(150, 150, 150)",
 "mountains" : "rgb(200, 0, 255)",
 }
 
+var coloursRGB = {"ball":[255, 50, 50]}
+
 class drawing{
 	constructor(quality){
 		this.quality = quality;
