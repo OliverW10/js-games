@@ -157,8 +157,18 @@ var menuFade = 1;
 var score = [0, 0];
 var scoreLegend = {0:"Love", 1:"15", 2:"30", 3:"40", 4:"Advantage", 5:"Game", 6:"No, thats too many points", 7:"What"};
 
-var skillChangeTrans = 0;
+var skillChangeTrans = 1;
 var skillChange = 0;
+
+var flashTextText = "Blue Test";
+var flashTextTrans = 1;
+var flashTextColour = [0, 0, 255];
+
+function flashText(text, colour, time = 1){
+	flashTextText = text;
+	flashTextColour = colour;
+	flashTextTrans = Math.min(time, 1);
+}
 
 class Game{
 	constructor(){
@@ -181,13 +191,13 @@ class Game{
 		}
 		menuTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.15, mousePos.x-canvas.width/2);
 		menuTextOffset = [Math.cos(menuTextOffsetAngle)*canvas.width*0.003, Math.sin(menuTextOffsetAngle)*canvas.width*0.003];
-		showText("Down the line tennis", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, "+trans+")", true, true);
-		showText("Down the line tennis", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, "+trans+")", true, true);
+		showText("Tönnìs", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, "+trans+")", true, true);
+		showText("Tönnìs", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, "+trans+")", true, true);
 
 		skillTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.9, mousePos.x-canvas.width/2);
 		skillTextOffset = [Math.cos(skillTextOffsetAngle)*canvas.width*0.003, Math.sin(skillTextOffsetAngle)*canvas.width*0.003];
-		showText("Skill: "+round(skill*100), canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.05, "rgba(0, 0, 0, "+trans+")", true, true);
-		showText("Skill: "+round(skill*100), canvas.width/2, canvas.height*0.9, canvas.width*0.05, "rgba(255, 255, 255, "+trans+")", true, true);
+		showText("Skill: "+round(skill*100), canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.07, "rgba(0, 0, 0, "+trans+")", true, true);
+		showText("Skill: "+round(skill*100), canvas.width/2, canvas.height*0.9, canvas.width*0.07, "rgba(255, 255, 255, "+trans+")", true, true);
 
 		if(this.state === this.menu){
 			if(menuPlayButton.update() === true){
@@ -204,36 +214,40 @@ class Game{
 		balls[1].draw();
 
 		if(skillChangeTrans > 0){
-			skillChangeTrans -= 0.01;
-			showText("+"+round(skillChange*100), canvas.width/2, canvas.height/2, canvas.height*0.1, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
+			skillChangeTrans -= 0.003;
+			showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
 		}
+		this.overlay();
 	}
 
 	match(){
+		// camera movement
+		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
+			cameraPosAim[0] = -balls[0].X;
+		}
+		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
+
 		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
 		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
 		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
 
-		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
-		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
-			cameraPosAim[0] = -balls[0].X;
-		}
+		playerRacquetController.update();
+		comRacquetController.update();
 
+		// drawing
 		this.background();
-
 		if(menuFade > 0){
 			this.drawMenu(menuFade);
 			menuFade -= 0.05;
 		}
 		// this.drawReflections();
-
 		this.draw();
 
-		playerRacquetController.update();
-		comRacquetController.update();
-
-
-		showText("Press space when the ball is on your side to freeze time", canvas.width/2, canvas.height*0.9, 30, "rgb(255, 255, 255)");
+		// scoring
+		showText("You", canvas.width*0.45, canvas.height*0.05, canvas.height*0.03, "rgb(0, 0, 200)", false, false);
+		showText("Lvl."+round(skill)+" AI", canvas.width*0.55, canvas.height*0.05, canvas.height*0.03, "rgb(100, 0, 0)", false, false);
+		drawGlow(canvas.width*0.55, canvas.height*0.04, canvas.height*0.05, 0.15, [150, 50, 50]);
+		drawGlow(canvas.width*0.45, canvas.height*0.04, canvas.height*0.05, 0.15, [50, 50, 150]);
 		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
 		if((score[0] >= 4 && score[0] > score[1]+1)||
 			score[1] >= 4 && score[1] > score[0]+1){
@@ -242,6 +256,12 @@ class Game{
 			skillChangeTrans = 1;
 			this.state = this.menu;
 			menuPlayButton.reset();
+
+			if(score[0] > score[1]){
+				flashText("Winner", [0, 50, 200]);
+			}else{
+				flashText("Better luck next time", [50, 0, 0]);
+			}
 		}
 		if(score[0] === 4 && score[1] === 4){
 			score[0] = 3;
@@ -249,14 +269,10 @@ class Game{
 		}
 
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
-
-		vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
-		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
-		grd.addColorStop(0, "rgba(0, 0, 0, 0)");
-		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
-		c.fillStyle = grd;
-		c.fillRect(0, 0, canvas.width, canvas.height);
+		this.overlay();
 	}
+
+
 	drawReflections(){
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainReflectionPoints[range], false, true);
@@ -363,5 +379,22 @@ class Game{
 		playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
 		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
 		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
+	}
+	overlay(){
+		if(flashTextTrans > 0){
+			flashTextTrans -= 0.01;
+			showText(flashTextText, canvas.width/2, canvas.height/2, canvas.height*0.1, "rgba("+flashTextColour[0]+", "+flashTextColour[1]+", "+flashTextColour[2]+", "+flashTextTrans+")", true, true);
+
+			c.beginPath();
+			c.fillStyle = "rgba("+flashTextColour[0]+", "+flashTextColour[1]+", "+flashTextColour[2]+", "+flashTextTrans/4+")";
+			c.fillRect(0, 0, canvas.width, canvas.height)
+		}
+
+		vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
+		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
+		grd.addColorStop(0, "rgba(0, 0, 0, 0)");
+		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
+		c.fillStyle = grd;
+		c.fillRect(0, 0, canvas.width, canvas.height);
 	}
 }

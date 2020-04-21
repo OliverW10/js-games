@@ -114,6 +114,7 @@ class Ball{
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
 
 				if(this.loser === false){
+					this.bounces += 1;
 					if(call === 0){ // hit out
 						if(this.hitBy === -1){ // by AI
 							this.resetCountdown = resetTimeOut;
@@ -121,6 +122,15 @@ class Ball{
 						}else{
 							this.resetCountdown = resetTimeOut;
 							this.loser = 1;
+						}
+						if(this.bounces >= 2){
+							flashText("Double Bounce", [0, 0, 255]);
+						}else{
+							if(this.hitBy === -1){
+								flashText("Out", [0, 0, 255]);
+							}else{
+								flashText("Out", [255, 0, 0]);
+							}
 						}
 					}else{
 						if(this.hitBy != 0){ // if its not the start bounces
@@ -131,6 +141,9 @@ class Ball{
 									this.loser = -1;
 								}
 								this.hitBy = -this.hitBy;
+								if(this.bounces >= 2){
+									flashText("Double Bounce", [0, 0, 255]);
+								}
 							}
 							if(this.Z <= 2){ // on player side
 								if(this.hitBy === 1){ // hit by player
@@ -139,6 +152,9 @@ class Ball{
 									this.loser = 1;
 								}
 								this.hitBy = -this.hitBy;
+								if(this.bounces >= 2){
+									flashText("Double Bounce", [255, 0, 0]);
+								}
 							}
 						}
 					}
@@ -171,10 +187,12 @@ class Ball{
 					if(this.hitBy === 1){
 						this.resetCountdown = resetTimeNet;
 						this.loser = 1;
+						flashText("Net", [255, 0, 0]);
 					}
 					if(this.hitBy === -1){
 						this.resetCountdown = resetTimeNet;
 						this.loser = -1;
+						flashText("Net", [0, 0, 255]);
 					}
 				}
 			}
