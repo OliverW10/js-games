@@ -36,10 +36,10 @@ function roundedLine(startPos, endPos, width, colour){
 
 var colours = {"ground" : "rgb(150, 150, 150)",
 "sky": "rgb(250, 250, 250)",
-"net" : "rgb(0, 0, 0)",
 "ball" : "rgb(255, 50, 50)",
 "court" : "rgb(0, 0, 0)",
-"mountains" : "rgb(200, 0, 255)"}
+"mountains" : "rgb(200, 0, 255)",
+}
 
 class drawing{
 	constructor(quality){

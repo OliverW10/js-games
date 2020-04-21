@@ -100,42 +100,43 @@ class AIController{
 		this.Y += this.Yvel*gameSpeed;
 
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
-		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0){
+		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 1){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
 			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), 2)
 			this.cooldown = 10; // has to wait 10 frames between each hit
 		}
-
-		this.draw();
-	}
-	getOver(){
-
 	}
 	draw(){
 		drawRacquet(this.X/1.1, this.Y, this.Z);
 		// drawRacquet(this.aimX, this.aimY, this.aimZ);
 
 		// target circle
-		c.beginPath();
-		c.strokeStyle = "rgb(255, 0, 0)";
-		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
-		c.lineWidth = point[2]*5;
-		c.stroke();
+		// c.beginPath();
+		// c.strokeStyle = "rgb(255, 0, 0)";
+		// var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+		// c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+		// c.lineWidth = point[2]*5;
+		// c.stroke();
+	}
+	drawReflection(){
+		drawRacquet(this.X/1.1, -this.Y, this.Z, true, 1);
 	}
 }
 
-function drawRacquet(X, Y, Z, a = false){
+function drawRacquet(X, Y, Z, a = false, trans = 1){
+	// a is angle. false is normal, true is inverted, number does that number
 	var point = projectPoint(X, Y, Z)
 	var groundPoint = projectPoint(X, 0 ,Z);
 	if(a === false){
 		var angle = scaleNumber(X, 1, -1, 0, -Math.PI);
+	}else if(a === true){
+		var angle = scaleNumber(X, 1, -1, 0, Math.PI);
 	}else{
 		var angle = a;
 	}
 	// racquet
 	c.beginPath();
-	c.strokeStyle = "rgb(100, 100, 100)";
+	c.strokeStyle = "rgba(100, 100, 100, "+trans+")";
 	c.lineWidth = point[2]*3;
 	c.moveTo(point[0], point[1])
 	c.lineTo(point[0]+Math.cos(angle)*point[2]*15, point[1]+Math.sin(angle)*point[2]*15);
@@ -145,10 +146,12 @@ function drawRacquet(X, Y, Z, a = false){
 	c.stroke();
 
 	// shadow
-	c.beginPath();
-	c.strokeStyle = "rgba(0, 0, 0, 0.5)";
-	c.moveTo(groundPoint[0], groundPoint[1]);
-	c.lineTo(groundPoint[0] + Math.cos(angle)*point[2]*35 + Math.sign(Math.cos(angle))*15, groundPoint[1]);
-	c.lineWidth = point[2]*6;
-	c.stroke();
+	if(trans === 1){
+		c.beginPath();
+		c.strokeStyle = "rgba(0, 0, 0, 0.5)";
+		c.moveTo(groundPoint[0], groundPoint[1]);
+		c.lineTo(groundPoint[0] + Math.cos(angle)*point[2]*35 + Math.sign(Math.cos(angle))*15, groundPoint[1]);
+		c.lineWidth = point[2]*6;
+		c.stroke();
+	}
 }

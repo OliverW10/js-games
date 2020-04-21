@@ -71,12 +71,19 @@ var courtEdges = [[-1, 0, 1],
 [-1, 0, 3]];
 
 var netHeight = 0.3;
+var netBase = 0.015;
 
-var netOutlinePoints = [[-1.6, 0, 2],
+var netOutlinePoints = [[-1.6, netBase, 2],
 [-1.6, netHeight, 2],
 [1.6, netHeight, 2],
-[1.6, 0, 2],
-[-1.6, 0, 2]];
+[1.6, netBase, 2],
+[-1.6, netBase, 2]];
+
+var netOutlinePointsReflection = [[-1.6, -netBase, 2],
+[-1.6, -netHeight, 2],
+[1.6, -netHeight, 2],
+[1.6, -netBase, 2],
+[-1.6, -netBase, 2]];
 
 // "rgb(0, 50, 125)"
 
@@ -106,6 +113,19 @@ for(var i = 0; i<6; i+=1){
 mountainPoints.push([50, -50, 30]);
 mountainPoints.push([-50, -50, 30]);
 
+var mountainReflectionPoints = [];
+var mountainReflectionPoints = [];
+for(var i = 0; i<6; i+=1){
+	mountainReflectionPoints.push([[-25, -i+1.5, 10+i/4]]);
+	for(var j = 0; j < 20; j+=1){
+		mountainReflectionPoints[i].push([mountainPoints[i][j][0], -(mountainPoints[i][j][1]-1)*1, mountainPoints[i][j][2]]);
+	}
+	mountainReflectionPoints[i].push([25, -i+1.5, 10+i/4]);
+}
+mountainReflectionPoints.push([50, 50, 30]);
+mountainReflectionPoints.push([-50, 50, 30]);
+
+console.log(mountainReflectionPoints)
 var bounceSpots = []
 
 var vingette = 0.2;
@@ -180,32 +200,24 @@ class Game{
 	}
 
 	match(){
+		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
+
 		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
-		this.background();
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
-			// cameraPos[0] = -balls[0].X*0.2 + cameraPos[0]*0.8;
 			cameraPosAim[0] = -balls[0].X;
 		}
+
+		this.background();
 
 		if(menuFade > 0){
 			this.drawMenu(menuFade);
 			menuFade -= 0.05;
 		}
+		this.drawReflections();
 
-		for(var i = 0; i < balls.length; i+=1){
-			balls[i].run();
-		}
-		// renderer.polygon(courtEdges, "rgb(255, 255, 255)");
-		renderer.drawDrifters()
-		// renderer.drawLines(courtLines, cameraPos, colours["court"]);
-		if(balls[0].Z > 2){
-			balls[0].draw();
-		}
-		renderer.drawPoints(netOutlinePoints, cameraPos, colours["net"], 10);
-		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(255, 255, 255)", 5);
-		if(balls[0].Z <= 2){
-			balls[0].draw();
-		}
+		this.draw();
 
 		playerRacquetController.update();
 		comRacquetController.update();
@@ -223,18 +235,55 @@ class Game{
 		c.fillRect(0, 0, canvas.width, canvas.height);
 	}
 
+	drawReflections(){
+		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
+			renderer.polygon(mountainReflectionPoints[range], false, true);
+			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
+			var dark = range**1.6*15-5;
+			var light = range**1.6*15+5;
+			grd.addColorStop(0, "rgba("+dark+", "+dark+", "+dark+", 1)");
+			grd.addColorStop(1, "rgba("+light+", "+light+", "+light+", 1)");
+			c.fillStyle = "rgba("+dark+", "+dark+", "+dark+", 1)";
+			c.fill();
+		}
+
+		comRacquetController.drawReflection();
+		renderer.drawPoints(netOutlinePointsReflection, cameraPos, "rgba(0, 0, 0, 1)", 10);
+		renderer.drawPoints(netOutlinePointsReflection, cameraPos, "rgba(255, 255, 255, 1)", 5);
+
+		var horizonPoint = projectPoint(0, 0, 10);
+		c.beginPath();
+		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
+		grd.addColorStop(1, "rgba(150, 150, 150, 0.7");
+		grd.addColorStop(0, "rgba(250, 250, 250, 0.7)");
+		c.fillStyle = grd;
+		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
+		c.fill();
+	}
+	draw(){
+		comRacquetController.draw();
+		for(var i = 0; i < balls.length; i+=1){
+			balls[i].run();
+		}
+		renderer.drawDrifters()
+		if(balls[0].Z > 2){
+			balls[0].draw();
+		}
+
+		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(0, 0, 0)", 10);
+		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(255, 255, 255)", 5);
+
+		if(balls[0].Z <= 2){
+			balls[0].draw();
+		}
+	}
 	background(){
-
-		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
-		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
-		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
-
 		var horizonPoint = projectPoint(0, 0, 10);
 		// sky
 		c.beginPath();
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
 		grd.addColorStop(1, colours.ground);
-		grd.addColorStop(0, colours.ground);
+		grd.addColorStop(0, colours.sky);
 		c.fillStyle = grd;
 		c.rect(0, 0, canvas.width, horizonPoint[1]);
 		c.fill();
@@ -259,6 +308,7 @@ class Game{
 		c.fillStyle = grd;
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
+
 	}
 	movement(){
 		if(checkKey("Space") == true){
