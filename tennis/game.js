@@ -240,7 +240,7 @@ class Game{
 			this.drawMenu(menuFade);
 			menuFade -= 0.05;
 		}
-		// this.drawReflections();
+		this.drawReflections();
 		this.draw();
 
 		// scoring
@@ -386,7 +386,7 @@ class Game{
 			showText(flashTextText, canvas.width/2, canvas.height/2, canvas.height*0.1, "rgba("+flashTextColour[0]+", "+flashTextColour[1]+", "+flashTextColour[2]+", "+flashTextTrans+")", true, true);
 
 			c.beginPath();
-			c.fillStyle = "rgba("+flashTextColour[0]+", "+flashTextColour[1]+", "+flashTextColour[2]+", "+flashTextTrans/4+")";
+			c.fillStyle = "rgba("+flashTextColour[0]+", "+flashTextColour[1]+", "+flashTextColour[2]+", "+flashTextTrans*0.1+")";
 			c.fillRect(0, 0, canvas.width, canvas.height)
 		}
 

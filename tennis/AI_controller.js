@@ -28,7 +28,7 @@ class AIController{
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
 		this.spin = power*0.07
-		this.speed = 0.001+0.0001*this.difficulty;
+		this.speed = 0.001+0.0002*this.difficulty;
 		this.trials = this.difficulty**1.4; // how many times to try 
 		this.predictionRate = 0.01;
 		this.predict = 0;

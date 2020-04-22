@@ -206,6 +206,8 @@ class Ball{
 		else{
 			this.apex = 0;
 		}
+
+		this.hsl[0] += Math.abs((this.Xvel+this.Zvel))*50;
 	}
 
 	draw(){
@@ -252,7 +254,7 @@ class Ball{
 
 			var brightness = clip(scaleNumber(Math.abs(this.Y), 0, 1.5, 0.5, 0), 0, 0.4);
 			var glow = c.createRadialGradient(point[0], point[1], frameSize/2, point[0], point[1], frameSize*3);
-			glow.addColorStop(0, "rgba("+coloursRGB["ball"][0]+", "+coloursRGB["ball"][1]+","+coloursRGB["ball"][2]+","+brightness+")")
+			glow.addColorStop(0, "hsla("+this.hsl[0]+", "+this.hsl[1]+", "+this.hsl[2]+", "+brightness+")")
 			glow.addColorStop(1, "rgba(150, 150, 150, 0)")
 			c.fillStyle = glow;
 			c.fillRect(point[0]-frameSize*10, point[1]-frameSize*10, frameSize*20, frameSize*20);
@@ -263,7 +265,7 @@ class Ball{
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
-					c.strokeStyle = "rgb("+coloursRGB["ball"][0]+", "+coloursRGB["ball"][1]+","+coloursRGB["ball"][2]+")";
+					c.strokeStyle = "hsl("+this.hsl[0]+", "+this.hsl[1]+","+this.hsl[2]+")";
 					c.lineWidth = patternSize/3
 					c.arc(point[0]+x*patternSize*2+this.Xangle*patternSize, point[1]+y*patternSize*2+this.Yangle*patternSize, patternSize, Math.PI*x, Math.PI*(x+1));
 					c.stroke();
@@ -296,6 +298,7 @@ class Ball{
 		this.loser = false;
 		this.actualHitBy = 0;
 		coloursRGB["ball"] = [75, 75, 75];
+		this.hsl = [0, "100%", "50%", 1];
 	}
 
 	getPos(){

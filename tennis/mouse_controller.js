@@ -2,7 +2,7 @@ var old = false
 class mouseController{
 	constructor(){
 		this.prevPos = [];
-		this.pollingPeriod = [20, 8, 8]; // [recordFor, use for vel, use for anti-stop]
+		this.pollingPeriod = [20, 8, 6]; // [recordFor, use for vel, use for anti-stop]
 		this.velocity = [0, 0, 0];
 		this.spin = [0, 0];
 		this.prevSpeed = [];
@@ -15,7 +15,7 @@ class mouseController{
 
 	getPosNewOld(mouseX, mouseY){ // USING THIS ONE
 		var x = (mouseX/canvas.width)-0.5;
-		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+0.9, 0);
+		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1.1, 0);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
 		return [x*1.5-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
@@ -67,7 +67,7 @@ class mouseController{
 			}
 
 			var shotAngle = Math.atan2(this.velocity[0], this.velocity[2]);
-			var spinSpeed = Math.sqrt(this.velocity[0]**2+this.velocity[2]**2)*10;
+			var spinSpeed = Math.sqrt(this.velocity[0]**2+this.velocity[2]**2+this.velocity[1])*4;
 			// spinSpeed = Math.log(spinSpeed*+1);
 			this.spin = [Math.sin(shotAngle)*0.6, Math.cos(shotAngle)*-0.7*spinSpeed]
 		}
