@@ -185,6 +185,10 @@ class Game{
 	}
 
 	drawMenu(trans){
+		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
+
 		if(this.state === this.menu){
 			menuPosAngle += 0.003;
 			cameraPosAim = [Math.sin(menuPosAngle)*5, 5, -5];

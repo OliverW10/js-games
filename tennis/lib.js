@@ -138,7 +138,7 @@ function onScreen(X, Y, size){
 	}
 }
 
-function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) { // stolen
   if (typeof stroke == 'undefined') {
 	stroke = true;
   }

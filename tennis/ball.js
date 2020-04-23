@@ -181,7 +181,6 @@ class Ball{
 				this.Zvel *= 0.5
 				this.Xvel *= 0.8;
 				this.Yvel *= 0.8;
-				console.log("hit net")
 
 				if(this.loser === false){
 					if(this.hitBy === 1){
@@ -207,54 +206,76 @@ class Ball{
 			this.apex = 0;
 		}
 
-		this.hsl[0] += Math.abs((this.Xvel+this.Zvel))*50;
+		// this.hsl[0] += Math.abs((this.Xvel+this.Zvel+this.Yvel))*100;
+		this.hsl[0] = Math.max(this.hsl[0], 0);
 	}
 
-	draw(){
+	draw(pos = false, angle = false, alpha = 1){
+		if(pos === false){
+			var X = this.X;
+			var Y = this.Y;
+			var Z = this.Z;
+		}else{
+			var X = pos[0];
+			var Y = pos[1];
+			var Z = pos[2];
+		}
 		// rotation renders looping
 		// done here so the menu ball spins
-		this.Xangle += this.Xrot*gameSpeed;
-		this.Yangle += this.Yrot*gameSpeed;
-		if(this.Xangle > 2){
-			this.Xangle = -2;
-		}
-		if(this.Xangle < -2){
-			this.Xangle = 2;
-		}
-		if(this.Yangle > 2){
-			this.Yangle = -2;
-		}
-		if(this.Yangle < -2){
-			this.Yangle = 2;
+		if(angle === false){
+			this.Xangle += this.Xrot*gameSpeed;
+			this.Yangle += this.Yrot*gameSpeed;
+			if(this.Xangle > 2){
+				this.Xangle = -2;
+			}
+			if(this.Xangle < -2){
+				this.Xangle = 2;
+			}
+			if(this.Yangle > 2){
+				this.Yangle = -2;
+			}
+			if(this.Yangle < -2){
+				this.Yangle = 2;
+			}
+			var rotationX = this.Xangle;
+			var rotationY = this.Yangle;
+		}else{
+			var rotationX = angle[0];
+			var rotationY = angle[1];
 		}
 
 		// shadow
-		var shaPoint = projectPoint(this.X, 0, this.Z);
-		var shaPointX = projectPoint(this.X+this.courtSize, 0, this.Z);
-		var shaPointZ = projectPoint(this.X, 0, this.Z+this.courtSize);
+		if(pos === false){
+			var shaPoint = projectPoint(X, 0, Z);
+			var shaPointX = projectPoint(X+this.courtSize, 0, Z);
+			var shaPointZ = projectPoint(X, 0, Z+this.courtSize);
 
-		var shaW = Math.abs(shaPoint[0] - shaPointX[0]);
-		var shaH = Math.abs(shaPoint[1] - shaPointZ[1]);
+			var shaW = Math.abs(shaPoint[0] - shaPointX[0]);
+			var shaH = Math.abs(shaPoint[1] - shaPointZ[1]);
 
-		if(onScreen(shaPoint[0], shaPoint[1], this.size*shaPoint[2]) === true && shaPoint[2] > 0 && this.Z+cameraPos[2] > 0){
-			c.beginPath();
-			c.fillStyle = "rgba(0, 0, 0, 0.5)";
-			c.ellipse(shaPoint[0], shaPoint[1], shaW, shaH, 0, 0, Math.PI*2);
-			c.fill();
+			if(onScreen(shaPoint[0], shaPoint[1], this.size*shaPoint[2]) === true && Z+cameraPos[2] > 0){
+				c.beginPath();
+				c.fillStyle = "rgba(0, 0, 0, 0.5)";
+				c.ellipse(shaPoint[0], shaPoint[1], shaW, shaH, 0, 0, Math.PI*2);
+				c.fill();
+			}
 		}
 
-		var point = projectPoint(this.X, this.Y, this.Z);
-		var edgePoint = projectPoint(this.X+this.courtSize, this.Y, this.Z);
+		var point = projectPoint(X, Y, Z);
+		if(pos !== false){
+			console.log(point);
+		}
+		var edgePoint = projectPoint(X+this.courtSize, Y, Z);
 		var frameSize = Math.abs(point[0]-edgePoint[0]);
 		var patternSize = frameSize*0.8
 		// ball
 		c.beginPath();
 		c.save();
-		if(onScreen(point[0], point[1], this.size*point[2]) === true && point[2] > 0 && this.Z+cameraPos[2] > 0){
+		if(onScreen(point[0], point[1], frameSize) === true && this.Z+cameraPos[2] > 0){
 
-			var brightness = clip(scaleNumber(Math.abs(this.Y), 0, 1.5, 0.5, 0), 0, 0.4);
+			var brightness = clip(scaleNumber(Math.abs(Y), 0, 1.5, 0.5, 0), 0, 0.4)*alpha;
 			var glow = c.createRadialGradient(point[0], point[1], frameSize/2, point[0], point[1], frameSize*3);
-			glow.addColorStop(0, "hsla("+this.hsl[0]+", "+this.hsl[1]+", "+this.hsl[2]+", "+brightness+")")
+			glow.addColorStop(0, "hsla("+this.hsl[0]+", "+this.hsl[1]+", "+this.hsl[2]+", "+brightness*alpha+")")
 			glow.addColorStop(1, "rgba(150, 150, 150, 0)")
 			c.fillStyle = glow;
 			c.fillRect(point[0]-frameSize*10, point[1]-frameSize*10, frameSize*20, frameSize*20);
@@ -265,9 +286,9 @@ class Ball{
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
-					c.strokeStyle = "hsl("+this.hsl[0]+", "+this.hsl[1]+","+this.hsl[2]+")";
+					c.strokeStyle = "hsla("+this.hsl[0]+", "+this.hsl[1]+","+this.hsl[2]+", "+alpha+")";
 					c.lineWidth = patternSize/3
-					c.arc(point[0]+x*patternSize*2+this.Xangle*patternSize, point[1]+y*patternSize*2+this.Yangle*patternSize, patternSize, Math.PI*x, Math.PI*(x+1));
+					c.arc(point[0]+x*patternSize*2+rotationX*patternSize, point[1]+y*patternSize*2+rotationY*patternSize, patternSize, Math.PI*x, Math.PI*(x+1));
 					c.stroke();
 				}
 			}

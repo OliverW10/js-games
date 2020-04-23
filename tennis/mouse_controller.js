@@ -11,11 +11,12 @@ class mouseController{
 		this.offset = [[0, 0], [0, 0, 0]];
 		this.spinMult = [10, 25];
 		this.dragging = false;
+		this.ghost = 0;
 	}
 
 	getPosNewOld(mouseX, mouseY){ // USING THIS ONE
 		var x = (mouseX/canvas.width)-0.5;
-		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1.1, 0);
+		var y = scaleNumber(mouseY, 0, canvas.height, this.offset[1][1]+1.1, -0.2);
 		var z = scaleNumber(mouseY, 0, canvas.height, 1.5, 0.5);
 		return [x*1.5-cameraPos[0], clip(y, 0, 100), z-cameraPos[2]];
 	}
@@ -67,7 +68,7 @@ class mouseController{
 			}
 
 			var shotAngle = Math.atan2(this.velocity[0], this.velocity[2]);
-			var spinSpeed = Math.sqrt(this.velocity[0]**2+this.velocity[2]**2+this.velocity[1])*4;
+			var spinSpeed = Math.sqrt(this.velocity[0]**2+this.velocity[2]**2+this.velocity[1])*3.75;
 			// spinSpeed = Math.log(spinSpeed*+1);
 			this.spin = [Math.sin(shotAngle)*0.6, Math.cos(shotAngle)*-0.7*spinSpeed]
 		}
@@ -78,6 +79,7 @@ class mouseController{
 		if(dist(point[0], point[1], mousePos.x, mousePos.y) < point[2]*(balls[0].size+this.allowance) && mouseButtons[0] === true && this.dragging === false && balls[0].Z < 2){
 			this.dragging = true;
 			this.setOffset(balls[0].getPos()[0], balls[0].getPos()[1], balls[0].getPos()[2])
+			this.ghost = 1;
 		}
 
 		if(this.dragging === true){
@@ -104,6 +106,11 @@ class mouseController{
 		// c.lineTo(mousePos.x - Math.cos(angle2)*30, mousePos.y - Math.sin(angle2)*30);
 		// c.lineTo(mousePos.x - Math.cos(angle1)*60, mousePos.y - Math.sin(angle1)*60);
 		// c.stroke();
+
+		if(this.ghost > 0){
+			this.ghost -= 0.01;
+			balls[0].draw([this.offset[1][0], this.offset[1][1], this.offset[1][2]], [balls[0].Xangle, balls[0].Yangle], this.ghost);
+		}
 	}
 
 	getVelNew(){
@@ -117,7 +124,6 @@ class mouseController{
 		returnVel[0] -= playerVel[0];
 		returnVel[1] -= playerVel[1];
 		returnVel[2] -= playerVel[2];
-		console.log(returnVel);
 		return returnVel;
 	}
 
@@ -125,7 +131,6 @@ class mouseController{
 		this.velocity[0] -= playerVel[0];
 		this.velocity[1] -= playerVel[1];
 		this.velocity[2] -= playerVel[2];
-		console.log(this.velocity);
 		return this.velocity;
 	}
 
