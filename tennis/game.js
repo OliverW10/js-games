@@ -180,6 +180,11 @@ class Game{
 	}
 
 	menu(){
+		if(tonnisLoaded === true){
+			tonnisSound.play();
+			console.log("played sound");
+			tonnisLoaded = false;
+		}
 		this.background();
 		this.drawMenu(1);
 	}
