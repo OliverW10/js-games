@@ -99,8 +99,9 @@ var playerDrag = 0.1;
 var playerMaxSpeed = [0.02, 0, 0.015]
 
 var gravity = 0.003;
-var balls = [new Ball(0, 1, 1.5), new Ball(0, 0, 1.5)]; // origonally planned for multiple balls but so far only used one
+var balls = [new Ball(0, 1, 1.5), new Ball(0, 0, 1.5), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 // now contrary to the origonal purose it is now used to store the game AND menu bals
+// third ball is the ghost
 
 var mountainPoints = [];
 for(var i = 0; i<6; i+=1){
@@ -125,7 +126,6 @@ for(var i = 0; i<6; i+=1){
 mountainReflectionPoints.push([50, 50, 30]);
 mountainReflectionPoints.push([-50, 50, 30]);
 
-console.log(mountainReflectionPoints)
 var bounceSpots = []
 
 var vingette = 0.2;
@@ -303,10 +303,8 @@ class Game{
 		c.fill();
 	}
 	draw(){
+		balls[0].run();
 		comRacquetController.draw();
-		for(var i = 0; i < balls.length; i+=1){
-			balls[i].run();
-		}
 		renderer.drawDrifters()
 		if(balls[0].Z > 2){
 			balls[0].draw();
@@ -315,6 +313,7 @@ class Game{
 		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(0, 0, 0)", 10);
 		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(255, 255, 255)", 5);
 
+		playerRacquetController.draw();
 		if(balls[0].Z <= 2){
 			balls[0].draw();
 		}

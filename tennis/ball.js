@@ -206,12 +206,11 @@ class Ball{
 			this.apex = 0;
 		}
 
-		// this.hsl[0] += Math.abs((this.Xvel+this.Zvel+this.Yvel))*100;
-		this.hsl[0] = Math.max(this.hsl[0], 0);
+		this.hsl[1] = "50%";
 	}
 
-	draw(pos = false, angle = false, alpha = 1){
-		if(pos === false){
+	draw(shadow = true, alpha = 1){
+		if(true){ // left over from doing it a different way, remove later
 			var X = this.X;
 			var Y = this.Y;
 			var Z = this.Z;
@@ -222,7 +221,7 @@ class Ball{
 		}
 		// rotation renders looping
 		// done here so the menu ball spins
-		if(angle === false){
+		if(true){
 			this.Xangle += this.Xrot*gameSpeed;
 			this.Yangle += this.Yrot*gameSpeed;
 			if(this.Xangle > 2){
@@ -245,7 +244,7 @@ class Ball{
 		}
 
 		// shadow
-		if(pos === false){
+		if(shadow === true){
 			var shaPoint = projectPoint(X, 0, Z);
 			var shaPointX = projectPoint(X+this.courtSize, 0, Z);
 			var shaPointZ = projectPoint(X, 0, Z+this.courtSize);
@@ -262,9 +261,6 @@ class Ball{
 		}
 
 		var point = projectPoint(X, Y, Z);
-		if(pos !== false){
-			console.log(point);
-		}
 		var edgePoint = projectPoint(X+this.courtSize, Y, Z);
 		var frameSize = Math.abs(point[0]-edgePoint[0]);
 		var patternSize = frameSize*0.8

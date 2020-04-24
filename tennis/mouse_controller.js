@@ -80,6 +80,7 @@ class mouseController{
 			this.dragging = true;
 			this.setOffset(balls[0].getPos()[0], balls[0].getPos()[1], balls[0].getPos()[2])
 			this.ghost = 1;
+			balls[2].freeze(balls[0].getPos(), false);
 		}
 
 		if(this.dragging === true){
@@ -92,7 +93,6 @@ class mouseController{
 				this.dragging = false;
 			}
 		}
-		this.draw();
 	}
 
 	draw(){
@@ -109,7 +109,7 @@ class mouseController{
 
 		if(this.ghost > 0){
 			this.ghost -= 0.01;
-			balls[0].draw([this.offset[1][0], this.offset[1][1], this.offset[1][2]], [balls[0].Xangle, balls[0].Yangle], this.ghost);
+			balls[2].draw(false, this.ghost);
 		}
 	}
 
