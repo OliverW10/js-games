@@ -8,6 +8,7 @@ class AIController{
 		this.Y = 0.7;
 		this.Z = 3;
 		this.target = [-cameraPos[0], 0, -cameraPos[2]+0.7];
+		this.shotPower = dist(this.X, this.Z, this.target[0], this.target[2])*this.power*gravity*200
 		this.Xvel = 0;
 		this.Yvel = 0;
 		this.Zvel = 0;
@@ -54,9 +55,9 @@ class AIController{
 
 		this.angle = Math.atan2(this.target[0]-this.X, this.target[2]-this.Z)+Math.PI/2+random(-this.accuracy, this.accuracy);
 
-		var power = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*200;
+		this.shotPower = dist(X, Z, this.target[0], this.target[2])*this.power*gravity*200;
 
-		return [-power*Math.cos(this.angle), 0.07, power*Math.sin(this.angle)];
+		return [-this.shotPower*Math.cos(this.angle), 0.07, this.shotPower*Math.sin(this.angle)];
 	}
 	getSpin(){
 		return [random(-0.1, 0.1), this.spin]
@@ -109,7 +110,9 @@ class AIController{
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
 		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 1){
 			console.log("Ai shot   "+this.getVel(this.X, this.Y, this.Z));
-			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), -1)
+			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), -1);
+			playHit(this.shotPower);
+			console.log(this.shotPower);
 			this.cooldown = 10; // has to wait 10 frames between each hit
 		}
 	}

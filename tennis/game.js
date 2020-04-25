@@ -170,9 +170,11 @@ function flashText(text, colour, time = 1){
 	flashTextTrans = Math.min(time, 1);
 }
 
+var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
+
 class Game{
 	constructor(){
-		this.state = this.menu;
+		this.state = this.interact;
 	}
 
 	execute(){
@@ -180,10 +182,10 @@ class Game{
 	}
 
 	menu(){
-		if(tonnisLoaded === true){
-			tonnisSound.play();
-			console.log("played sound");
-			tonnisLoaded = false;
+		if(welcomePlayed === false){
+			if(playWelcome() === true){
+				welcomePlayed = true;
+			}
 		}
 		this.background();
 		this.drawMenu(1);
@@ -404,5 +406,17 @@ class Game{
 		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
 		c.fillStyle = grd;
 		c.fillRect(0, 0, canvas.width, canvas.height);
+	}
+	interact(){
+		c.fillStyle = "rgb(100, 100, 100)";
+		c.fillRect(0, 0, canvas.width, canvas.height);
+
+		showText("Click to start", canvas.width/2, canvas.height/2, canvas.height*0.1);
+		if(mouseButtons[0] === true){
+			lastMouseButtons[0] = true;
+		}
+		if(mouseButtons[0] === false && lastMouseButtons[0] === true){
+			this.state = this.menu;
+		}
 	}
 }

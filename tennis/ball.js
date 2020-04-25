@@ -207,6 +207,7 @@ class Ball{
 		}
 
 		this.hsl[1] = "50%";
+		this.hsl[0] = 100;
 	}
 
 	draw(shadow = true, alpha = 1){
