@@ -82,7 +82,7 @@ class mouseController{
 			this.ghost = 1;
 			balls[2].freeze(balls[0].getPos(), false);
 			balls[2].setAngle(balls[0].getAngle());
-			balls[2].hsl = balls[0].hsl;
+			balls[2].hsl = [balls[0].hsl[0], balls[0].hsl[1], balls[0].hsl[2]];
 		}
 
 		if(this.dragging === true){

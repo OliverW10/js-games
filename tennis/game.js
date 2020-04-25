@@ -187,8 +187,11 @@ class Game{
 				welcomePlayed = true;
 			}
 		}
-		this.background();
+		c.fillStyle = "rgb(255, 255, 255)";
+		c.fillRect(0, 0, canvas.width, canvas.height);
+		// this.background();
 		this.drawMenu(1);
+		this.overlay();
 	}
 
 	drawMenu(trans){
@@ -198,7 +201,7 @@ class Game{
 
 		if(this.state === this.menu){
 			menuPosAngle += 0.003;
-			cameraPosAim = [Math.sin(menuPosAngle)*5, 5, -5];
+			cameraPosAim = [Math.sin(menuPosAngle)*5, 1.5, -5];
 		}
 		menuTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.15, mousePos.x-canvas.width/2);
 		menuTextOffset = [Math.cos(menuTextOffsetAngle)*canvas.width*0.003, Math.sin(menuTextOffsetAngle)*canvas.width*0.003];
@@ -221,14 +224,13 @@ class Game{
 		}
 		menuPlayButton.draw(trans);
 		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
-		balls[1].freeze([-cameraPos[0]+0.5*dist, 5-1.4*dist, 5+dist], false);
+		balls[1].freeze([-cameraPos[0]+0.5*dist, cameraPos[1]-1.4*dist, 5+dist], false);
 		balls[1].draw();
 
 		if(skillChangeTrans > 0){
 			skillChangeTrans -= 0.003;
 			showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
 		}
-		this.overlay();
 	}
 
 	match(){

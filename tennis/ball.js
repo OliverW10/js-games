@@ -47,12 +47,12 @@ class Ball{
 		this.actualHitBy = by;
 		this.bounces = 0;
 
-		this.hsl[1] += 0.1;
-		this.hsl[2] += 0.01;
+		// this.hsl[1] += 0.1;
+		// this.hsl[2] += 0.01;
 		this.hsl[0] = random(0, 360);
 	}
 
-	freeze(newPos, smooth = true, alpha = 0.5){
+	freeze(newPos, smooth = true, alpha = 0.4){
 		this.Zvel = 0;
 		this.Xvel = 0;
 		this.Yvel = 0;
@@ -206,7 +206,7 @@ class Ball{
 			this.apex = 0;
 		}
 
-		this.hsl[0] += this.Zvel*20;
+		this.hsl[0] += this.Zvel*20*gameSpeed;
 	}
 	draw(shadow = true, alpha = 1){
 		if(true){ // left over from doing it a different way, remove later
@@ -314,7 +314,7 @@ class Ball{
 		this.loser = false;
 		this.actualHitBy = 0;
 		coloursRGB["ball"] = [75, 75, 75];
-		this.hsl = [0, 0.2, 0.5];
+		this.hsl = [random(0, 360), 1, 0.55];
 	}
 
 	getPos(){

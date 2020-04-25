@@ -1,21 +1,29 @@
 function drawPlayButton(X, Y, W, H, hovering, alpha){
+	var curveSize = canvas.height*0.05;
 	c.beginPath();
 	if(hovering === true){
-		c.fillStyle = "rgba(100, 100, 100, 1)";
+		c.fillStyle = "rgba(150, 150, 150, 1)";
 		var offset = [random(-2, 2), random(-2, 2)];
 	}else{
 		var offset = [0, 0];
-		c.fillStyle = "rgba(150, 150, 150, 0.6)";
+		c.fillStyle = "rgba(50, 50, 50, 1)";
 	}
-	c.moveTo(X+offset[0], Y+offset[1]);
-	c.lineTo(X+W+offset[0], Y+offset[1]);
-	c.lineTo(X+W+offset[0], Y+H*0.5+offset[1]);
-	c.arc(X+W+offset[0], Y+H+offset[1], H*0.45, Math.PI*1.5, Math.PI*1, true);
-	c.lineTo(X+offset[0], Y+H+offset[1]);
-	c.closePath();
+	c.moveTo(X+offset[0]+curveSize, Y+offset[1]);
+	c.lineTo(X+W+offset[0]-curveSize, Y+offset[1]);
+	c.quadraticCurveTo(X+W+offset[0], Y+offset[1], X+W+offset[0], Y+curveSize+offset[1]);
+	c.lineTo(X+W+offset[0], Y+H+offset[1]-curveSize*2);
+	c.quadraticCurveTo(X+W-curveSize*2+offset[0], Y+H-curveSize*2+offset[1], X+W-curveSize*2+offset[0], Y+H+offset[1]);
+	c.lineTo(X+offset[0]+curveSize, Y+H+offset[1]);
+	c.quadraticCurveTo(X+offset[0], Y+H, X+offset[0], Y+H-curveSize+offset[1]);
+	c.lineTo(X+offset[0], Y-curveSize+offset[1]);
+	c.quadraticCurveTo(X+offset[0], Y+offset[1], X+curveSize+offset[0], Y+offset[1]);
 	c.fill();
 
-	showText("Play", X+W/2+offset[0], Y+H*0.65+offset[1], W/4, "rgba(0, 0, 0, "+alpha+")", true, true);
+	if(hovering === true){
+		showText("Play", X+W/2+offset[0], Y+H*0.65+offset[1], W/4.2, "rgba(0, 0, 0, "+alpha+")", true, true);
+	}else{
+		showText("Play", X+W/2+offset[0], Y+H*0.65+offset[1], W/4, "rgba(150, 150, 150, "+alpha+")", true, true);
+	}
 }
 
 class Button{
