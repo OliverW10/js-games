@@ -47,15 +47,9 @@ class Ball{
 		this.actualHitBy = by;
 		this.bounces = 0;
 
-		if(this.actualHitBy === -1){
-			coloursRGB["ball"] = [255, 50, 50];
-		}
-		if(this.actualHitBy === 1){
-			coloursRGB["ball"] = [50, 50, 255];
-		}
-		if(this.actualHitBy === 0){
-			coloursRGB["ball"] = [75, 75, 75];
-		}
+		this.hsl[1] += 0.1;
+		this.hsl[2] += 0.01;
+		this.hsl[0] = random(0, 360);
 	}
 
 	freeze(newPos, smooth = true, alpha = 0.5){
@@ -73,7 +67,13 @@ class Ball{
 		}
 		this.stopped = true;
 	}
-
+	setAngle(angle){
+		this.Xangle = angle[0];
+		this.Yangle = angle[1];
+	}
+	getAngle(){
+		return [this.Xangle, this.Yangle]
+	}
 	continue(){
 		this.stopped = false;
 	}
@@ -206,10 +206,8 @@ class Ball{
 			this.apex = 0;
 		}
 
-		this.hsl[1] = "50%";
-		this.hsl[0] = 100;
+		this.hsl[0] += this.Zvel*20;
 	}
-
 	draw(shadow = true, alpha = 1){
 		if(true){ // left over from doing it a different way, remove later
 			var X = this.X;
@@ -272,7 +270,7 @@ class Ball{
 
 			var brightness = clip(scaleNumber(Math.abs(Y), 0, 1.5, 0.5, 0), 0, 0.4)*alpha;
 			var glow = c.createRadialGradient(point[0], point[1], frameSize/2, point[0], point[1], frameSize*3);
-			glow.addColorStop(0, "hsla("+this.hsl[0]+", "+this.hsl[1]+", "+this.hsl[2]+", "+brightness*alpha+")")
+			glow.addColorStop(0, hslCvt(this.hsl, brightness*alpha));
 			glow.addColorStop(1, "rgba(150, 150, 150, 0)")
 			c.fillStyle = glow;
 			c.fillRect(point[0]-frameSize*10, point[1]-frameSize*10, frameSize*20, frameSize*20);
@@ -283,7 +281,7 @@ class Ball{
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
 					c.beginPath();
-					c.strokeStyle = "hsla("+this.hsl[0]+", "+this.hsl[1]+","+this.hsl[2]+", "+alpha+")";
+					c.strokeStyle = hslCvt(this.hsl, alpha);
 					c.lineWidth = patternSize/3
 					c.arc(point[0]+x*patternSize*2+rotationX*patternSize, point[1]+y*patternSize*2+rotationY*patternSize, patternSize, Math.PI*x, Math.PI*(x+1));
 					c.stroke();
@@ -316,7 +314,7 @@ class Ball{
 		this.loser = false;
 		this.actualHitBy = 0;
 		coloursRGB["ball"] = [75, 75, 75];
-		this.hsl = [0, "100%", "50%", 1];
+		this.hsl = [0, 0.2, 0.5];
 	}
 
 	getPos(){
@@ -327,4 +325,9 @@ class Ball{
 		return [this.Xvel, this.Yvel, this.Zvel];
 	}
 
+}
+
+function hslCvt(nums, alpha){
+	// converts numbers to hsl string
+	return "hsla("+nums[0]+", "+nums[1]*100+"%, "+nums[2]*100+"%, "+alpha+")";
 }
