@@ -174,7 +174,7 @@ var lastMouseButtons = [false, false, false]; // what the state of mouse buttons
 
 class Game{
 	constructor(){
-		this.state = this.interact;
+		this.state = this.match;
 	}
 
 	execute(){
@@ -282,7 +282,7 @@ class Game{
 		}
 
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
-		this.overlay();
+		// this.overlay();
 	}
 
 
@@ -290,8 +290,8 @@ class Game{
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainReflectionPoints[range], false, true);
 			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
-			var dark = range**1.6*15-5;
-			var light = range**1.6*15+5;
+			var dark = range**1.6*15-50;
+			var light = range**1.6*15+50;
 			grd.addColorStop(0, "rgba("+dark+", "+dark+", "+dark+", 1)");
 			grd.addColorStop(1, "rgba("+light+", "+light+", "+light+", 1)");
 			c.fillStyle = "rgba("+dark+", "+dark+", "+dark+", 1)";
@@ -341,12 +341,14 @@ class Game{
 		// mountains
 		for(var range = mountainPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainPoints[range], false, true);
-			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
-			var dark = range**1.6*15-5;
-			var light = range**1.6*15+5;
+			var grd = c.createLinearGradient(0, 0, 0, canvas.height*0.3)
+			var dark = range**1.6*15-50;
+			var light = range**1.6*15+30;
 			grd.addColorStop(0, "rgb("+dark+", "+dark+", "+dark+")");
 			grd.addColorStop(1, "rgb("+light+", "+light+", "+light+")");
 			c.fillStyle = grd;
+			// c.fillStyle = dark;
+			// c.rect(mousePos.x, mousePos.y, canvas.width, canvas.height/2)
 			c.fill();
 		}
 
