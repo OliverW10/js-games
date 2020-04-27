@@ -174,7 +174,7 @@ var lastMouseButtons = [false, false, false]; // what the state of mouse buttons
 
 class Game{
 	constructor(){
-		this.state = this.match;
+		this.state = this.knockout;
 	}
 
 	execute(){
@@ -182,6 +182,11 @@ class Game{
 	}
 
 	menu(){
+		// will have three types of tournaments
+		// knock-out, classic winner goes forward best of 8 or 16
+		// round robbin, play everyone most points wins
+		// ladder get points for online leaderboard, maybe against a unique ultra hard ai
+		// you have to pay for each game (like btd battles)
 		if(welcomePlayed === false){
 			if(playWelcome() === true){
 				welcomePlayed = true;
@@ -189,17 +194,28 @@ class Game{
 		}
 		c.fillStyle = "rgb(255, 255, 255)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
+
+		if(this.state === this.menu){
+			if(menuPlayButton.update() === true){
+				score = [0, 0];
+				changeSkill(skill);
+				this.state = this.comp;
+				cameraPosAim = [0, 1, -0.4];
+				return true;
+			}
+		}
+
 		// this.background();
 		this.drawMenu(1);
 		this.overlay();
 	}
 
 	drawMenu(trans){
-		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
-		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
-		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
-
 		if(this.state === this.menu){
+			cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+			cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+			cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
+
 			menuPosAngle += 0.003;
 			cameraPosAim = [Math.sin(menuPosAngle)*5, 1.5, -5];
 		}
@@ -213,15 +229,6 @@ class Game{
 		showText("Skill: "+round(skill*100), canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.07, "rgba(0, 0, 0, "+trans+")", true, true);
 		showText("Skill: "+round(skill*100), canvas.width/2, canvas.height*0.9, canvas.width*0.07, "rgba(255, 255, 255, "+trans+")", true, true);
 
-		if(this.state === this.menu){
-			if(menuPlayButton.update() === true){
-				score = [0, 0];
-				changeSkill(skill);
-				this.state = this.match;
-				cameraPosAim = [0, 1, -0.4];
-				return true;
-			}
-		}
 		menuPlayButton.draw(trans);
 		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
 		balls[1].freeze([-cameraPos[0]+0.5*dist, cameraPos[1]-1.4*dist, 5+dist], false);
@@ -232,7 +239,21 @@ class Game{
 			showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
 		}
 	}
+	knockout(){
+		showText("Untitiled competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
+		c.beginPath();
+		c.strokeStyle = "rgb(150, 150, 150)";
+		c.lineWidth = canvas.height*0.004;
+		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1);
+		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1);
+		c.moveTo(canvas.width*0.4, canvas.height*0.6);
+		c.lineTo(canvas.width*0.49, canvas.height*0.6);
 
+		c.moveTo(canvas.width*0.6, canvas.height*0.6);
+		c.lineTo(canvas.width*0.51, canvas.height*0.6);
+		c.stroke();
+		this.overlay();
+	}
 	match(){
 		// camera movement
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
@@ -282,7 +303,7 @@ class Game{
 		}
 
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
-		// this.overlay();
+		this.overlay();
 	}
 
 
@@ -342,13 +363,11 @@ class Game{
 		for(var range = mountainPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainPoints[range], false, true);
 			var grd = c.createLinearGradient(0, 0, 0, canvas.height*0.3)
-			var dark = range**1.6*15-50;
-			var light = range**1.6*15+30;
+			var dark = range**1.6*15-100;
+			var light = range**1.6*15+50;
 			grd.addColorStop(0, "rgb("+dark+", "+dark+", "+dark+")");
 			grd.addColorStop(1, "rgb("+light+", "+light+", "+light+")");
 			c.fillStyle = grd;
-			// c.fillStyle = dark;
-			// c.rect(mousePos.x, mousePos.y, canvas.width, canvas.height/2)
 			c.fill();
 		}
 
@@ -411,7 +430,7 @@ class Game{
 		c.fillStyle = grd;
 		c.fillRect(0, 0, canvas.width, canvas.height);
 	}
-	interact(){
+	start(){
 		c.fillStyle = "rgb(100, 100, 100)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -422,5 +441,25 @@ class Game{
 		if(mouseButtons[0] === false && lastMouseButtons[0] === true){
 			this.state = this.menu;
 		}
+	}
+}
+
+var knockoutBoardRatio = 0.8;
+var knockoutBoardDepth = 2; // 2 is 16, 3 is 32
+
+function drawSplit(X, Y, size, dir, depth = 0){ // recusion
+	if(depth >= knockoutBoardDepth){
+		c.moveTo(X-size*dir*3, Y-size*knockoutBoardRatio);
+		c.lineTo(X, Y-size*knockoutBoardRatio);
+		c.lineTo(X, Y+size*knockoutBoardRatio);
+		c.lineTo(X-size*dir*3, Y+size*knockoutBoardRatio);
+	}else{
+		c.moveTo(X-size*dir, Y-size*knockoutBoardRatio);
+		c.lineTo(X, Y-size*knockoutBoardRatio);
+		c.lineTo(X, Y+size*knockoutBoardRatio);
+		c.lineTo(X-size*dir, Y+size*knockoutBoardRatio);
+
+		drawSplit(X-size*dir, Y-size*knockoutBoardRatio, size*0.5, dir, depth+1);
+		drawSplit(X-size*dir, Y+size*knockoutBoardRatio, size*0.5, dir, depth+1);
 	}
 }
