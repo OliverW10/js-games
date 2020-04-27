@@ -174,13 +174,13 @@ var lastMouseButtons = [false, false, false]; // what the state of mouse buttons
 
 class Game{
 	constructor(){
-		this.state = this.knockout;
+		this.state = this.start;
+		this.currentComp = false;
 	}
 
 	execute(){
 		this.state();
 	}
-
 	menu(){
 		// will have three types of tournaments
 		// knock-out, classic winner goes forward best of 8 or 16
@@ -199,7 +199,7 @@ class Game{
 			if(menuPlayButton.update() === true){
 				score = [0, 0];
 				changeSkill(skill);
-				this.state = this.comp;
+				this.state = this.knockout;
 				cameraPosAim = [0, 1, -0.4];
 				return true;
 			}
@@ -209,7 +209,6 @@ class Game{
 		this.drawMenu(1);
 		this.overlay();
 	}
-
 	drawMenu(trans){
 		if(this.state === this.menu){
 			cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
@@ -239,19 +238,8 @@ class Game{
 			showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
 		}
 	}
-	knockout(){
-		showText("Untitiled competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
-		c.beginPath();
-		c.strokeStyle = "rgb(150, 150, 150)";
-		c.lineWidth = canvas.height*0.004;
-		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1);
-		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1);
-		c.moveTo(canvas.width*0.4, canvas.height*0.6);
-		c.lineTo(canvas.width*0.49, canvas.height*0.6);
-
-		c.moveTo(canvas.width*0.6, canvas.height*0.6);
-		c.lineTo(canvas.width*0.51, canvas.height*0.6);
-		c.stroke();
+	comp(){
+		this.currentComp();
 		this.overlay();
 	}
 	match(){
@@ -441,25 +429,5 @@ class Game{
 		if(mouseButtons[0] === false && lastMouseButtons[0] === true){
 			this.state = this.menu;
 		}
-	}
-}
-
-var knockoutBoardRatio = 0.8;
-var knockoutBoardDepth = 2; // 2 is 16, 3 is 32
-
-function drawSplit(X, Y, size, dir, depth = 0){ // recusion
-	if(depth >= knockoutBoardDepth){
-		c.moveTo(X-size*dir*3, Y-size*knockoutBoardRatio);
-		c.lineTo(X, Y-size*knockoutBoardRatio);
-		c.lineTo(X, Y+size*knockoutBoardRatio);
-		c.lineTo(X-size*dir*3, Y+size*knockoutBoardRatio);
-	}else{
-		c.moveTo(X-size*dir, Y-size*knockoutBoardRatio);
-		c.lineTo(X, Y-size*knockoutBoardRatio);
-		c.lineTo(X, Y+size*knockoutBoardRatio);
-		c.lineTo(X-size*dir, Y+size*knockoutBoardRatio);
-
-		drawSplit(X-size*dir, Y-size*knockoutBoardRatio, size*0.5, dir, depth+1);
-		drawSplit(X-size*dir, Y+size*knockoutBoardRatio, size*0.5, dir, depth+1);
 	}
 }
