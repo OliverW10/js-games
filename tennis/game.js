@@ -172,6 +172,8 @@ function flashText(text, colour, time = 1){
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 
+var testComp = new Competition("knockout", 16);
+
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -199,7 +201,7 @@ class Game{
 			if(menuPlayButton.update() === true){
 				score = [0, 0];
 				changeSkill(skill);
-				this.state = this.knockout;
+				this.state = this.pickComp;
 				cameraPosAim = [0, 1, -0.4];
 				return true;
 			}
@@ -239,8 +241,12 @@ class Game{
 		}
 	}
 	comp(){
-		this.currentComp();
+		this.currentComp.update();
 		this.overlay();
+	}
+	pickComp(){
+		this.state = this.comp;
+		this.currentComp = testComp;
 	}
 	match(){
 		// camera movement

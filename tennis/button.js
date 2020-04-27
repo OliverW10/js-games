@@ -70,8 +70,9 @@ class Button{
 
 var knockoutBoardRatio = 0.8;
 var knockoutBoardDepth = 2; // 2 is 16, 3 is 32
+var nameCounter = 0;
 
-function drawSplit(X, Y, size, dir, depth = 0){ // recusion
+function drawSplit(X, Y, size, dir, names, depth = 0){ // recusion
 	c.beginPath();
 	c.strokeStyle = "rgb(150, 150, 150)";
 	c.lineWidth = canvas.height*0.004;
@@ -81,8 +82,9 @@ function drawSplit(X, Y, size, dir, depth = 0){ // recusion
 		c.lineTo(X, Y+size*knockoutBoardRatio);
 		c.lineTo(X-size*dir*3, Y+size*knockoutBoardRatio);
 		c.stroke();
-		showText(all_names[round(random(0, 2000))], X-size*dir*1.5, Y+size*knockoutBoardRatio-size*0.1, size*0.6, "rgb(0, 0, 0)", false);
-		showText(all_names[round(random(0, 2000))], X-size*dir*1.5, Y-size*knockoutBoardRatio-size*0.1, size*0.6, "rgb(0, 0, 0)", false);
+		showText(names[nameCounter], X-size*dir*1.5, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", false);
+		showText(names[nameCounter+1], X-size*dir*1.5, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", false);
+		nameCounter += 2;
 	}else{
 		c.moveTo(X-size*dir, Y-size*knockoutBoardRatio);
 		c.quadraticCurve
@@ -91,12 +93,12 @@ function drawSplit(X, Y, size, dir, depth = 0){ // recusion
 		c.lineTo(X-size*dir, Y+size*knockoutBoardRatio);
 		c.stroke();
 
-		drawSplit(X-size*dir, Y-size*knockoutBoardRatio, size*0.5, dir, depth+1);
-		drawSplit(X-size*dir, Y+size*knockoutBoardRatio, size*0.5, dir, depth+1);
+		drawSplit(X-size*dir, Y-size*knockoutBoardRatio, size*0.5, dir, names, depth+1);
+		drawSplit(X-size*dir, Y+size*knockoutBoardRatio, size*0.5, dir, names, depth+1);
 	}
 }
 
-class competition{ // for round robbin and kockout competitons
+class Competition{ // for round robbin and kockout competitons
 	constructor(type, players){
 		this.names = getNames(players)
 		this.type = type;
@@ -105,12 +107,13 @@ class competition{ // for round robbin and kockout competitons
 		}else{
 			this.draw = this.drawRobbin
 		}
-		this.playButton([0.35, 0.7, 0.4, 0.15], drawPlayButton);
+		this.playButton = new Button([0.35, 0.7, 0.4, 0.15], drawPlayButton);
 	}
 	drawKnockout(){
+		nameCounter = 0;
 		showText("Untitiled competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
-		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1);
-		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1);
+		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1, this.names);
+		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1, this.names);
 
 		c.beginPath();
 		c.strokeStyle = "rgb(150, 150, 150)";
