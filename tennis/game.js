@@ -172,7 +172,7 @@ function flashText(text, colour, time = 1){
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 
-var testComp = new Competition("knockout", 16);
+var testComp = new Competition("knockout", 8);
 
 class Game{
 	constructor(){
@@ -241,7 +241,9 @@ class Game{
 		}
 	}
 	comp(){
-		this.currentComp.update();
+		if(this.currentComp.update() === true){
+			this.state = this.match;
+		}
 		this.overlay();
 	}
 	pickComp(){
@@ -279,10 +281,15 @@ class Game{
 		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
 		if((score[0] >= 4 && score[0] > score[1]+1)||
 			score[1] >= 4 && score[1] > score[0]+1){
-			skillChange = Math.sign(score[0]-score[1])/2+(score[0]-score[1])/3;
-			skill += skillChange;
-			skillChangeTrans = 1;
-			this.state = this.menu;
+			// skillChange = Math.sign(score[0]-score[1])/2+(score[0]-score[1])/3;
+			// skill += skillChange;
+			// skillChangeTrans = 1;
+			if(score[0] > score[1]){
+				this.currentComp.won();
+			}else{
+				this.currentComp.lost();
+			}
+			this.state = this.comp;
 			menuPlayButton.reset();
 
 			if(score[0] > score[1]){

@@ -123,7 +123,8 @@ function showText(text, X, Y, Size, colour = "rgb(0, 0, 0)", bold = false, strok
 	if(stroke === false){
 		c.fillStyle=colour;
 		c.fillText(text, X, Y);
-	}else{
+	}
+	if(stroke === true){
 		c.lineWidth = Size/25;
 		c.strokeStyle = colour;
 		c.strokeText(text, X, Y)

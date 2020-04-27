@@ -26,6 +26,23 @@ function drawPlayButton(X, Y, W, H, hovering, alpha){
 	}
 }
 
+function drawMatchButton(X, Y, W, H, hovering, alpha){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	showText("GO", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
+	showText("GO", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
+}
+
 class Button{
 	// will cann a draw function with a rect argument and manage the hovering and click detection
 	constructor(rect, drawFunc){
@@ -52,8 +69,9 @@ class Button{
 		}else{
 			this.state = 0;
 		}
+		return false
 	}
-	draw(alpha){
+	draw(alpha = 1){
 		// this.drawFunc(this.X + this.state*this.W*this.clickRatio/2, this.Y + this.state*this.H*this.clickRatio/2, this.W*(1-this.clickRatio*this.state), this.H*(1-this.clickRatio*this.state), !!this.state);
 		this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
 			this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
@@ -61,15 +79,14 @@ class Button{
 			this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
 			!!this.state,
 			alpha);
-		return false
 	}
 	reset(){
 		this.state = 0;
 	}
 }
 
+var knockoutBoardDepth = 6;
 var knockoutBoardRatio = 0.8;
-var knockoutBoardDepth = 2; // 2 is 16, 3 is 32
 var nameCounter = 0;
 
 function drawSplit(X, Y, size, dir, names, depth = 0){ // recusion
@@ -82,8 +99,8 @@ function drawSplit(X, Y, size, dir, names, depth = 0){ // recusion
 		c.lineTo(X, Y+size*knockoutBoardRatio);
 		c.lineTo(X-size*dir*3, Y+size*knockoutBoardRatio);
 		c.stroke();
-		showText(names[nameCounter], X-size*dir*1.5, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", false);
-		showText(names[nameCounter+1], X-size*dir*1.5, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", false);
+		showText(names[nameCounter], X-size*dir*1.5, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[nameCounter] === "You");
+		showText(names[nameCounter+1], X-size*dir*1.5, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[nameCounter+1] === "You");
 		nameCounter += 2;
 	}else{
 		c.moveTo(X-size*dir, Y-size*knockoutBoardRatio);
@@ -101,17 +118,25 @@ function drawSplit(X, Y, size, dir, names, depth = 0){ // recusion
 class Competition{ // for round robbin and kockout competitons
 	constructor(type, players){
 		this.names = getNames(players)
+		this.player = Math.floor(random(0, players));
+		this.names[this.player] = "You";
 		this.type = type;
 		if(type === "knockout"){
-			this.draw = this.drawKnockout
-		}else{
-			this.draw = this.drawRobbin
+			knockoutBoardDepth = Math.floor(Math.log2(players)-2);
+			this.draw = this.drawKnockout;
+			this.progress = 0;
 		}
-		this.playButton = new Button([0.35, 0.7, 0.4, 0.15], drawPlayButton);
+		if(type === "robbin"){
+			this.points = createArray(players, 0);
+			this.draw = this.drawRobbin;
+		}
+		this.draw = this.drawKnockout;
+		this.playButton = new Button([0.35, 0.2, 0.3, 0.2], drawMatchButton);
+		this.sillGoing = true;
 	}
 	drawKnockout(){
 		nameCounter = 0;
-		showText("Untitiled competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
+		showText("Knock-out competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
 		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1, this.names);
 		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1, this.names);
 
@@ -129,10 +154,28 @@ class Competition{ // for round robbin and kockout competitons
 	}
 	update(){
 		this.draw();
+		this.playButton.draw(1);
 		if(this.playButton.update() === true){
 			return true
 		}else{
 			return false
+		}
+	}
+
+	won(){
+		if(this.type === "knockout"){
+			this.progress += 1;
+		}
+		if(this.type === "robbin"){
+			this.points[this.player] -= 1;
+		}
+	}
+	lost(){
+		if(this.type === "knockout"){
+			this.stillGoing = false;
+		}
+		if(this.type === "robbin"){
+			this.points[this.player] -= 1;
 		}
 	}
 }

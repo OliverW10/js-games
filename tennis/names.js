@@ -2,8 +2,11 @@ var all_names = ["Aaran", "Aaren", "Aarez", "Aarman", "Aaron", "Aaron-James", "A
 function getNames(amount){
 	var names = [];
 	for(var i = 0; i < amount; i += 1){
-		names.push(all_names[Math.floor(Math.random()*all_names.length)])
+		if(Math.random() > 0.97){
+			names.push(all_names[Math.floor(Math.random()*all_names.length)] + "-" + all_names[Math.floor(Math.random()*all_names.length)]);
+		}else{
+			names.push(all_names[Math.floor(Math.random()*all_names.length)]);
+		}
 	}
 	return names
 }
-console.log(getNames(100));
