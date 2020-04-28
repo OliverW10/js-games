@@ -110,7 +110,7 @@ class mouseController{
 		// c.stroke();
 
 		if(this.ghost > 0){
-			this.ghost -= 0.01;
+			this.ghost -= 0.03;
 			balls[2].draw(false, this.ghost);
 		}
 	}

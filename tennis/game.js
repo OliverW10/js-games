@@ -137,7 +137,6 @@ var playerRacquetController = new mouseController();
 function changeSkill(newSkill){
 	skill = newSkill;
 	comRacquetController.setDifficulty(newSkill);
-	console.log(comRacquetController);
 }
 
 var vanishingPointPos = [0.5, 0.3];
@@ -172,7 +171,7 @@ function flashText(text, colour, time = 1){
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 
-var testComp = new Competition("knockout", 8);
+var testComp = new Competition("knockout", 32);
 
 class Game{
 	constructor(){
@@ -242,6 +241,7 @@ class Game{
 	}
 	comp(){
 		if(this.currentComp.update() === true){
+			score = [0, 0];
 			this.state = this.match;
 		}
 		this.overlay();

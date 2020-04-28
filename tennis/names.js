@@ -10,3 +10,11 @@ function getNames(amount){
 	}
 	return names
 }
+var used_names = []; // so that you dont get the same name twice
+function getName(){
+	var name = all_names[Math.floor(Math.random()*all_names.length)]
+	while(used_names.includes(name) === true){
+		name = all_names[Math.floor(Math.random()*all_names.length)]
+	}
+	return name
+}

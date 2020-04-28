@@ -85,22 +85,22 @@ class Button{
 	}
 }
 
-var knockoutBoardDepth = 6;
+var knockoutBoardDepth = 3;
 var knockoutBoardRatio = 0.8;
 var nameCounter = 0;
 
-function drawSplit(X, Y, size, dir, names, depth = 0){ // recusion
+function drawSplit(X, Y, size, dir, names, progress=0, depth = 0){ // recusion
 	c.beginPath();
 	c.strokeStyle = "rgb(150, 150, 150)";
 	c.lineWidth = canvas.height*0.004;
-	if(depth >= knockoutBoardDepth){
-		c.moveTo(X-size*dir*3, Y-size*knockoutBoardRatio);
+	if(depth >= knockoutBoardDepth-progress){
+		c.moveTo(X-size*dir*2, Y-size*knockoutBoardRatio);
 		c.lineTo(X, Y-size*knockoutBoardRatio);
 		c.lineTo(X, Y+size*knockoutBoardRatio);
-		c.lineTo(X-size*dir*3, Y+size*knockoutBoardRatio);
+		c.lineTo(X-size*dir*2, Y+size*knockoutBoardRatio);
 		c.stroke();
-		showText(names[nameCounter], X-size*dir*1.5, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[nameCounter] === "You");
-		showText(names[nameCounter+1], X-size*dir*1.5, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[nameCounter+1] === "You");
+		showText(names[0], X-size*dir*1, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[progress][nameCounter] === "You");
+		showText(names[1], X-size*dir*1, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[progress][nameCounter+1] === "You");
 		nameCounter += 2;
 	}else{
 		c.moveTo(X-size*dir, Y-size*knockoutBoardRatio);
@@ -110,8 +110,24 @@ function drawSplit(X, Y, size, dir, names, depth = 0){ // recusion
 		c.lineTo(X-size*dir, Y+size*knockoutBoardRatio);
 		c.stroke();
 
-		drawSplit(X-size*dir, Y-size*knockoutBoardRatio, size*0.5, dir, names, depth+1);
-		drawSplit(X-size*dir, Y+size*knockoutBoardRatio, size*0.5, dir, names, depth+1);
+		showText(names[0], X-size*dir*1, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[knockoutBoardDepth - depth + progress][nameCounter] === "You");
+		showText(names[1], X-size*dir*1, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[knockoutBoardDepth - depth + progress][nameCounter+1] === "You");
+
+		drawSplit(X-size*dir, Y-size*knockoutBoardRatio, size*0.5, dir, names[2], progress, depth+1);
+		drawSplit(X-size*dir, Y+size*knockoutBoardRatio, size*0.5, dir, names[3], progress, depth+1);
+	}
+}
+
+function addLayer(current, depth = 0){
+	if(depth < knockoutBoardDepth+5){
+		var newName = getName()
+		if(random(0, 1) > 0.5){	
+			return [newName, current, addLayer(current, depth+1), addLayer(newName, depth+1)]
+		}else{
+			return [current, newName, addLayer(newName, depth+1), addLayer(current, depth+1)]
+		}
+	}else{
+		return [current, newName]
 	}
 }
 
@@ -125,6 +141,9 @@ class Competition{ // for round robbin and kockout competitons
 			knockoutBoardDepth = Math.floor(Math.log2(players)-2);
 			this.draw = this.drawKnockout;
 			this.progress = 0;
+			this.tree = addLayer("You");
+			
+			console.log(this.tree);
 		}
 		if(type === "robbin"){
 			this.points = createArray(players, 0);
@@ -137,8 +156,8 @@ class Competition{ // for round robbin and kockout competitons
 	drawKnockout(){
 		nameCounter = 0;
 		showText("Knock-out competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
-		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1, this.names);
-		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1, this.names);
+		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1, this.tree[2], this.progress);
+		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1, this.tree[3], this.progress);
 
 		c.beginPath();
 		c.strokeStyle = "rgb(150, 150, 150)";
@@ -169,6 +188,7 @@ class Competition{ // for round robbin and kockout competitons
 		if(this.type === "robbin"){
 			this.points[this.player] -= 1;
 		}
+		this.playButton.reset();
 	}
 	lost(){
 		if(this.type === "knockout"){
@@ -177,5 +197,6 @@ class Competition{ // for round robbin and kockout competitons
 		if(this.type === "robbin"){
 			this.points[this.player] -= 1;
 		}
+		this.playButton.reset();
 	}
 }

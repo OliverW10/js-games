@@ -221,8 +221,8 @@ class Ball{
 		// rotation renders looping
 		// done here so the menu ball spins
 		if(true){
-			this.Xangle += this.Xrot*gameSpeed;
-			this.Yangle += this.Yrot*gameSpeed;
+			this.Xangle += this.Xrot*gameSpeed*3;
+			this.Yangle += this.Yrot*gameSpeed*3;
 			if(this.Xangle > 2){
 				this.Xangle = -2;
 			}
@@ -276,7 +276,9 @@ class Ball{
 			c.fillRect(point[0]-frameSize*10, point[1]-frameSize*10, frameSize*20, frameSize*20);
 			
 			c.beginPath();
-			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);;
+			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);
+			c.fillStyle = "rgba(250, 250, 250, "+alpha+")";
+			c.fill();
 			c.clip();
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){
