@@ -199,12 +199,16 @@ function drawCorners(rect){
 	c.stroke();
 }
 
-function scaleNumber(n, x1, x2, z1, z2){
+function scaleNumber(n, x1, x2, z1, z2, clip = false){
 	var range1 = x2-x1;
 	var range2 = z2-z1;
 	var ratio = (n - x1) / range1
     var result = ratio * range2 + z1
-    return result;
+    if(clip === true){
+    	return clip(result, z1, z2);
+    }else{
+    	return result;
+    }
 }
 
 function dist(X1, Y1, X2, Y2){

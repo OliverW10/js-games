@@ -90,28 +90,30 @@ var knockoutBoardRatio = 0.8;
 var nameCounter = 0;
 
 function drawSplit(X, Y, size, dir, names, progress=0, depth = 0){ // recusion
+	var partHorz = clip((1-progress%1)*2-1, 0, 1);
+	var partVert = clip((1-progress%1)*2, 0, 1)
 	c.beginPath();
 	c.strokeStyle = "rgb(150, 150, 150)";
 	c.lineWidth = canvas.height*0.004;
-	if(depth >= knockoutBoardDepth-progress){
-		c.moveTo(X-size*dir*2, Y-size*knockoutBoardRatio);
-		c.lineTo(X, Y-size*knockoutBoardRatio);
-		c.lineTo(X, Y+size*knockoutBoardRatio);
-		c.lineTo(X-size*dir*2, Y+size*knockoutBoardRatio);
+	if(depth >= Math.floor(knockoutBoardDepth-progress)){
+		c.moveTo(X-size*dir*1.5*partHorz, Y-size*knockoutBoardRatio*partVert);
+		c.lineTo(X, Y-size*knockoutBoardRatio*partVert);
+		c.lineTo(X, Y+size*knockoutBoardRatio*partVert);
+		c.lineTo(X-size*dir*1.5*partHorz, Y+size*knockoutBoardRatio*partVert);
 		c.stroke();
-		showText(names[0], X-size*dir*1, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[progress][nameCounter] === "You");
-		showText(names[1], X-size*dir*1, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[progress][nameCounter+1] === "You");
+		showText(names[0], X-size*dir*1*partHorz, Y+size*knockoutBoardRatio*partVert-size*0.1, size*0.45, "rgb(0, 0, 0)", names[0] === "You");
+		showText(names[1], X-size*dir*1*partHorz, Y-size*knockoutBoardRatio*partVert-size*0.1, size*0.45, "rgb(0, 0, 0)", names[1] === "You");
 		nameCounter += 2;
 	}else{
 		c.moveTo(X-size*dir, Y-size*knockoutBoardRatio);
-		c.quadraticCurve
 		c.lineTo(X, Y-size*knockoutBoardRatio);
 		c.lineTo(X, Y+size*knockoutBoardRatio);
 		c.lineTo(X-size*dir, Y+size*knockoutBoardRatio);
 		c.stroke();
 
-		showText(names[0], X-size*dir*1, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[knockoutBoardDepth - depth + progress][nameCounter] === "You");
-		showText(names[1], X-size*dir*1, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[knockoutBoardDepth - depth + progress][nameCounter+1] === "You");
+		// if(progress)
+		// showText(names[0], X-size*dir*1*partHorz, Y+size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[0] === "You");
+		// showText(names[1], X-size*dir*1*partHorz, Y-size*knockoutBoardRatio-size*0.1, size*0.45, "rgb(0, 0, 0)", names[1] === "You");
 
 		drawSplit(X-size*dir, Y-size*knockoutBoardRatio, size*0.5, dir, names[2], progress, depth+1);
 		drawSplit(X-size*dir, Y+size*knockoutBoardRatio, size*0.5, dir, names[3], progress, depth+1);
@@ -172,6 +174,7 @@ class Competition{ // for round robbin and kockout competitons
 
 	}
 	update(){
+		this.progress = (mousePos.x/canvas.width)*3.5;
 		this.draw();
 		this.playButton.draw(1);
 		if(this.playButton.update() === true){

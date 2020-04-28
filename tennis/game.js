@@ -171,7 +171,7 @@ function flashText(text, colour, time = 1){
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 
-var testComp = new Competition("knockout", 32);
+var testComp = new Competition("knockout", 64);
 
 class Game{
 	constructor(){
