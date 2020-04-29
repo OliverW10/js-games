@@ -30,11 +30,15 @@ class AIController{
 		this.power = 0.03+power/300
 		this.spin = power*0.07
 		this.speed = 0.001+0.0002*this.difficulty;
+		this.boost = 0;
 		this.trials = this.difficulty**1.4; // how many times to try 
 		this.predictionRate = 0.01;
 		this.predict = 0;
 	}
-
+	speedUp(){
+		this.boost += 0.001;
+		console.log(this.boost)
+	}
 	evaluateShot(enemyPos, target){
 		var playerDist = scaleNumber(dist(enemyPos[0], enemyPos[2], target[0], target[2]), 0, 1.5, 0, 1);
 		// var safeness = scaleNumber(dist(0, 1.2, target[0], target[2]), 0, 1.5, 0, 1);
@@ -91,16 +95,16 @@ class AIController{
 		this.Yvel *= 1-0.1*gameSpeed;
 
 		// going to aims
-		this.Xvel += Math.sign(this.aimX - this.X)*(Math.abs(this.aimX-this.X)+0.75)*gameSpeed*this.speed;
+		this.Xvel += Math.sign(this.aimX - this.X)*(Math.abs(this.aimX-this.X)+0.75)*gameSpeed*(this.speed+this.boost);
 		if(this.Z < this.aimZ){
-			this.Zvel += this.speed*gameSpeed;
+			this.Zvel += (this.speed+this.boost)*gameSpeed;
 		}else{
-			this.Zvel -= this.speed*gameSpeed;
+			this.Zvel -= (this.speed+this.boost)*gameSpeed;
 		}
 		if(this.Y < this.aimY){
-			this.Yvel += this.speed*gameSpeed;
+			this.Yvel += (this.speed+this.boost)*gameSpeed;
 		}else{
-			this.Yvel -= this.speed*gameSpeed;
+			this.Yvel -= (this.speed+this.boost)*gameSpeed;
 		}
 
 		this.X += this.Xvel*gameSpeed;
@@ -110,6 +114,7 @@ class AIController{
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
 		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 1){
 			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), -1);
+			this.boost = 0;
 			playHit(this.shotPower);
 			this.cooldown = 10; // has to wait 10 frames between each hit
 		}

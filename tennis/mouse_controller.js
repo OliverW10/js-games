@@ -93,8 +93,10 @@ class mouseController{
 				balls[0].continue();
 				balls[0].hit(this.getVel(), this.getSpin(), 1);
 				this.dragging = false;
+				return true
 			}
 		}
+		return false
 	}
 
 	draw(){

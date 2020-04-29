@@ -137,6 +137,7 @@ var playerRacquetController = new mouseController();
 function changeSkill(newSkill){
 	skill = newSkill;
 	comRacquetController.setDifficulty(newSkill);
+	console.log(comRacquetController)
 }
 
 var vanishingPointPos = [0.5, 0.3];
@@ -171,7 +172,12 @@ function flashText(text, colour, time = 1){
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 
-var testComp = new Competition("knockout", 64);
+var testKnockoutComp = new Competition("knockout", 64);
+var testRobbinComp = new Competition("robbin", 8)
+
+var knockoutButton = new Button([0.05, 0.1, 0.4, 0.6], drawKnockoutButton);
+var robbinButton = new Button([0.55, 0.1, 0.4, 0.6], drawRobbinButton);
+var onlineButton = new Button([0.05, 0.75, 0.9, 0.2], drawOnlineButton);
 
 class Game{
 	constructor(){
@@ -242,13 +248,22 @@ class Game{
 	comp(){
 		if(this.currentComp.update() === true){
 			score = [0, 0];
+			changeSkill(this.currentComp.getSkill())
 			this.state = this.match;
 		}
 		this.overlay();
 	}
 	pickComp(){
-		this.state = this.comp;
-		this.currentComp = testComp;
+		if(knockoutButton.update() === true){
+			this.currentComp = testKnockoutComp;
+			this.state = this.comp;
+		}
+		if(robbinButton.update() === true){
+			this.currentComp = testRobbinComp;
+			this.state = this.comp;
+		}
+		knockoutButton.draw(1);
+		robbinButton.draw(1);
 	}
 	match(){
 		// camera movement
@@ -261,7 +276,9 @@ class Game{
 		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
 		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
 
-		playerRacquetController.update();
+		if( playerRacquetController.update() === true){
+			comRacquetController.speedUp();
+		}
 		comRacquetController.update();
 
 		// drawing

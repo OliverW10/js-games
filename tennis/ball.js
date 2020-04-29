@@ -302,8 +302,8 @@ class Ball{
 		this.Zvel = 0 //(Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
-		this.Xrot = 0.02*0; // the roational speed of the ball
-		this.Yrot = -0.05*0;
+		this.Xrot = 0.02*0.1; // the roational speed of the ball
+		this.Yrot = -0.05*0.1;
 		this.lastX = 0;
 		this.lastY = 0;
 		this.lastZ = 0;

@@ -26,7 +26,7 @@ function drawPlayButton(X, Y, W, H, hovering, alpha){
 	}
 }
 
-function drawMatchButton(X, Y, W, H, hovering, alpha){
+function drawGoButton(X, Y, W, H, hovering, alpha){
 	c.beginPath();
 	if(hovering === true){
 		c.fillStyle = "rgb(150, 150, 150)";
@@ -41,6 +41,63 @@ function drawMatchButton(X, Y, W, H, hovering, alpha){
 	c.fill();
 	showText("GO", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
 	showText("GO", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
+}
+
+function drawRobbinButton(X, Y, W, H, hovering, alpha){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	showText("Round-robbin", X+W/2, Y+H*0.5, H/7, "rgb(200, 200, 200)", true, false);
+	showText("Round-robbin", X+W/2, Y+H*0.5, H/7, "rgb(100, 100, 100)", true, true);
+
+	showText("Tournament", X+W/2, Y+H*0.7, H/7, "rgb(200, 200, 200)", true, false);
+	showText("Tournament", X+W/2, Y+H*0.7, H/7, "rgb(100, 100, 100)", true, true);
+}
+
+function drawKnockoutButton(X, Y, W, H, hovering, alpha){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	showText("Kncokout", X+W/2, Y+H*0.5, W/7, "rgb(200, 200, 200)", true, false);
+	showText("Kncokout", X+W/2, Y+H*0.5, W/7, "rgb(100, 100, 100)", true, true);
+
+	showText("Tournament", X+W/2, Y+H*0.7, W/7, "rgb(200, 200, 200)", true, false);
+	showText("Tournament", X+W/2, Y+H*0.7, W/7, "rgb(100, 100, 100)", true, true);
+}
+
+function drawOnlineButton(X, Y, W, H, hovering, alpha){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	showText("Online leaderboard", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
+	showText("Online leaderboard", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
 }
 
 class Button{
@@ -133,8 +190,14 @@ function addLayer(current, depth = 0){
 	}
 }
 
+var robbinMarginLeft = 0.15;
+var robbinMarginTop = 0.3;
+
+var robbinMarginBottom = 0.3;
+var robbinMarginRight = 0.1;
+
 class Competition{ // for round robbin and kockout competitons
-	constructor(type, players){
+	constructor(type, players, difficulty = 4){
 		this.names = getNames(players)
 		this.player = Math.floor(random(0, players));
 		this.names[this.player] = "You";
@@ -143,17 +206,20 @@ class Competition{ // for round robbin and kockout competitons
 			knockoutBoardDepth = Math.floor(Math.log2(players)-2);
 			this.draw = this.drawKnockout;
 			this.progress = 0;
+			this.aimProgress = 0;
 			this.tree = addLayer("You");
 			
 			console.log(this.tree);
+			this.playButton = new Button([0.35, 0.2, 0.3, 0.2], drawGoButton);
 		}
 		if(type === "robbin"){
 			this.points = createArray(players, 0);
 			this.draw = this.drawRobbin;
+			this.skills = []; // list of player skills i order of how they are palyed
+			this.playButton = new Button([0.35, 0.75, 0.3, 0.2], drawGoButton);
 		}
-		this.draw = this.drawKnockout;
-		this.playButton = new Button([0.35, 0.2, 0.3, 0.2], drawMatchButton);
 		this.sillGoing = true;
+		this.difficulty = difficulty;
 	}
 	drawKnockout(){
 		nameCounter = 0;
@@ -171,10 +237,30 @@ class Competition{ // for round robbin and kockout competitons
 		c.stroke();
 	}
 	drawRobbin(){
+		showText("Round Robbin competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
 
+		robbinMarginTop = mousePos.y/canvas.height;
+		robbinMarginLeft = mousePos.x/canvas.width;
+		c.strokeStyle = "rgb(0, 0, 0)";
+		c.lineWidth = canvas.width*0.005;
+		for(var x = 0; x < this.names.length; x += 1){
+			c.beginPath();
+			c.moveTo(canvas.width*x/this.names.length*(1-robbinMarginLeft-robbinMarginRight) + canvas.width*robbinMarginLeft, canvas.height*robbinMarginTop);
+			c.lineTo(canvas.width*x/this.names.length*(1-robbinMarginLeft-robbinMarginRight) + canvas.width*robbinMarginLeft, canvas.height*robbinMarginBottom);
+			c.stroke();
+
+			c.beginPath();
+			c.moveTo(canvas.width*robbinMarginLeft, canvas.height*x/this.names.length*(1-robbinMarginTop-robbinMarginBottom) + canvas.height*robbinMarginTop);
+			c.lineTo(canvas.width*robbinMarginRight,  canvas.height*x/this.names.length*(1-robbinMarginTop-robbinMarginBottom) + canvas.height*robbinMarginTop);
+			c.stroke();
+		}
 	}
 	update(){
-		this.progress = (mousePos.x/canvas.width)*3.5;
+		if(this.progress > this.aimProgress){
+			this.progress -= 0.01;
+		}if(this.progress < this.aimProgress){
+			this.progress += 0.01;
+		}
 		this.draw();
 		this.playButton.draw(1);
 		if(this.playButton.update() === true){
@@ -186,7 +272,7 @@ class Competition{ // for round robbin and kockout competitons
 
 	won(){
 		if(this.type === "knockout"){
-			this.progress += 1;
+			this.aimProgress += 1;
 		}
 		if(this.type === "robbin"){
 			this.points[this.player] -= 1;
@@ -201,5 +287,8 @@ class Competition{ // for round robbin and kockout competitons
 			this.points[this.player] -= 1;
 		}
 		this.playButton.reset();
+	}
+	getSkill(){
+		return (this.difficulty + this.aimProgress*2)
 	}
 }
