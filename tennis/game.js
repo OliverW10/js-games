@@ -175,9 +175,12 @@ var lastMouseButtons = [false, false, false]; // what the state of mouse buttons
 var testKnockoutComp = new Competition("knockout", 64);
 var testRobbinComp = new Competition("robbin", 8)
 
-var knockoutButton = new Button([0.05, 0.1, 0.4, 0.6], drawKnockoutButton);
-var robbinButton = new Button([0.55, 0.1, 0.4, 0.6], drawRobbinButton);
-var onlineButton = new Button([0.05, 0.75, 0.9, 0.2], drawOnlineButton);
+var knockoutButton = new Button([0.01, 0.1, 0.48, 0.6], drawKnockoutButton);
+var robbinButton = new Button([0.51, 0.1, 0.48, 0.6], drawRobbinButton);
+var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], drawOnlineButton);
+
+var settingsButton = new Button([0.01, 0.94, 0.48, 0.05], drawSettingsButton);
+var helpButton = new Button([0.51, 0.94, 0.48, 0.05], drawHelpButton);
 
 class Game{
 	constructor(){
@@ -254,6 +257,7 @@ class Game{
 		this.overlay();
 	}
 	pickComp(){
+		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
 		if(knockoutButton.update() === true){
 			this.currentComp = testKnockoutComp;
 			this.state = this.comp;
@@ -262,8 +266,24 @@ class Game{
 			this.currentComp = testRobbinComp;
 			this.state = this.comp;
 		}
+		if(onlineButton.update() === true){
+			this.currentComp = testRobbinComp;
+			this.state = this.leaderboard;
+		}
+		if(helpButton.update() === true){
+			this.currentComp = testRobbinComp;
+			this.state = this.help;
+		}
+		if(settingsButton.update() === true){
+			this.currentComp = testRobbinComp;
+			this.state = this.settings;
+		}
 		knockoutButton.draw(1);
 		robbinButton.draw(1);
+		onlineButton.draw(1);
+
+		settingsButton.draw(1);
+		helpButton.draw(1);
 	}
 	match(){
 		// camera movement
@@ -459,5 +479,11 @@ class Game{
 		if(mouseButtons[0] === false && lastMouseButtons[0] === true){
 			this.state = this.menu;
 		}
+	}
+	settings(){
+		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
+	}
+	leaderboard(){
+		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
 	}
 }

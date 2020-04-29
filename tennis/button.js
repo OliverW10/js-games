@@ -56,8 +56,8 @@ function drawRobbinButton(X, Y, W, H, hovering, alpha){
 	c.rect(X, Y, W, H);
 	c.stroke();
 	c.fill();
-	showText("Round-robbin", X+W/2, Y+H*0.5, H/7, "rgb(200, 200, 200)", true, false);
-	showText("Round-robbin", X+W/2, Y+H*0.5, H/7, "rgb(100, 100, 100)", true, true);
+	showText("Round-robbin", X+W/2, Y+H*0.5, H/8, "rgb(200, 200, 200)", true, false);
+	showText("Round-robbin", X+W/2, Y+H*0.5, H/8, "rgb(100, 100, 100)", true, true);
 
 	showText("Tournament", X+W/2, Y+H*0.7, H/7, "rgb(200, 200, 200)", true, false);
 	showText("Tournament", X+W/2, Y+H*0.7, H/7, "rgb(100, 100, 100)", true, true);
@@ -98,6 +98,43 @@ function drawOnlineButton(X, Y, W, H, hovering, alpha){
 	c.fill();
 	showText("Online leaderboard", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
 	showText("Online leaderboard", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
+}
+
+function drawSettingsButton(X, Y, W, H, hovering, alpha){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgb(200, 200, 200)", true, false);
+	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgb(100, 100, 100)", true, true);
+
+	c.beginPath();
+	c.fillStyle = "rgb(100, 100, 100)";
+}
+
+function drawHelpButton(X, Y, W, H, hovering, alpha){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	showText("Help", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
+	showText("Help", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
 }
 
 class Button{
