@@ -228,10 +228,10 @@ function addLayer(current, depth = 0){
 }
 
 var robbinMarginLeft = 0.15;
-var robbinMarginTop = 0.3;
+var robbinMarginTop = 0.15;
 
-var robbinMarginBottom = 0.3;
-var robbinMarginRight = 0.1;
+var robbinMarginBottom = 0.25;
+var robbinMarginRight = 0.15;
 
 class Competition{ // for round robbin and kockout competitons
 	constructor(type, players, difficulty = 4){
@@ -253,7 +253,10 @@ class Competition{ // for round robbin and kockout competitons
 			this.points = createArray(players, 0);
 			this.draw = this.drawRobbin;
 			this.skills = []; // list of player skills i order of how they are palyed
-			this.playButton = new Button([0.35, 0.75, 0.3, 0.2], drawGoButton);
+			for(var i = 0; i < players; i +=1){
+				this.skills.push(Math.random(difficulty-2, difficulty+5));
+			}
+			this.playButton = new Button([0.35, 0.775, 0.3, 0.2], drawGoButton);
 		}
 		this.sillGoing = true;
 		this.difficulty = difficulty;
@@ -274,22 +277,47 @@ class Competition{ // for round robbin and kockout competitons
 		c.stroke();
 	}
 	drawRobbin(){
-		showText("Round Robbin competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
+		showText("Round Robbin competition", canvas.width/2, canvas.height*0.08, canvas.height*0.1, true, true);
 
-		robbinMarginTop = mousePos.y/canvas.height;
-		robbinMarginLeft = mousePos.x/canvas.width;
+		// robbinMarginTop = mousePos.y/canvas.height;
+		// robbinMarginLeft = mousePos.x/canvas.width;
 		c.strokeStyle = "rgb(0, 0, 0)";
 		c.lineWidth = canvas.width*0.005;
-		for(var x = 0; x < this.names.length; x += 1){
+		for(var x = 0; x <= this.names.length; x += 1){
+			var xPos = canvas.width*x/this.names.length*((1-robbinMarginLeft)-robbinMarginRight) + canvas.width*robbinMarginLeft;
+			var xSize = canvas.width*1/this.names.length*((1-robbinMarginLeft)-robbinMarginRight);
+			var ySize = canvas.height*1/this.names.length*((1-robbinMarginTop)-robbinMarginBottom);
+
+			for(var y = 0; y < this.names.length; y+=1){
+				var yPos = canvas.height*y/this.names.length*((1-robbinMarginTop)-robbinMarginBottom) + canvas.height*robbinMarginTop;
+				if(y === x){
+					c.fillStyle = "rgb(100, 100, 100)";
+					c.fillRect(xPos, yPos, xSize, ySize);
+				}
+			}
+			var yPos = canvas.height*x/this.names.length*((1-robbinMarginTop)-robbinMarginBottom) + canvas.height*robbinMarginTop;
+
 			c.beginPath();
-			c.moveTo(canvas.width*x/this.names.length*(1-robbinMarginLeft-robbinMarginRight) + canvas.width*robbinMarginLeft, canvas.height*robbinMarginTop);
-			c.lineTo(canvas.width*x/this.names.length*(1-robbinMarginLeft-robbinMarginRight) + canvas.width*robbinMarginLeft, canvas.height*robbinMarginBottom);
+			c.moveTo(xPos, canvas.height*robbinMarginTop);
+			c.lineTo(xPos, canvas.height*(1-robbinMarginBottom));
 			c.stroke();
 
 			c.beginPath();
-			c.moveTo(canvas.width*robbinMarginLeft, canvas.height*x/this.names.length*(1-robbinMarginTop-robbinMarginBottom) + canvas.height*robbinMarginTop);
-			c.lineTo(canvas.width*robbinMarginRight,  canvas.height*x/this.names.length*(1-robbinMarginTop-robbinMarginBottom) + canvas.height*robbinMarginTop);
+			c.moveTo(canvas.width*robbinMarginLeft, yPos);
+			c.lineTo(canvas.width*(1-robbinMarginRight),  yPos);
 			c.stroke();
+
+			if(x < this.names.length){
+				if(this.names[x] === "You"){
+					showText(x+1, xPos+xSize/2, canvas.height*(robbinMarginTop-0.02), canvas.width*0.012, "rgb(0, 0, 0)", true);
+					showText((x+1)+". "+"You", canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.012, "rgb(0, 0, 0)", true);
+				}else{
+					showText(x+1, xPos+xSize/2, canvas.height*(robbinMarginTop-0.02), canvas.width*0.01);
+					showText((x+1)+". "+this.names[x], canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.01);
+				}
+			}else{
+				showText("Total", canvas.width*(x+0.5)/this.names.length*((1-robbinMarginLeft)-robbinMarginRight) + canvas.width*robbinMarginLeft, canvas.height*(robbinMarginTop-0.02), canvas.width*0.01, "rgb(0, 0, 0)", true);
+			}
 		}
 	}
 	update(){

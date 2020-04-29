@@ -3,9 +3,9 @@ function getNames(amount){
 	var names = [];
 	for(var i = 0; i < amount; i += 1){
 		if(Math.random() > 0.97){
-			names.push(all_names[Math.floor(Math.random()*all_names.length)] + "-" + all_names[Math.floor(Math.random()*all_names.length)]);
+			names.push(getName());
 		}else{
-			names.push(all_names[Math.floor(Math.random()*all_names.length)]);
+			names.push(getName());
 		}
 	}
 	return names
@@ -13,7 +13,7 @@ function getNames(amount){
 var used_names = []; // so that you dont get the same name twice
 function getName(){
 	var name = all_names[Math.floor(Math.random()*all_names.length)]
-	while(used_names.includes(name) === true){
+	while(used_names.includes(name) === true || name.length > 8){
 		name = all_names[Math.floor(Math.random()*all_names.length)]
 	}
 	return name
