@@ -250,13 +250,16 @@ class Competition{ // for round robbin and kockout competitons
 			this.playButton = new Button([0.35, 0.2, 0.3, 0.2], drawGoButton);
 		}
 		if(type === "robbin"){
-			this.points = createArray(players, 0);
+			this.points = createArray(0, players);
+			this.scores = createNdArray(false, [players, players]);
 			this.draw = this.drawRobbin;
 			this.skills = []; // list of player skills i order of how they are palyed
 			for(var i = 0; i < players; i +=1){
 				this.skills.push(Math.random(difficulty-2, difficulty+5));
 			}
-			this.playButton = new Button([0.35, 0.775, 0.3, 0.2], drawGoButton);
+			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], drawGoButton);
+			this.verses = Math.floor(random(0, players));
+			this.played = [];
 		}
 		this.sillGoing = true;
 		this.difficulty = difficulty;
@@ -293,6 +296,14 @@ class Competition{ // for round robbin and kockout competitons
 				if(y === x){
 					c.fillStyle = "rgb(100, 100, 100)";
 					c.fillRect(xPos, yPos, xSize, ySize);
+				}else if(x<this.names.length){
+					if(this.scores[x][y] === false){
+						showText("-", xPos+xSize/2, yPos+ySize*0.7, xSize/2);
+					}else{
+						showText(this.scores[x][y], xPos+xSize/2, yPos+ySize*0.7, xSize/2);
+					}
+				}else{
+					showText(this.points[y], xPos+xSize/2, yPos+ySize*0.7, xSize/2);
 				}
 			}
 			var yPos = canvas.height*x/this.names.length*((1-robbinMarginTop)-robbinMarginBottom) + canvas.height*robbinMarginTop;
@@ -309,8 +320,8 @@ class Competition{ // for round robbin and kockout competitons
 
 			if(x < this.names.length){
 				if(this.names[x] === "You"){
-					showText(x+1, xPos+xSize/2, canvas.height*(robbinMarginTop-0.02), canvas.width*0.012, "rgb(0, 0, 0)", true);
-					showText((x+1)+". "+"You", canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.012, "rgb(0, 0, 0)", true);
+					showText(x+1, xPos+xSize/2, canvas.height*(robbinMarginTop-0.02), canvas.width*0.015, "rgb(0, 0, 0)", true);
+					showText((x+1)+". "+"You", canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.015, "rgb(0, 0, 0)", true);
 				}else{
 					showText(x+1, xPos+xSize/2, canvas.height*(robbinMarginTop-0.02), canvas.width*0.01);
 					showText((x+1)+". "+this.names[x], canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.01);
@@ -334,13 +345,9 @@ class Competition{ // for round robbin and kockout competitons
 			return false
 		}
 	}
-
 	won(){
 		if(this.type === "knockout"){
 			this.aimProgress += 1;
-		}
-		if(this.type === "robbin"){
-			this.points[this.player] -= 1;
 		}
 		this.playButton.reset();
 	}
@@ -348,12 +355,28 @@ class Competition{ // for round robbin and kockout competitons
 		if(this.type === "knockout"){
 			this.stillGoing = false;
 		}
-		if(this.type === "robbin"){
-			this.points[this.player] -= 1;
-		}
 		this.playButton.reset();
 	}
 	getSkill(){
-		return (this.difficulty + this.aimProgress*2)
+		if(this.type === "knockout"){
+			return (this.difficulty + this.aimProgress*2)
+		}else{
+			return this.skills[this.verses];
+		}
+	}
+	score(scores){
+		if(this.type === "robbin"){
+			console.log(scores)
+			this.scores[this.player][this.verses] = scores[1];
+			this.scores[this.verses][this.player] = scores[0];
+			this.points[this.player] += scores[0];
+			this.points[this.verses] += scores[1]
+			console.log(this.scores)
+			this.played.push(this.verses);
+			this.verses = round(random(0, this.names.length)); // picks a new opponent that you havent already played
+			while(this.played.includes(this.verses) === true){
+				this.verses = round(random(0, this.names.length));
+			}
+		}
 	}
 }
