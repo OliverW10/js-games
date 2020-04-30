@@ -246,7 +246,6 @@ class Competition{ // for round robbin and kockout competitons
 			this.aimProgress = 0;
 			this.tree = addLayer("You");
 			
-			console.log(this.tree);
 			this.playButton = new Button([0.35, 0.2, 0.3, 0.2], drawGoButton);
 		}
 		if(type === "robbin"){
@@ -255,11 +254,11 @@ class Competition{ // for round robbin and kockout competitons
 			this.draw = this.drawRobbin;
 			this.skills = []; // list of player skills i order of how they are palyed
 			for(var i = 0; i < players; i +=1){
-				this.skills.push(Math.random(difficulty-2, difficulty+5));
+				this.skills.push(random(difficulty-2, difficulty+5));
 			}
 			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], drawGoButton);
 			this.verses = Math.floor(random(0, players));
-			this.played = [];
+			this.played = [this.player];
 		}
 		this.sillGoing = true;
 		this.difficulty = difficulty;
@@ -364,18 +363,18 @@ class Competition{ // for round robbin and kockout competitons
 			return this.skills[this.verses];
 		}
 	}
-	score(scores){
+	score(score){
 		if(this.type === "robbin"){
-			console.log(scores)
-			this.scores[this.player][this.verses] = scores[1];
-			this.scores[this.verses][this.player] = scores[0];
-			this.points[this.player] += scores[0];
-			this.points[this.verses] += scores[1]
+			console.log(score)
+			this.scores[this.player][this.verses] = score[1];
+			this.scores[this.verses][this.player] = score[0];
+			this.points[this.player] += score[0];
+			this.points[this.verses] += score[1];
 			console.log(this.scores)
 			this.played.push(this.verses);
-			this.verses = round(random(0, this.names.length)); // picks a new opponent that you havent already played
+			this.verses = round(random(0, this.names.length-1)); // picks a new opponent that you havent already played
 			while(this.played.includes(this.verses) === true){
-				this.verses = round(random(0, this.names.length));
+				this.verses = round(random(0, this.names.length-1));
 			}
 		}
 	}

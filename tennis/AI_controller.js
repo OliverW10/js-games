@@ -37,7 +37,6 @@ class AIController{
 	}
 	speedUp(){
 		this.boost += 0.001;
-		console.log(this.boost)
 	}
 	evaluateShot(enemyPos, target){
 		var playerDist = scaleNumber(dist(enemyPos[0], enemyPos[2], target[0], target[2]), 0, 1.5, 0, 1);

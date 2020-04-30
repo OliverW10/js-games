@@ -24,7 +24,6 @@ function playHit(speed = 1){
 	if(hitLoaded === true){
 		hitSound.volume = scaleNumber(speed, 0, 0.1, 0.3, 1);
 		hitSound.play();
-		console.log("played hit")
 		return true;
 	}
 	return false;
@@ -33,7 +32,6 @@ function playHit(speed = 1){
 function playWelcome(){
 	if(welcomeLoaded === true){
 		welcomeSound.play();
-		console.log("played welcome");
 		return true
 	}
 	return false
