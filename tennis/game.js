@@ -320,7 +320,7 @@ class Game{
 			score[1] >= 4 && score[1] > score[0]+1){
 			this.currentComp.score(score);
 			if(score[0] > score[1]){
-				this.currentComp.won
+				this.currentComp.won();
 			}else{
 				this.currentComp.lost();
 			}
