@@ -294,3 +294,40 @@ function drawGlow(X, Y, size, brightness, col=[255, 255, 255]){
 	c.fillStyle = glow;
 	c.fillRect(X-size, Y-size, size*2, size*2);
 }
+
+var imageCount = 0;
+var imageLoaded = 0;
+class ImageMgt{
+	constructor(src){
+		this.src = src;
+		this.img = false;
+		this.loaded = false;
+		imageCount += 1;
+	}
+	load(){
+		console.log("called loaded");
+		this.img = new Image();
+		this.img.addEventListener('load', this.setLoaded, false);
+		this.img.src = this.src;
+	}
+	setLoaded(obj = this){
+		console.log("called setLoaded");
+		obj.loaded = true;
+		imageLoaded += 1;
+	}
+	drawImg(X,Y,W,H, alpha){
+		if(imageCount === imageLoaded){
+			c.globalAlpha = alpha;
+			c.drawImage(this.img, X,Y, W,H);
+			c.globalAlpha = 1;
+		}
+	}
+
+	drawRotatedImg(X, Y, W, H, alpha, rotation, rotateAroundX = 0, rotateAroundY = 0){
+		c.save();
+		c.translate(X, Y);
+		c.rotate(rotation);
+		this.drawImg(-rotateAroundX, -rotateAroundY, W, H, alpha);
+		c.restore();
+	}
+}
