@@ -1,5 +1,7 @@
 # OliverW10.github.io
 
-All programming, game design and art was done by Oliver Warrick
+Some of the code on this repo is pretty old and may be messy/uncommented/spaghetti/unreadable
 
-i used some images off google, dont know if im allowed to or what but yeah
+Given I am working alone on all of this at the moment I have decided 
+not use branches because it makes it easier and means the most recent
+version of all projects is always online.
