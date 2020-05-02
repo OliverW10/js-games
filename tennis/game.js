@@ -172,7 +172,13 @@ function flashText(text, colour, time = 1){
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 
-var testKnockoutComp = new Competition("knockout", 32);
+// var testKnockoutComp = new Competition("knockout", 32);
+var comps = [[new Competition("knockout", 16, 3), new Button([0.02, 0.11, 0.46, 0.15], "Beginner")],
+[new Competition("knockout", 32, 6), new Button([0.02, 0.3, 0.46, 0.15], "Intermediate")],
+[new Competition("knockout", 64, 12), new Button([0.02, 0.49, 0.46, 0.15], "Expert")],
+[new Competition("robbin", 6, 3), new Button([0.52, 0.11, 0.46, 0.15], "Beginner")],
+[new Competition("robbin", 11, 3), new Button([0.52, 0.3, 0.46, 0.15], "Intermediate")],
+[new Competition("robbin", 15, 3), new Button([0.52, 0.49, 0.46, 0.15], "Expert")]];
 var testRobbinComp = new Competition("robbin", 8)
 
 var knockoutButton = new Button([0.01, 0.1, 0.48, 0.6], drawKnockoutButton);
@@ -258,13 +264,20 @@ class Game{
 	}
 	pickComp(){
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
-		if(knockoutButton.update() === true){
-			this.currentComp = testKnockoutComp;
-			this.state = this.comp;
-		}
-		if(robbinButton.update() === true){
-			this.currentComp = testRobbinComp;
-			this.state = this.comp;
+		// if(knockoutButton.update() === true){
+		// 	this.currentComp = testKnockoutComp;
+		// 	this.state = this.comp;
+		// }
+		// if(robbinButton.update() === true){
+		// 	this.currentComp = testRobbinComp;
+		// 	this.state = this.comp;
+		// }
+		for(var i = 0; i<comps.length; i += 1){
+			if(comps[i][1].update() === true){
+				this.currentComp = comps[i][0];
+				this.state = this.comp;
+				console.log(this)
+			}
 		}
 		if(onlineButton.update() === true){
 			this.currentComp = testRobbinComp;
@@ -278,9 +291,12 @@ class Game{
 			this.currentComp = testRobbinComp;
 			this.state = this.settings;
 		}
-		knockoutButton.draw(1);
-		robbinButton.draw(1);
+		// knockoutButton.draw(1);
+		// robbinButton.draw(1);
 		onlineButton.draw(1);
+		for(var i = 0; i<comps.length; i += 1){
+			comps[i][1].draw(1);
+		}
 
 		settingsButton.draw(1);
 		helpButton.draw(1);
@@ -307,7 +323,7 @@ class Game{
 			this.drawMenu(menuFade);
 			menuFade -= 0.05;
 		}
-		this.drawReflections();
+		// this.drawReflections();
 		this.draw();
 
 		// scoring

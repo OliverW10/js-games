@@ -137,15 +137,39 @@ function drawHelpButton(X, Y, W, H, hovering, alpha){
 	showText("Help", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
 }
 
+function drawBasicButton(X, Y, W, H, hovering, alpha, text){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	showText(text, X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
+	showText(text, X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
+}
+
 class Button{
 	// will cann a draw function with a rect argument and manage the hovering and click detection
 	constructor(rect, drawFunc){
+		// drawFunc can be either a function to draw the button or a string for the basic button
 		this.X = rect[0];
 		this.Y = rect[1];
 		this.W = rect[2];
 		this.H = rect[3];
 		this.rect = rect; // save both beacuse ease later
-		this.drawFunc = drawFunc;
+		if(typeof(drawFunc) === "string"){
+			this.text = drawFunc;
+			this.drawFunc = drawBasicButton
+		}else{
+			this.text = false
+			this.drawFunc = drawFunc;
+		}
 		this.state = 0; // 0 is none, 1 is hovered, 2 is pressed
 		this.clickRatio = 0.025;
 	}
@@ -166,20 +190,29 @@ class Button{
 		return false
 	}
 	draw(alpha = 1){
-		// this.drawFunc(this.X + this.state*this.W*this.clickRatio/2, this.Y + this.state*this.H*this.clickRatio/2, this.W*(1-this.clickRatio*this.state), this.H*(1-this.clickRatio*this.state), !!this.state);
-		this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
-			this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
-			this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
-			this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
-			!!this.state,
-			alpha);
+		if(this.text === false){
+			this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
+				this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
+				this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
+				this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
+				!!this.state,
+				alpha);
+		}else{
+			this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
+				this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
+				this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
+				this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
+				!!this.state,
+				alpha,
+				this.text);
+		}
 	}
 	reset(){
 		this.state = 0;
 	}
 }
 
-var knockoutBoardDepth = 3;
+var knockoutBoardDepth = undefined;
 var knockoutBoardRatio = 0.8;
 var nameCounter = 0;
 
@@ -187,8 +220,13 @@ function drawSplit(X, Y, size, dir, names, progress=0, depth = 0){ // recusion
 	var partHorz = clip((1-progress%1)*2-1, 0, 1);
 	var partVert = clip((1-progress%1)*2, 0, 1)
 	c.beginPath();
-	c.strokeStyle = "rgb(150, 150, 150)";
-	c.lineWidth = canvas.height*0.004;
+	if(names[0] === "You" || names[1] === "You"){
+		c.lineWidth = canvas.height*0.006;
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}else{
+		c.lineWidth = canvas.height*0.004;
+		c.strokeStyle = "rgb(150, 150, 150)";
+	}
 	if(depth >= Math.floor(knockoutBoardDepth-progress)){
 		c.moveTo(X-size*dir*1.5*partHorz, Y-size*knockoutBoardRatio*partVert);
 		c.lineTo(X, Y-size*knockoutBoardRatio*partVert);
@@ -215,7 +253,7 @@ function drawSplit(X, Y, size, dir, names, progress=0, depth = 0){ // recusion
 }
 
 function addLayer(current, depth = 0){
-	if(depth < knockoutBoardDepth+5){
+	if(depth < knockoutBoardDepth+3){
 		var newName = getName()
 		if(random(0, 1) > 0.5){	
 			return [newName, current, addLayer(current, depth+1), addLayer(newName, depth+1)]
@@ -223,6 +261,7 @@ function addLayer(current, depth = 0){
 			return [current, newName, addLayer(newName, depth+1), addLayer(current, depth+1)]
 		}
 	}else{
+		var newName = getName()
 		return [current, newName]
 	}
 }
@@ -240,10 +279,11 @@ class Competition{ // for round robbin and kockout competitons
 		this.names[this.player] = "You";
 		this.type = type;
 		if(type === "knockout"){
-			knockoutBoardDepth = Math.floor(Math.log2(players)-2);
+			this.maxDepth = Math.floor(Math.log2(players)-2);
 			this.draw = this.drawKnockout;
 			this.progress = 0;
 			this.aimProgress = 0;
+			knockoutBoardDepth = this.maxDepth;
 			this.tree = addLayer("You");
 			
 			this.playButton = new Button([0.35, 0.2, 0.3, 0.2], drawGoButton);
@@ -342,10 +382,13 @@ class Competition{ // for round robbin and kockout competitons
 		}
 	}
 	update(){
-		if(this.progress > this.aimProgress){
-			this.progress -= 0.01;
-		}if(this.progress < this.aimProgress){
-			this.progress += 0.01;
+		if(this.type === "knockout"){
+			knockoutBoardDepth = this.maxDepth;
+			if(this.progress > this.aimProgress){
+				this.progress -= 0.01;
+			}if(this.progress < this.aimProgress){
+				this.progress += 0.01;
+			}
 		}
 		this.draw();
 		this.playButton.draw(1);
