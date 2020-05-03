@@ -56,11 +56,11 @@ function drawRobbinButton(X, Y, W, H, hovering, alpha){
 	c.rect(X, Y, W, H);
 	c.stroke();
 	c.fill();
-	showText("Round-robbin", X+W/2, Y+H*0.5, H/8, "rgb(200, 200, 200)", true, false);
-	showText("Round-robbin", X+W/2, Y+H*0.5, H/8, "rgb(100, 100, 100)", true, true);
+	showText("Round-robbin", X+W/2, Y+H*0.1, H/8, "rgb(200, 200, 200)", true, false);
+	showText("Round-robbin", X+W/2, Y+H*0.1, H/8, "rgb(100, 100, 100)", true, true);
 
-	showText("Tournament", X+W/2, Y+H*0.7, H/7, "rgb(200, 200, 200)", true, false);
-	showText("Tournament", X+W/2, Y+H*0.7, H/7, "rgb(100, 100, 100)", true, true);
+	showText("Tournaments", X+W/2, Y+H*0.2, H/7, "rgb(200, 200, 200)", true, false);
+	showText("Tournaments", X+W/2, Y+H*0.2, H/7, "rgb(100, 100, 100)", true, true);
 }
 
 function drawKnockoutButton(X, Y, W, H, hovering, alpha){
@@ -76,11 +76,11 @@ function drawKnockoutButton(X, Y, W, H, hovering, alpha){
 	c.rect(X, Y, W, H);
 	c.stroke();
 	c.fill();
-	showText("Kncokout", X+W/2, Y+H*0.5, W/7, "rgb(200, 200, 200)", true, false);
-	showText("Kncokout", X+W/2, Y+H*0.5, W/7, "rgb(100, 100, 100)", true, true);
+	showText("Knockout", X+W/2, Y+H*0.1, W/8, "rgb(200, 200, 200)", true, false);
+	showText("Knockout", X+W/2, Y+H*0.1, W/8, "rgb(100, 100, 100)", true, true);
 
-	showText("Tournament", X+W/2, Y+H*0.7, W/7, "rgb(200, 200, 200)", true, false);
-	showText("Tournament", X+W/2, Y+H*0.7, W/7, "rgb(100, 100, 100)", true, true);
+	showText("Tournaments", X+W/2, Y+H*0.2, W/7, "rgb(200, 200, 200)", true, false);
+	showText("Tournaments", X+W/2, Y+H*0.2, W/7, "rgb(100, 100, 100)", true, true);
 }
 
 function drawOnlineButton(X, Y, W, H, hovering, alpha){
@@ -447,7 +447,10 @@ class Competition{ // for round robbin and kockout competitons
 			p2 = round(random(0, this.names.length-1));
 		}
 
-		this.scores[p1][p2] = 69//round(this.skills[p1]/this.skills[p2]);
-		this.scores[p2][p1] = 69//round(this.skills[p2]/this.skills[p1]);
+		this.scores[p1][p2] = clip(round(this.skills[p1]/this.skills[p2]), 0, 4);
+		console.log(this.skills[p1]/this.skills[p2]);
+		console.log(this.skills[p2]/this.skills[p1]);
+		console.log("\n")
+		this.scores[p2][p1] = clip(round(this.skills[p2]/this.skills[p1]), 0, 4);
 	}
 }

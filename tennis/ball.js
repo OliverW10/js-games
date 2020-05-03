@@ -221,8 +221,8 @@ class Ball{
 		// rotation renders looping
 		// done here so the menu ball spins
 		if(true){
-			this.Xangle += this.Xrot*gameSpeed*3;
-			this.Yangle += this.Yrot*gameSpeed*3;
+			this.Xangle += this.Xrot*gameSpeed*2;
+			this.Yangle += this.Yrot*gameSpeed*2;
 			if(this.Xangle > 2){
 				this.Xangle = -2;
 			}

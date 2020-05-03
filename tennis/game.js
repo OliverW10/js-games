@@ -173,12 +173,13 @@ function flashText(text, colour, time = 1){
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 
 // var testKnockoutComp = new Competition("knockout", 32);
-var comps = [[new Competition("knockout", 16, 3), new Button([0.02, 0.11, 0.46, 0.15], "Beginner")],
-[new Competition("knockout", 32, 6), new Button([0.02, 0.3, 0.46, 0.15], "Intermediate")],
-[new Competition("knockout", 64, 12), new Button([0.02, 0.49, 0.46, 0.15], "Expert")],
-[new Competition("robbin", 6, 3), new Button([0.52, 0.11, 0.46, 0.15], "Beginner")],
-[new Competition("robbin", 11, 3), new Button([0.52, 0.3, 0.46, 0.15], "Intermediate")],
-[new Competition("robbin", 15, 3), new Button([0.52, 0.49, 0.46, 0.15], "Expert")]];
+var comps = [[new Competition("knockout", 16, 3), new Button([0.02, 0.25, 0.46, 0.14], "Beginner $5"), 5],
+[new Competition("knockout", 32, 6), new Button([0.02, 0.4, 0.46, 0.14], "Intermediate $15"), 15],
+[new Competition("knockout", 64, 12), new Button([0.02, 0.55, 0.46, 0.14], "Expert $50"), 50],
+[new Competition("robbin", 6, 3), new Button([0.52, 0.25, 0.46, 0.14], "Beginner $10"), 10],
+[new Competition("robbin", 11, 3), new Button([0.52, 0.4, 0.46, 0.14], "Intermediate $20"), 20],
+[new Competition("robbin", 15, 3), new Button([0.52, 0.55, 0.46, 0.14], "Expert $30"), 30]
+];
 var testRobbinComp = new Competition("robbin", 8)
 
 var knockoutButton = new Button([0.01, 0.1, 0.48, 0.6], drawKnockoutButton);
@@ -187,6 +188,10 @@ var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], drawOnlineButton);
 
 var settingsButton = new Button([0.01, 0.94, 0.48, 0.05], drawSettingsButton);
 var helpButton = new Button([0.51, 0.94, 0.48, 0.05], drawHelpButton);
+
+var money = 5;
+var robbinBlur = 0;
+var knockoutBlur = 0;
 
 class Game{
 	constructor(){
@@ -261,17 +266,22 @@ class Game{
 			this.state = this.match;
 		}
 		this.overlay();
+		this.showMoney();
 	}
 	pickComp(){
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
-		// if(knockoutButton.update() === true){
-		// 	this.currentComp = testKnockoutComp;
-		// 	this.state = this.comp;
-		// }
-		// if(robbinButton.update() === true){
-		// 	this.currentComp = testRobbinComp;
-		// 	this.state = this.comp;
-		// }
+		knockoutButton.update();
+		if(knockoutButton.state === 0){
+			knockoutBlur -= (knockoutBlur-2)/30;
+		}else{
+			knockoutBlur -= (knockoutBlur-0)/30;
+		}
+		robbinButton.update();
+		if(robbinButton.state === 0){
+			robbinBlur -= (robbinBlur-2)/30;
+		}else{
+			robbinBlur -= (robbinBlur-0)/30;
+		}
 		for(var i = 0; i<comps.length; i += 1){
 			if(comps[i][1].update() === true){
 				this.currentComp = comps[i][0];
@@ -291,15 +301,22 @@ class Game{
 			this.currentComp = testRobbinComp;
 			this.state = this.settings;
 		}
-		// knockoutButton.draw(1);
-		// robbinButton.draw(1);
+		knockoutButton.draw(1);
+		robbinButton.draw(1);
 		onlineButton.draw(1);
 		for(var i = 0; i<comps.length; i += 1){
+			if(comps[i][0].type === "robbin"){
+				c.filter = "blur("+robbinBlur+"px)";
+			}else{
+				c.filter = "blur("+knockoutBlur+"px)";
+			}
 			comps[i][1].draw(1);
 		}
+		c.filter = "none";
 
 		settingsButton.draw(1);
 		helpButton.draw(1);
+		this.showMoney();
 	}
 	match(){
 		// camera movement
@@ -499,5 +516,15 @@ class Game{
 	}
 	leaderboard(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
+	}
+	showMoney(){
+		if(this.state === this.comp){
+			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
+			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(0, 0, 0)", false, true);
+		}
+		if(this.state === this.pickComp){
+			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
+			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(0, 0, 0)", false, true)
+		}
 	}
 }
