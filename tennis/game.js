@@ -171,13 +171,24 @@ function flashText(text, colour, time = 1){
 }
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
+/*
+winnings should be
+all multipliers of cost
+	knockout
+	quarter - 0.4
+	semi - 1.1
+	finals - 1.75
+	winner - 3
+	robbin
+*/
 
-// var testKnockoutComp = new Competition("knockout", 32);
-var comps = [[new Competition("knockout", 16, 3), new Button([0.02, 0.25, 0.46, 0.14], "Beginner $5"), 5],
-[new Competition("knockout", 32, 6), new Button([0.02, 0.4, 0.46, 0.14], "Intermediate $15"), 15],
+var compNames = [["Newcomers", "Beginers", "Novice", "Intermediate", "Semi-pro", "Professional", "Masters", "Experts", ""],
+["Open", "Invite"],]
+var comps = [[new Competition("tutorial", 16, 3), new Button([0.02, 0.25, 0.46, 0.14], "Tutorial"), 0],
+[new Competition("knockout", 32, 6), new Button([0.02, 0.4, 0.46, 0.14], "Beginers Open"), 5],
 [new Competition("knockout", 64, 12), new Button([0.02, 0.55, 0.46, 0.14], "Expert $50"), 50],
-[new Competition("robbin", 6, 3), new Button([0.52, 0.25, 0.46, 0.14], "Beginner $10"), 10],
-[new Competition("robbin", 11, 3), new Button([0.52, 0.4, 0.46, 0.14], "Intermediate $20"), 20],
+[new Competition("robbin", 6, 3), new Button([0.52, 0.25, 0.46, 0.14], "Newcomer Open Tournament"), 5],
+[new Competition("robbin", 11, 3), new Button([0.52, 0.4, 0.46, 0.14], "Beginers "), 20],
 [new Competition("robbin", 15, 3), new Button([0.52, 0.55, 0.46, 0.14], "Expert $30"), 30]
 ];
 var testRobbinComp = new Competition("robbin", 8)
@@ -305,11 +316,11 @@ class Game{
 		robbinButton.draw(1);
 		onlineButton.draw(1);
 		for(var i = 0; i<comps.length; i += 1){
-			if(comps[i][0].type === "robbin"){
-				c.filter = "blur("+robbinBlur+"px)";
-			}else{
-				c.filter = "blur("+knockoutBlur+"px)";
-			}
+			// if(comps[i][0].type === "robbin"){
+			// 	c.filter = "blur("+robbinBlur+"px)";
+			// }else{
+			// 	c.filter = "blur("+knockoutBlur+"px)";
+			// }
 			comps[i][1].draw(1);
 		}
 		c.filter = "none";

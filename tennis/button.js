@@ -105,6 +105,7 @@ function drawSettingsButton(X, Y, W, H, hovering, alpha){
 	if(hovering === true){
 		c.fillStyle = "rgb(150, 150, 150)";
 		c.strokeStyle = "rgb(0, 0, 0)";
+		settingsGearOffset += 0.01;
 	}else{
 		c.fillStyle = "rgb(200, 200, 200)";
 		c.strokeStyle = "rgb(100, 100, 100)";
@@ -116,8 +117,7 @@ function drawSettingsButton(X, Y, W, H, hovering, alpha){
 	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgb(200, 200, 200)", true, false);
 	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgb(100, 100, 100)", true, true);
 
-	c.beginPath();
-	c.fillStyle = "rgb(100, 100, 100)";
+	drawSettingsIcon(X+W*0.7, Y+H/2, H*0.6);
 }
 
 function drawHelpButton(X, Y, W, H, hovering, alpha){
@@ -452,5 +452,57 @@ class Competition{ // for round robbin and kockout competitons
 		console.log(this.skills[p2]/this.skills[p1]);
 		console.log("\n")
 		this.scores[p2][p1] = clip(round(this.skills[p2]/this.skills[p1]), 0, 4);
+	}
+}
+
+function getCompName(difficulty){
+
+}
+
+function drawRobbinIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+	c.beginPath();
+	c.strokeStyle = colour;
+	c.lineWidth = S/10;
+	c.moveTo(X-S/2, Y-S/2);
+	c.lineTo(X, Y-S/2);
+	c.lineTo(X, Y+S/2);
+	c.lineTo(X-S/2, Y+S/2);
+	c.moveTo(X, Y);
+	c.lineTo(X+S/2, Y);
+	c.stroke();
+}
+
+function drawKnockoutIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+	c.beginPath();
+	c.strokeStyle = colour;
+	c.lineWidth = S/10;
+	c.moveTo(X-S/2, Y-S/2);
+	c.lineTo(X+S/2, Y-S/2);
+	c.lineTo(X+S/2, Y+S/2);
+	c.lineTo(X-S/2, Y+S/2);
+	c.lineTo(X-S/2, Y-S/2);
+	c.moveTo(X, Y-S/2);
+	c.lineTo(X, Y+S/2);
+	c.moveTo(X-S/2, Y);
+	c.lineTo(X+S/2, Y);
+	c.stroke();
+}
+
+var settingsGearOffset = 0;
+
+function drawSettingsIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+	var teeth = 7;
+	c.fillStyle = colour;
+	c.strokeStyle = colour;
+	c.beginPath();
+	c.arc(X, Y, S*0.333, 0, Math.PI*2);
+	c.lineWidth = S*0.333;
+	c.stroke();
+	c.beginPath();
+	for(var i = 0; i < teeth; i += 1){
+		c.beginPath();
+		var angle = (i/teeth)*Math.PI*2;
+		c.arc(X+Math.cos(angle+settingsGearOffset)*S/2, Y+Math.sin(angle+settingsGearOffset)*S/2, S/8, 0, Math.PI*2);
+		c.fill();
 	}
 }
