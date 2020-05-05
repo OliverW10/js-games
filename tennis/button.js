@@ -134,18 +134,37 @@ function drawBasicButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	c.stroke();
 	c.fill();
 	c.font = 10+"px Arial";
+	showText(text, X+W/2, Y+H/2, H*0.4, "rgb(200, 200, 200)", true, false);
+	showText(text, X+W/2, Y+H/2, H*0.4, "rgb(100, 100, 100)", true, true);
+}
+
+function drawIconButton(X, Y, W, H, hovering, alpha, text, icon = false){
+	c.beginPath();
+	if(hovering === true){
+		c.fillStyle = "rgb(150, 150, 150)";
+		c.strokeStyle = "rgb(0, 0, 0)";
+	}else{
+		c.fillStyle = "rgb(200, 200, 200)";
+		c.strokeStyle = "rgb(100, 100, 100)";
+	}
+	c.lineWidth = canvas.height*0.005;
+	c.rect(X, Y, W, H);
+	c.stroke();
+	c.fill();
+	c.font = 10+"px Arial";
 	this.size =  W/(c.measureText(text).width/10)*0.8;
-	showText(text, X+W/2, Y+H/2, this.size, "rgb(200, 200, 200)", true, false);
-	showText(text, X+W/2, Y+H/2, this.size, "rgb(100, 100, 100)", true, true);
+	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgb(200, 200, 200)", true, false);
+	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgb(100, 100, 100)", true, true);
 
 	if(icon !== false){
 		icon(X+W*0.05, Y+H*0.5, H*0.3);
 	}
 }
 
+// should probrobly make other button classes the inherit from this one
 class Button{
 	// will cann a draw function with a rect argument and manage the hovering and click detection
-	constructor(rect, drawFunc, icon = false){
+	constructor(rect, drawFunc, icon = false, cost = 0){
 		// drawFunc can be either a function to draw the button or a string for the basic button
 		this.X = rect[0];
 		this.Y = rect[1];
@@ -154,7 +173,11 @@ class Button{
 		this.rect = rect; // save both beacuse ease later
 		if(typeof(drawFunc) === "string"){
 			this.text = drawFunc;
-			this.drawFunc = drawBasicButton
+			if(icon === false){
+				this.drawFunc = drawBasicButton;
+			}else{
+				this.drawFunc = drawIconButton;
+			}
 		}else{
 			this.text = false
 			this.drawFunc = drawFunc;
@@ -162,6 +185,7 @@ class Button{
 		this.state = 0; // 0 is none, 1 is hovered, 2 is pressed
 		this.clickRatio = 0.025;
 		this.icon = icon
+		this.cost = cost;
 	}
 	update(){
 		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
@@ -189,14 +213,25 @@ class Button{
 				alpha,
 				this.icon);
 		}else{
-			this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
-				this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
-				this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
-				this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
-				!!this.state,
-				alpha,
-				this.text,
-				this.icon);
+			if(this.cost != 0){
+				this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
+					this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
+					this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
+					this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
+					!!this.state,
+					alpha,
+					this.text+" $"+this.cost,
+					this.icon);
+			}else{
+				this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
+					this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
+					this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
+					this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
+					!!this.state,
+					alpha,
+					this.text,
+					this.icon);
+			}
 		}
 	}
 	reset(){
@@ -450,7 +485,7 @@ class Competition{ // for round robbin and kockout competitons
 	}
 }
 
-function drawRobbinIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+function drawKnockoutIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	c.beginPath();
 	c.strokeStyle = colour;
 	c.lineWidth = S/10;
@@ -463,7 +498,7 @@ function drawRobbinIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	c.stroke();
 }
 
-function drawKnockoutIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+function drawRobbinIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	c.beginPath();
 	c.strokeStyle = colour;
 	c.lineWidth = S/10;

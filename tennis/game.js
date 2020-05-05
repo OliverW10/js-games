@@ -137,7 +137,7 @@ var playerRacquetController = new mouseController();
 function changeSkill(newSkill){
 	skill = newSkill;
 	comRacquetController.setDifficulty(newSkill);
-	console.log(comRacquetController)
+	console.log(comRacquetController);
 }
 
 var vanishingPointPos = [0.5, 0.3];
@@ -187,7 +187,7 @@ function generateCompName(difficult = 4){
 }
 
 function generateComp(money){
-	this.price = random(money/2, money*2);
+	this.price = round(random(money/2, money*2));
 	this.difficult = random(this.price**0.6, this.price**0.7);
 	this.buttonNum = round(random(0, compButtonPositions.length-1));
 	this.buttonPos = compButtonPositions[this.buttonNum];
@@ -198,19 +198,18 @@ function generateComp(money){
 	compButtonPositions[this.buttonNum][4] = true;
 	if(random(0,1) > 0.5){
 		this.type = "knockout";
-		comps.push([new Competition(this.type, 2**round(random(3, 5)), this.difficult), new Button(this.buttonPos, generateCompName(), drawKnockoutIcon)])
+		comps.push([new Competition(this.type, 2**round(random(3, 5)), this.difficult), new Button(this.buttonPos, generateCompName(), drawKnockoutIcon, this.price)])
 	}else{
 		this.type = "robbin";
-		comps.push([new Competition(this.type, round(random(6, 15)), this.difficult), new Button(this.buttonPos, generateCompName(), drawRobbinIcon)])
+		comps.push([new Competition(this.type, round(random(6, 15)), this.difficult), new Button(this.buttonPos, generateCompName(), drawRobbinIcon, this.price)])
 	}
 }
 
 var compButtonPositions = [
 [0.02, 0.1, 0.46, 0.14, false],
-[0.02, 0.1, 0.46, 0.14, false],
 [0.02, 0.25, 0.46, 0.14, false],
 [0.02, 0.4, 0.46, 0.14, false],
-[0.02, 0.55, 0.46, 0.14, true],
+[0.02, 0.55, 0.46, 0.14, false],
 [0.52, 0.1, 0.46, 0.14, false],
 [0.52, 0.25, 0.46, 0.14, false],
 [0.52, 0.4, 0.46, 0.14, false],
@@ -222,7 +221,7 @@ var compNames = [["Newcomers", "Beginers", "Clubs", "State", "National", "Intern
 ["Tournament", "Competition", ""]]
 var comps = [];
 // [new Competition("tutorial", 16, 3), new Button([0.02, 0.1, 0.46, 0.14], "Tutorial"), "Tutorial", 0]
-for(var i = 0; i <= 7; i +=1){
+for(var i = 0; i <=7; i +=1){
 	generateComp(5);
 }
 
@@ -317,7 +316,7 @@ class Game{
 			if(comps[i][1].update() === true){
 				this.currentComp = comps[i][0];
 				this.state = this.comp;
-				console.log(this)
+				money -= comps[i][1].cost;
 			}
 		}
 		if(onlineButton.update() === true){
