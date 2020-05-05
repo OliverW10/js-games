@@ -196,10 +196,6 @@ class Ball{
 				}
 			}
 
-			if(checkKey("Space") === true && this.Z < 2.2){ 
-				aimGameSpeed = 0.1;
-			}
-
 			this.apex = Math.max(this.apex, this.Y);
 		}
 		else{

@@ -181,24 +181,50 @@ all multipliers of cost
 	winner - 3
 	robbin
 */
-function generateComp(money){
 
+function generateCompName(difficult = 4){
+	return compNames[0][round(random(0, compNames[0].length-1))] +" "+ compNames[1][round(random(0, compNames[1].length-1))] +" "+ compNames[2][round(random(0, compNames[2].length-1))];
 }
+
+function generateComp(money){
+	this.price = random(money/2, money*2);
+	this.difficult = random(this.price**0.6, this.price**0.7);
+	this.buttonNum = round(random(0, compButtonPositions.length-1));
+	this.buttonPos = compButtonPositions[this.buttonNum];
+	while(this.buttonPos[4] === true){
+		this.buttonNum = round(random(0, compButtonPositions.length-1));
+		this.buttonPos = compButtonPositions[this.buttonNum];
+	}
+	compButtonPositions[this.buttonNum][4] = true;
+	if(random(0,1) > 0.5){
+		this.type = "knockout";
+		comps.push([new Competition(this.type, 2**random(3, 5, true), this.difficult), new Button(this.buttonPos, generateCompName())])
+	}else{
+		this.type = "robbin";
+		comps.push([new Competition(this.type, round(random(6, 15)), this.difficult), new Button(this.buttonPos, generateCompName())])
+	}
+}
+
 var compButtonPositions = [
-[0.02, 0.1, 0.46, 0.14],
-[0.02, 0.25, 0.46, 0.14],
-[0.02, 0.4, 0.46, 0.14],
-[0.02, 0.55, 0.46, 0.14],
-[0.52, 0.1, 0.46, 0.14],
-[0.52, 0.25, 0.46, 0.14],
-[0.52, 0.4, 0.46, 0.14],
-[0.52, 0.55, 0.46, 0.14]
+[0.02, 0.1, 0.46, 0.14, true],
+[0.02, 0.1, 0.46, 0.14, false],
+[0.02, 0.25, 0.46, 0.14, false],
+[0.02, 0.4, 0.46, 0.14, false],
+[0.02, 0.55, 0.46, 0.14, false],
+[0.52, 0.1, 0.46, 0.14, false],
+[0.52, 0.25, 0.46, 0.14, false],
+[0.52, 0.4, 0.46, 0.14, false],
+[0.52, 0.55, 0.46, 0.14, false]
 ]
-var compNames = [["Newcomers", "Beginers", "Novice", "Intermediate", "Semi-pro", "Professional", "Masters", "Experts", ""],
-["Open", "Invite"],]
-var comps = [[new Competition("tutorial", 16, 3), new Button(compButtonPositions[round(random(0, compButtonPositions.length))], "Tutorial"), 0],
+var currentButtons = [];
+var compNames = [["Newcomers", "Beginers", "Club", "State", "National", "International", "Galactic"],
+["Tennis", "Open", "Invitational", ""],
+["Tournament", "Competition", ""]]
+var comps = [[new Competition("tutorial", 16, 3), new Button([0.02, 0.1, 0.46, 0.14], "Tutorial"), "Tutorial", 0],
 ];
-var testRobbinComp = new Competition("robbin", 8)
+for(var i = 0; i < 5; i +=1){
+	generateComp(5);
+}
 
 var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], drawOnlineButton);
 
@@ -209,6 +235,7 @@ var money = 5;
 var robbinBlur = 0;
 var knockoutBlur = 0;
 
+var lastSpace = false;
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -367,7 +394,15 @@ class Game{
 			score[0] = 3;
 			score[1] = 3;
 		}
-
+		if(checkKey("Space") === false && lastSpace === true){
+			playDown();
+			if(aimGameSpeed === 1){ 
+				aimGameSpeed = 0.1;
+			}else{
+				aimGameSpeed = 1;
+			}
+		}
+		lastSpace = checkKey("Space");
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 		this.overlay();
 	}
@@ -510,6 +545,7 @@ class Game{
 	}
 	settings(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
+		drawRobbinIcon(100, 100, 50);
 	}
 	leaderboard(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);

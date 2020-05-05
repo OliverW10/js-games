@@ -20,6 +20,23 @@ var hitSound = new Pizzicato.Sound({
 	console.log("hit sound loaded");
 });
 
+var downLoaded = false;
+var downSound = new Pizzicato.Sound({
+	source: "file",
+	options: {"path": "./sounds/down.mp3"}
+}, function(){
+	downLoaded = true;
+	console.log("down sound loaded");
+});
+
+function playDown(){
+	if(downLoaded === true){
+		downSound.play();
+		return true
+	}
+	return false
+}
+
 function playHit(speed = 1){
 	if(hitLoaded === true){
 		hitSound.volume = scaleNumber(speed, 0, 0.1, 0.3, 1);

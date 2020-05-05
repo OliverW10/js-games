@@ -243,12 +243,16 @@ function createNdArray(fill, sizes){
 }
 
 
-function random(min, max){
-	return Math.random()*(max-min)+min;
-}
-
 function round(num, places = 0){
 	return Math.round(num*(10**places))/(10**places)
+}
+
+function random(min, max, round = false){
+	if(round === false){
+		return Math.random()*(max-min)+min;
+	}else{
+		// return round(Math.random()*(max-min)+min);
+	}
 }
 
 function clip(n, min, max){
