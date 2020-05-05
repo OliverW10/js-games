@@ -181,20 +181,25 @@ all multipliers of cost
 	winner - 3
 	robbin
 */
+function generateComp(money){
 
+}
+var compButtonPositions = [
+[0.02, 0.1, 0.46, 0.14],
+[0.02, 0.25, 0.46, 0.14],
+[0.02, 0.4, 0.46, 0.14],
+[0.02, 0.55, 0.46, 0.14],
+[0.52, 0.1, 0.46, 0.14],
+[0.52, 0.25, 0.46, 0.14],
+[0.52, 0.4, 0.46, 0.14],
+[0.52, 0.55, 0.46, 0.14]
+]
 var compNames = [["Newcomers", "Beginers", "Novice", "Intermediate", "Semi-pro", "Professional", "Masters", "Experts", ""],
 ["Open", "Invite"],]
-var comps = [[new Competition("tutorial", 16, 3), new Button([0.02, 0.25, 0.46, 0.14], "Tutorial"), 0],
-[new Competition("knockout", 32, 6), new Button([0.02, 0.4, 0.46, 0.14], "Beginers Open"), 5],
-[new Competition("knockout", 64, 12), new Button([0.02, 0.55, 0.46, 0.14], "Expert $50"), 50],
-[new Competition("robbin", 6, 3), new Button([0.52, 0.25, 0.46, 0.14], "Newcomer Open Tournament"), 5],
-[new Competition("robbin", 11, 3), new Button([0.52, 0.4, 0.46, 0.14], "Beginers "), 20],
-[new Competition("robbin", 15, 3), new Button([0.52, 0.55, 0.46, 0.14], "Expert $30"), 30]
+var comps = [[new Competition("tutorial", 16, 3), new Button(compButtonPositions[round(random(0, compButtonPositions.length))], "Tutorial"), 0],
 ];
 var testRobbinComp = new Competition("robbin", 8)
 
-var knockoutButton = new Button([0.01, 0.1, 0.48, 0.6], drawKnockoutButton);
-var robbinButton = new Button([0.51, 0.1, 0.48, 0.6], drawRobbinButton);
 var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], drawOnlineButton);
 
 var settingsButton = new Button([0.01, 0.94, 0.48, 0.05], drawSettingsButton);
@@ -281,18 +286,6 @@ class Game{
 	}
 	pickComp(){
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
-		knockoutButton.update();
-		if(knockoutButton.state === 0){
-			knockoutBlur -= (knockoutBlur-2)/30;
-		}else{
-			knockoutBlur -= (knockoutBlur-0)/30;
-		}
-		robbinButton.update();
-		if(robbinButton.state === 0){
-			robbinBlur -= (robbinBlur-2)/30;
-		}else{
-			robbinBlur -= (robbinBlur-0)/30;
-		}
 		for(var i = 0; i<comps.length; i += 1){
 			if(comps[i][1].update() === true){
 				this.currentComp = comps[i][0];
@@ -312,15 +305,8 @@ class Game{
 			this.currentComp = testRobbinComp;
 			this.state = this.settings;
 		}
-		knockoutButton.draw(1);
-		robbinButton.draw(1);
 		onlineButton.draw(1);
 		for(var i = 0; i<comps.length; i += 1){
-			// if(comps[i][0].type === "robbin"){
-			// 	c.filter = "blur("+robbinBlur+"px)";
-			// }else{
-			// 	c.filter = "blur("+knockoutBlur+"px)";
-			// }
 			comps[i][1].draw(1);
 		}
 		c.filter = "none";

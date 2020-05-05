@@ -26,23 +26,6 @@ function drawPlayButton(X, Y, W, H, hovering, alpha){
 	}
 }
 
-function drawGoButton(X, Y, W, H, hovering, alpha){
-	c.beginPath();
-	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
-	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
-	}
-	c.lineWidth = canvas.height*0.005;
-	c.rect(X, Y, W, H);
-	c.stroke();
-	c.fill();
-	showText("GO", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
-	showText("GO", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
-}
-
 function drawRobbinButton(X, Y, W, H, hovering, alpha){
 	c.beginPath();
 	if(hovering === true){
@@ -286,7 +269,7 @@ class Competition{ // for round robbin and kockout competitons
 			knockoutBoardDepth = this.maxDepth;
 			this.tree = addLayer("You");
 			
-			this.playButton = new Button([0.35, 0.2, 0.3, 0.2], drawGoButton);
+			this.playButton = new Button([0.35, 0.2, 0.3, 0.2], "Go");
 		}
 		if(type === "robbin"){
 			this.points = createArray(0, players);
@@ -297,7 +280,7 @@ class Competition{ // for round robbin and kockout competitons
 			for(var i = 0; i < players; i +=1){
 				this.skills.push(random(difficulty-2, difficulty+5));
 			}
-			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], drawGoButton);
+			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], "Go");
 			this.verses = Math.floor(random(0, players));
 			this.played = [this.player];
 		}
@@ -453,10 +436,6 @@ class Competition{ // for round robbin and kockout competitons
 		console.log("\n")
 		this.scores[p2][p1] = clip(round(this.skills[p2]/this.skills[p1]), 0, 4);
 	}
-}
-
-function getCompName(difficulty){
-
 }
 
 function drawRobbinIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
