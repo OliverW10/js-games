@@ -198,31 +198,31 @@ function generateComp(money){
 	compButtonPositions[this.buttonNum][4] = true;
 	if(random(0,1) > 0.5){
 		this.type = "knockout";
-		comps.push([new Competition(this.type, 2**random(3, 5, true), this.difficult), new Button(this.buttonPos, generateCompName())])
+		comps.push([new Competition(this.type, 2**round(random(3, 5)), this.difficult), new Button(this.buttonPos, generateCompName(), drawKnockoutIcon)])
 	}else{
 		this.type = "robbin";
-		comps.push([new Competition(this.type, round(random(6, 15)), this.difficult), new Button(this.buttonPos, generateCompName())])
+		comps.push([new Competition(this.type, round(random(6, 15)), this.difficult), new Button(this.buttonPos, generateCompName(), drawRobbinIcon)])
 	}
 }
 
 var compButtonPositions = [
-[0.02, 0.1, 0.46, 0.14, true],
+[0.02, 0.1, 0.46, 0.14, false],
 [0.02, 0.1, 0.46, 0.14, false],
 [0.02, 0.25, 0.46, 0.14, false],
 [0.02, 0.4, 0.46, 0.14, false],
-[0.02, 0.55, 0.46, 0.14, false],
+[0.02, 0.55, 0.46, 0.14, true],
 [0.52, 0.1, 0.46, 0.14, false],
 [0.52, 0.25, 0.46, 0.14, false],
 [0.52, 0.4, 0.46, 0.14, false],
 [0.52, 0.55, 0.46, 0.14, false]
 ]
 var currentButtons = [];
-var compNames = [["Newcomers", "Beginers", "Club", "State", "National", "International", "Galactic"],
+var compNames = [["Newcomers", "Beginers", "Clubs", "State", "National", "International", "Galactic"],
 ["Tennis", "Open", "Invitational", ""],
 ["Tournament", "Competition", ""]]
-var comps = [[new Competition("tutorial", 16, 3), new Button([0.02, 0.1, 0.46, 0.14], "Tutorial"), "Tutorial", 0],
-];
-for(var i = 0; i < 5; i +=1){
+var comps = [];
+// [new Competition("tutorial", 16, 3), new Button([0.02, 0.1, 0.46, 0.14], "Tutorial"), "Tutorial", 0]
+for(var i = 0; i <= 7; i +=1){
 	generateComp(5);
 }
 
@@ -545,7 +545,6 @@ class Game{
 	}
 	settings(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
-		drawRobbinIcon(100, 100, 50);
 	}
 	leaderboard(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);

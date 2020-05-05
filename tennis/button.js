@@ -120,7 +120,7 @@ function drawHelpButton(X, Y, W, H, hovering, alpha){
 	showText("Help", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
 }
 
-function drawBasicButton(X, Y, W, H, hovering, alpha, text){
+function drawBasicButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	c.beginPath();
 	if(hovering === true){
 		c.fillStyle = "rgb(150, 150, 150)";
@@ -133,13 +133,19 @@ function drawBasicButton(X, Y, W, H, hovering, alpha, text){
 	c.rect(X, Y, W, H);
 	c.stroke();
 	c.fill();
-	showText(text, X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
-	showText(text, X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
+	c.font = 10+"px Arial";
+	this.size =  W/(c.measureText(text).width/10)*0.8;
+	showText(text, X+W/2, Y+H/2, this.size, "rgb(200, 200, 200)", true, false);
+	showText(text, X+W/2, Y+H/2, this.size, "rgb(100, 100, 100)", true, true);
+
+	if(icon !== false){
+		icon(X+W*0.05, Y+H*0.5, H*0.3);
+	}
 }
 
 class Button{
 	// will cann a draw function with a rect argument and manage the hovering and click detection
-	constructor(rect, drawFunc){
+	constructor(rect, drawFunc, icon = false){
 		// drawFunc can be either a function to draw the button or a string for the basic button
 		this.X = rect[0];
 		this.Y = rect[1];
@@ -155,6 +161,7 @@ class Button{
 		}
 		this.state = 0; // 0 is none, 1 is hovered, 2 is pressed
 		this.clickRatio = 0.025;
+		this.icon = icon
 	}
 	update(){
 		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
@@ -179,7 +186,8 @@ class Button{
 				this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
 				this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
 				!!this.state,
-				alpha);
+				alpha,
+				this.icon);
 		}else{
 			this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
 				this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
@@ -187,7 +195,8 @@ class Button{
 				this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
 				!!this.state,
 				alpha,
-				this.text);
+				this.text,
+				this.icon);
 		}
 	}
 	reset(){
@@ -195,7 +204,7 @@ class Button{
 	}
 }
 
-var knockoutBoardDepth = undefined;
+var knockoutBoardDepth = 10;
 var knockoutBoardRatio = 0.8;
 var nameCounter = 0;
 
@@ -236,16 +245,19 @@ function drawSplit(X, Y, size, dir, names, progress=0, depth = 0){ // recusion
 }
 
 function addLayer(current, depth = 0){
+	var newName = getName()
 	if(depth < knockoutBoardDepth+3){
-		var newName = getName()
 		if(random(0, 1) > 0.5){	
 			return [newName, current, addLayer(current, depth+1), addLayer(newName, depth+1)]
 		}else{
 			return [current, newName, addLayer(newName, depth+1), addLayer(current, depth+1)]
 		}
 	}else{
-		var newName = getName()
-		return [current, newName]
+		if(random(0, 1) > 0.5){	
+			return [newName, current]
+		}else{
+			return [current, newName]
+		}
 	}
 }
 
