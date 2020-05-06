@@ -274,7 +274,7 @@ class Ball{
 			c.beginPath();
 			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);
 			c.fillStyle = "rgba(250, 250, 250, "+alpha+")";
-			c.fill();
+			// c.fill();
 			c.clip();
 			for(var x = -1; x<=1; x+=1){
 				for(var y = -1; y<=1; y+=1){

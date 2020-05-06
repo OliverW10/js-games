@@ -331,15 +331,19 @@ class Competition{ // for round robbin and kockout competitons
 			this.verses = Math.floor(random(0, players));
 			this.played = [this.player];
 		}
-		this.sillGoing = true;
+		this.stillGoing = true;
 		this.difficulty = difficulty;
 	}
 	drawKnockout(){
 		nameCounter = 0;
 		showText("Knock-out competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
-		drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1, this.tree[2], this.progress);
-		drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1, this.tree[3], this.progress);
-
+		if(this.progress < this.maxDepth){
+			drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1, this.tree[2], this.progress);
+			drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1, this.tree[3], this.progress);
+		}else{
+			showText(this.tree[0], canvas.width*0.6, canvas.height*0.5, canvas.width*0.1, "rgb(0, 0, 0)", this.tree[0] === "You");
+			showText(this.tree[1], canvas.width*0.4, canvas.height*0.5, canvas.width*0.1, "rgb(0, 0, 0)", this.tree[1] === "You");
+		}
 		c.beginPath();
 		c.strokeStyle = "rgb(150, 150, 150)";
 		c.lineWidth = canvas.height*0.004;
@@ -419,10 +423,13 @@ class Competition{ // for round robbin and kockout competitons
 			}if(this.progress < this.aimProgress){
 				this.progress += 0.01;
 			}
+			if(this.progress > this.maxDepth+1){
+				this.stillGoing = false;
+			}
 		}
 		this.draw();
 		this.playButton.draw(1);
-		if(this.playButton.update() === true){
+		if(this.playButton.update() === true && this.stillGoing === true){
 			return true
 		}else{
 			return false

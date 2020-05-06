@@ -307,6 +307,10 @@ class Game{
 			changeSkill(this.currentComp.getSkill())
 			this.state = this.match;
 		}
+		if(this.currentComp.stillGoing === false){
+			this.currentComp = undefined;
+			this.state = this.pickComp;
+		}
 		this.overlay();
 		this.showMoney();
 	}
@@ -363,7 +367,7 @@ class Game{
 			this.drawMenu(menuFade);
 			menuFade -= 0.05;
 		}
-		// this.drawReflections();
+		this.drawReflections();
 		this.draw();
 
 		// scoring
