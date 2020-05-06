@@ -180,8 +180,9 @@ all multipliers of cost
 	finals - 1.75
 	winner - 3
 	robbin
+placing in the group(0-1) * 2 * cost
 */
-
+var knockoutRatios = [3, 1.75, 1.1, 0.4, 0, 0, 0, 0, 0]; // goes [winner, runner up, semis, quartars, below]
 function generateCompName(difficult = 4){
 	return compNames[0][round(random(0, compNames[0].length-1))] +" "+ compNames[1][round(random(0, compNames[1].length-1))] +" "+ compNames[2][round(random(0, compNames[2].length-1))];
 }
@@ -239,6 +240,7 @@ class Game{
 	constructor(){
 		this.state = this.start;
 		this.currentComp = false;
+		this.currentCompNum = undefined;
 	}
 
 	execute(){
@@ -308,6 +310,9 @@ class Game{
 			this.state = this.match;
 		}
 		if(this.currentComp.stillGoing === false){
+			var winningsMulti = this.currentComp.getWinnings();
+			console.log("Cost Mult: "+winningsMulti);
+			money += winningsMulti*comps[this.currentCompNum][1].cost;
 			this.currentComp = undefined;
 			this.state = this.pickComp;
 		}
@@ -319,6 +324,7 @@ class Game{
 		for(var i = 0; i<comps.length; i += 1){
 			if(comps[i][1].update() === true){
 				this.currentComp = comps[i][0];
+				this.currentCompNum = i;
 				this.state = this.comp;
 				money -= comps[i][1].cost;
 			}

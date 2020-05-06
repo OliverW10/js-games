@@ -304,6 +304,7 @@ var robbinMarginRight = 0.15;
 
 class Competition{ // for round robbin and kockout competitons
 	constructor(type, players, difficulty = 4){
+		this.winnings = 0;
 		this.names = getNames(players)
 		this.player = Math.floor(random(0, players));
 		this.names[this.player] = "You";
@@ -428,6 +429,11 @@ class Competition{ // for round robbin and kockout competitons
 			}
 		}
 		this.draw();
+		showText("?", canvas.width*0.95, canvas.height*0.95, canvas.width*0.02);
+		c.lineWidth = canvas.width*0.01;
+		c.strokeStyle = "rgb(0, 0, 0)";
+		c.arc(canvas.width*0.9, canvas.heigth*0.9, canvas.width*0.02, 0, Math.PI*2);
+		c.stroke();
 		this.playButton.draw(1);
 		if(this.playButton.update() === true && this.stillGoing === true){
 			return true
@@ -479,16 +485,39 @@ class Competition{ // for round robbin and kockout competitons
 		// used to progress the robbin scoreboard
 		var p1 = round(random(0, this.names.length-1));
 		var p2 = round(random(0, this.names.length-1));
-		while(this.scores[p1][p2] != false || p1 === p2 || p1 == this.player || p2 == this.player){
+		while(this.scores[p1][p2] !== false || p1 === p2 || p1 == this.player || p2 == this.player){
 			p1 = round(random(0, this.names.length-1));
 			p2 = round(random(0, this.names.length-1));
 		}
-
-		this.scores[p1][p2] = clip(round(this.skills[p1]/this.skills[p2]), 0, 4);
-		console.log(this.skills[p1]/this.skills[p2]);
-		console.log(this.skills[p2]/this.skills[p1]);
-		console.log("\n")
-		this.scores[p2][p1] = clip(round(this.skills[p2]/this.skills[p1]), 0, 4);
+		if(random(0, 1) > 0.7){
+			if(random(0, 1) > 0.5){
+				this.scores[p2][p1] = clip(round((this.skills[p1]/this.skills[p2])*4), 0, 4);
+				this.scores[p1][p2] = clip(round((this.skills[p2]/this.skills[p1])*4), 0, 4);
+				if(this.scores[p2][p1] === 3){ // removing the 3-4 game that cant be achived
+					this.scores[p1][p2] = 5;
+				}
+				if(this.scores[p1][p2] === 3){
+					this.scores[p2][p1] = 4;
+				}
+			}
+		}else{
+			if(random(0, 1) > 0.5){ // 30% chance of random outcome
+				this.scores[p2][p1] = 4;
+				this.scores[p1][p2] = round(random(0, 2));
+			}else{
+				this.scores[p2][p1] = 4;
+				this.scores[p1][p2] = round(random(0, 2));
+			}
+		}
+	}
+	getWinnings(){
+		if(this.type === "knockout"){
+			return knockoutRatios[(this.maxDepth-this.aimProgress)+1];
+		}else{
+			var playerScore = this.points[this.player];
+			var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
+			return (place/this.names.length)*2
+		}
 	}
 }
 
