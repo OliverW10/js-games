@@ -339,13 +339,26 @@ class Competition{ // for round robbin and kockout competitons
 		if(type === "tutorial"){
 			this.stage = 0;
 			this.draw = this.drawTutorial;
-			this.buttons = [];
+			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], "Go");
+			this.buttons = [
+			new Button([0.1, 0.1, 0.3, 0.1], "Throwing"),
+			new Button([0.1, 0.25, 0.3, 0.1], "Returning"),
+			new Button([0.1, 0.4, 0.3, 0.1], "Tournaments"),
+			]
+			this.selected = 0;
 		}
 		this.stillGoing = true;
 		this.difficulty = difficulty;
 	}
 	drawTutorial(){
 		showText("Tutorial", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
+
+		for(var i = 0; i < this.buttons.length; i += 1){
+			this.buttons[i].draw();
+			if(this.buttons[i].update() === true){
+				this.selected = i;
+			}
+		}
 	}
 	drawKnockout(){
 		nameCounter = 0;
@@ -474,8 +487,12 @@ class Competition{ // for round robbin and kockout competitons
 	getSkill(){
 		if(this.type === "knockout"){
 			return (this.difficulty + this.aimProgress*2)
-		}else{
+		}
+		if(this.type === "robbin"){
 			return this.skills[this.verses];
+		}
+		if(this.type === "tutrial"){
+			return 0
 		}
 	}
 	score(score){

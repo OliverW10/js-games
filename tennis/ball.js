@@ -67,6 +67,10 @@ class Ball{
 		}
 		this.stopped = true;
 	}
+	setRotationalSpeed(speeds){
+		this.Xrot = speeds[0];
+		this.Yrot = speeds[1];
+	}
 	setAngle(angle){
 		this.Xangle = angle[0];
 		this.Yangle = angle[1];
@@ -275,9 +279,9 @@ class Ball{
 			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);
 			c.fillStyle = "rgba(250, 250, 250, "+alpha+")";
 			// c.fill();
-			c.clip();
-			for(var x = -1; x<=1; x+=1){
-				for(var y = -1; y<=1; y+=1){
+			// c.clip();
+			for(var x = -2; x<=2; x+=1){
+				for(var y = -2; y<=2; y+=1){
 					c.beginPath();
 					c.strokeStyle = hslCvt(this.hsl, alpha);
 					c.lineWidth = patternSize/3

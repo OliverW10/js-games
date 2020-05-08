@@ -245,6 +245,7 @@ var robbinBlur = 0;
 var knockoutBlur = 0;
 
 var lastSpace = false;
+var lastMousePos = {"x":0, "y":0};
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -305,8 +306,10 @@ class Game{
 		menuPlayButton.draw(trans);
 		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
 		balls[1].freeze([-cameraPos[0]+0.5*dist, cameraPos[1]-1.4*dist, 5+dist], false);
-		balls[1].draw();
 
+		balls[1].setRotationalSpeed((mousePos.x-lastMousePos.x)/100, (mousePos.y-lastMousePos.y)/100);
+		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
+		balls[1].draw();
 		if(skillChangeTrans > 0){
 			skillChangeTrans -= 0.003;
 			showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
