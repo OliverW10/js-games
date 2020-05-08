@@ -67,6 +67,13 @@ var courtLinesMin = [[[-1, 0, 1], [1, 0, 1]],
 [[-1, 0, 3], [-1, 0, 2]],
 ];
 
+var courtEnemyLines = [
+[[1, 0, 2], [-1, 0, 2]],
+[[1, 0, 2], [1, 0, 3]],
+[[1, 0, 3], [-1, 0, 3]],
+[[-1, 0, 3], [-1, 0, 2]],
+];
+
 var courtEdges = [[-1, 0, 1],
 [1, 0, 1],
 [1, 0, 3],
@@ -144,8 +151,9 @@ function changeSkill(newSkill){
 
 var vanishingPointPos = [0.5, 0.3];
 var renderer = new drawing(0.5);
-renderer.spawnDrifters(courtLinesOuter, "rgb(0, 0, 0)", 2);
-renderer.spawnDrifters(courtLinesMin, "rgb(0, 0, 0)", 4);
+renderer.spawnDrifters(courtLinesOuter, "rgb(0, 0, 0)", "outer", 2);
+renderer.spawnDrifters(courtLinesMin, "rgb(0, 0, 0)", "min", 4);
+renderer.spawnDrifters(courtEnemyLines, "rgb(0, 0, 0)", "enemy", 3)
 
 var menuPosAngle = 0;
 var menuTextOffsetAngle = 0;
@@ -246,15 +254,20 @@ var knockoutBlur = 0;
 
 var lastSpace = false;
 var lastMousePos = {"x":0, "y":0};
+
+var tutorialShotsIn = 0;
+
 class Game{
 	constructor(){
 		this.state = this.start;
+		this.tutorialStage = 0;
 		this.currentComp = false;
 		this.currentCompNum = undefined;
 	}
 
 	execute(){
 		this.state();
+		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
 	}
 	menu(){
 		// will have three types of tournaments
@@ -267,7 +280,7 @@ class Game{
 				welcomePlayed = true;
 			}
 		}
-		c.fillStyle = "rgb(255, 255, 255)";
+		c.fillStyle = "rgb(200, 200, 200)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 
 		if(this.state === this.menu){
@@ -307,8 +320,8 @@ class Game{
 		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
 		balls[1].freeze([-cameraPos[0]+0.5*dist, cameraPos[1]-1.4*dist, 5+dist], false);
 
-		balls[1].setRotationalSpeed((mousePos.x-lastMousePos.x)/100, (mousePos.y-lastMousePos.y)/100);
-		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
+		// console.log((mousePos.y-lastMousePos.y)/1000);
+		balls[1].addRotationalSpeed([(mousePos.x-lastMousePos.x)/10000, (mousePos.y-lastMousePos.y)/10000]);
 		balls[1].draw();
 		if(skillChangeTrans > 0){
 			skillChangeTrans -= 0.003;
@@ -319,7 +332,11 @@ class Game{
 		if(this.currentComp.update() === true){
 			score = [0, 0];
 			changeSkill(this.currentComp.getSkill())
-			this.state = this.match;
+			if(this.currentComp.type === "tutorial"){
+				this.state = this.tutorial;
+			}else{
+				this.state = this.match;
+			}
 		}
 		if(this.currentComp.stillGoing === false){
 			var winningsMulti = this.currentComp.getWinnings();
@@ -363,6 +380,68 @@ class Game{
 		helpButton.draw(1);
 		this.showMoney();
 	}
+	tutorial(){
+		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
+			cameraPosAim[0] = -balls[0].X;
+		}
+		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
+
+		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
+
+		playerRacquetController.update()
+
+		this.background();
+		balls[0].run(true);
+		if(this.tutorialStage >= 3){
+			comRacquetController.draw();
+		}
+		if(this.tutorialStage >= 1){
+			renderer.drawDrifters("enemy");
+		}
+		if(balls[0].Z > 2){
+			balls[0].draw();
+		}
+		if(this.tutorialStage >= 3){
+			renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(0, 0, 0)", 10);
+			renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(255, 255, 255)", 5);
+		}
+		playerRacquetController.draw();
+		if(balls[0].Z <= 2){
+			balls[0].draw();
+		}
+
+		if(checkKey("Space") === false && lastSpace === true){
+			playDown();
+			if(aimGameSpeed === 1){ 
+				aimGameSpeed = 0.1;
+			}else{
+				aimGameSpeed = 1;
+			}
+		}
+		lastSpace = checkKey("Space");
+		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
+
+		if(this.tutorialStage === 0){
+			aimGameSpeed = 0.01;
+			showText("Hold left click and move the mouse to drag the ball", canvas.width*0.5, canvas.height*0.7, canvas.width*0.03);
+			if(playerRacquetController.dragging === true){
+				this.tutorialStage += 1;
+			}
+		}
+		if(this.tutorialStage === 1){
+			showText("Release to throw. Try to get 3 shots in", canvas.width*0.5, canvas.height*0.37, canvas.width*0.04);
+			showText("Tip: *something like bring it back first", canvas.width*0.5, canvas.height*0.8, canvas.width*0.01);
+		}
+		if(this.tutorialStage === 2){
+			showText("Tap space to go slow-mo", canvas.width*0.5, canvas.height*0.4, canvas.width*0.05);
+		}
+		if(this.tutorialStage === 3){
+			showText("", canvas.width*0.5, canvas.height*0.4, canvas.width*0.05);
+		}
+		this.overlay();
+	}
 	match(){
 		// camera movement
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
@@ -374,7 +453,7 @@ class Game{
 		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
 		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
 
-		if( playerRacquetController.update() === true){
+		if(playerRacquetController.update() === true){ // whenever it hits the ball
 			comRacquetController.speedUp();
 		}
 		comRacquetController.update();
@@ -394,6 +473,7 @@ class Game{
 		drawGlow(canvas.width*0.55, canvas.height*0.04, canvas.height*0.05, 0.15, [150, 50, 50]);
 		drawGlow(canvas.width*0.45, canvas.height*0.04, canvas.height*0.05, 0.15, [50, 50, 150]);
 		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
+
 		if((score[0] >= 4 && score[0] > score[1]+1)||
 			score[1] >= 4 && score[1] > score[0]+1){
 			this.currentComp.score(score);
@@ -429,7 +509,7 @@ class Game{
 	}
 
 
-	drawReflections(){
+	drawReflections(noRacquet = false){
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainReflectionPoints[range], false, true);
 			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
@@ -441,7 +521,9 @@ class Game{
 			c.fill();
 		}
 
-		comRacquetController.drawReflection();
+		if(noRacquet === false){
+			comRacquetController.drawReflection();
+		}
 		renderer.drawPoints(netOutlinePointsReflection, cameraPos, "rgba(0, 0, 0, 1)", 10);
 		renderer.drawPoints(netOutlinePointsReflection, cameraPos, "rgba(255, 255, 255, 1)", 5);
 
@@ -454,10 +536,13 @@ class Game{
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 	}
-	draw(){
+	draw(noRacquet = false){
 		balls[0].run();
-		comRacquetController.draw();
-		renderer.drawDrifters()
+		if(noRacquet === false){
+			comRacquetController.draw();
+		}
+		renderer.drawDrifters("min");
+		renderer.drawDrifters("outer");
 		if(balls[0].Z > 2){
 			balls[0].draw();
 		}
@@ -535,7 +620,7 @@ class Game{
 		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
 		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 	}
-	overlay(){
+	overlay(){ // flash and vingette
 		if(flashTextTrans > 0){
 			flashTextTrans -= 0.01;
 			showText(flashTextText, canvas.width/2, canvas.height/2, canvas.height*0.1, "rgba("+flashTextColour[0]+", "+flashTextColour[1]+", "+flashTextColour[2]+", "+flashTextTrans+")", true, true);

@@ -47,7 +47,7 @@ class drawing{
 	constructor(quality){
 		this.quality = quality;
 		this.style = 0;
-		this.points = [];
+		this.points = {};
 	}
 	drawPoints(points, cameraPos, colour, width = 5){
 		for(var i = 1; i<points.length;i+=1){
@@ -131,18 +131,19 @@ class drawing{
 
 		// glow
 	}
-	drawDrifters(){
+	drawDrifters(key){
 		c.beginPath();
-		for(var i = 0; i < this.points.length; i +=1){
-			this.points[i].update();
+		for(var i = 0; i < this.points[key].length; i+=1){
+			this.points[key][i].update();
 		}
 		c.fill();
 	}
-	spawnDrifters(lines, colour, size = 3, density = 50){
+	spawnDrifters(lines, colour, name, size = 3, density = 50){
+		this.points[name] = []
 		for(var i = 0; i < lines.length; i +=1){
 			var dist = dist3d(lines[i][0][0], lines[i][0][1], lines[i][0][2], lines[i][1][0], lines[i][1][1], lines[i][1][2]);
 			for(var j = 0; j<round(dist*density); j+=1){
-				this.points.push(new drifter(lines[i], j/(dist*density) ,colour, size));
+				this.points[name].push(new drifter(lines[i], j/(dist*density) ,colour, size));
 			}
 		}
 	}

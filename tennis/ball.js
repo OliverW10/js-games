@@ -71,6 +71,10 @@ class Ball{
 		this.Xrot = speeds[0];
 		this.Yrot = speeds[1];
 	}
+	addRotationalSpeed(speeds){
+		this.Xrot += speeds[0];
+		this.Yrot += speeds[1];
+	}
 	setAngle(angle){
 		this.Xangle = angle[0];
 		this.Yangle = angle[1];
@@ -82,7 +86,7 @@ class Ball{
 		this.stopped = false;
 	}
 
-	run(){
+	run(tutorial = false){
 		this.size = this.courtSize*canvas.width;
 		if(this.stopped === false){
 			this.lastX = this.X;
@@ -101,9 +105,6 @@ class Ball{
 			// spin
 			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.1*gameSpeed;
 			this.Xvel += (this.Xrot*this.Zvel)*-0.01*gameSpeed;
-			// spin drag
-			this.Xrot *= 1-0.003*gameSpeed;
-			this.Yrot *= 1-0.003*gameSpeed;
 
 			// collitions
 			if(this.Y-this.courtSize <= 0){ // ground
@@ -115,9 +116,15 @@ class Ball{
 				this.Xrot = this.Xrot*0.6 + this.Xvel*0.4;
 				this.Yrot *= 0.9;
 				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
+				if(tutorial === true && this.hitBy === 1){
+					if(call === 2){
+						tutorialShotsIn += 1;
+					}
+					this.resetCountdown = 30;
+				}
 				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
 
-				if(this.loser === false){
+				if(this.loser === false && tutorial === false){
 					this.bounces += 1;
 					if(call === 0){ // hit out
 						if(this.hitBy === -1){ // by AI
@@ -171,7 +178,8 @@ class Ball{
 				if(this.resetCountdown <= 0){
 					if(this.loser === 1){
 						score[1]+=1;
-					}else{
+					}
+					if(this.loser === 0){
 						score[0]+=1;
 					}
 					this.reset();
@@ -179,7 +187,7 @@ class Ball{
 			}
 
 			// net
-			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y-this.courtSize < netHeight){
+			if(Math.sign(this.lastZ-2) !== Math.sign(this.Z-2) && this.Y-this.courtSize < netHeight && tutorial === false){
 				this.Zvel = -this.Zvel;
 				this.Z += this.Zvel*gameSpeed;
 				this.Zvel *= 0.5
@@ -221,6 +229,10 @@ class Ball{
 		// rotation renders looping
 		// done here so the menu ball spins
 		if(true){
+			// spin drag
+			this.Xrot *= 1-0.003*gameSpeed;
+			this.Yrot *= 1-0.003*gameSpeed;
+
 			this.Xangle += this.Xrot*gameSpeed*2;
 			this.Yangle += this.Yrot*gameSpeed*2;
 			if(this.Xangle > 2){
@@ -279,7 +291,7 @@ class Ball{
 			c.arc(point[0], point[1], frameSize, 0, Math.PI*2);
 			c.fillStyle = "rgba(250, 250, 250, "+alpha+")";
 			// c.fill();
-			// c.clip();
+			c.clip();
 			for(var x = -2; x<=2; x+=1){
 				for(var y = -2; y<=2; y+=1){
 					c.beginPath();
@@ -302,8 +314,8 @@ class Ball{
 		this.Zvel = 0 //(Math.random())*0.05;
 		this.Xangle = 0;
 		this.Yangle = 0;// only need 2 beacuse its not real angle, just position of 
-		this.Xrot = 0.02*0.1; // the roational speed of the ball
-		this.Yrot = -0.05*0.1;
+		this.Xrot = 0; // the roational speed of the ball
+		this.Yrot = 0;
 		this.lastX = 0;
 		this.lastY = 0;
 		this.lastZ = 0;
