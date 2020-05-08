@@ -120,6 +120,10 @@ function drawHelpButton(X, Y, W, H, hovering, alpha){
 	showText("Help", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
 }
 
+function drawInfoButton(X, Y, W, H, hovering, alpha){
+
+}
+
 function drawBasicButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	c.beginPath();
 	if(hovering === true){
@@ -303,8 +307,8 @@ var robbinMarginBottom = 0.25;
 var robbinMarginRight = 0.15;
 
 class Competition{ // for round robbin and kockout competitons
-	constructor(type, players, difficulty = 4){
-		this.winnings = 0;
+	constructor(type, players, difficulty = 4, price = 5){
+		this.price = price;
 		this.names = getNames(players)
 		this.player = Math.floor(random(0, players));
 		this.names[this.player] = "You";
@@ -332,8 +336,16 @@ class Competition{ // for round robbin and kockout competitons
 			this.verses = Math.floor(random(0, players));
 			this.played = [this.player];
 		}
+		if(type === "tutorial"){
+			this.stage = 0;
+			this.draw = this.drawTutorial;
+			this.buttons = [];
+		}
 		this.stillGoing = true;
 		this.difficulty = difficulty;
+	}
+	drawTutorial(){
+		showText("Tutorial", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
 	}
 	drawKnockout(){
 		nameCounter = 0;
@@ -353,6 +365,12 @@ class Competition{ // for round robbin and kockout competitons
 		c.moveTo(canvas.width*0.6, canvas.height*0.6);
 		c.lineTo(canvas.width*0.51, canvas.height*0.6);
 		c.stroke();
+
+		showText("Current Prize: "+round(knockoutRatios[(this.maxDepth-this.aimProgress)+1]*this.price), canvas.width*0.333, canvas.height*0.9, canvas.width*0.02);
+
+		showText("Next Prize: "+round(knockoutRatios[(this.maxDepth-this.aimProgress)]*this.price), canvas.width*0.666, canvas.height*0.9, canvas.width*0.02); // *(0.666+this.progress%1*0.333)
+
+		// showText("Next Prize: "+round(knockoutRatios[(this.maxDepth-this.aimProgress)-1]*this.price), canvas.width*(1+this.progress%1*0.333), canvas.height*0.9, canvas.width*0.02);
 	}
 	drawRobbin(){
 		showText("Round Robbin competition", canvas.width/2, canvas.height*0.08, canvas.height*0.1, true, true);
@@ -567,4 +585,8 @@ function drawSettingsIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 		c.arc(X+Math.cos(angle+settingsGearOffset)*S/2, Y+Math.sin(angle+settingsGearOffset)*S/2, S/8, 0, Math.PI*2);
 		c.fill();
 	}
+}
+
+function drawTutorialIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+	showText("?", X, Y, S, colour);
 }

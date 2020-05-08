@@ -267,7 +267,7 @@ class Ball{
 			var brightness = clip(scaleNumber(Math.abs(Y), 0, 1.5, 0.5, 0), 0, 0.4)*alpha;
 			var glow = c.createRadialGradient(point[0], point[1], frameSize/2, point[0], point[1], frameSize*3);
 			glow.addColorStop(0, hslCvt(this.hsl, brightness*alpha));
-			glow.addColorStop(1, "rgba(150, 150, 150, 0)")
+			glow.addColorStop(1, "rgba(250, 250, 250, 0)")
 			c.fillStyle = glow;
 			c.fillRect(point[0]-frameSize*10, point[1]-frameSize*10, frameSize*20, frameSize*20);
 			

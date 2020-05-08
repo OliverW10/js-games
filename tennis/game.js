@@ -1,4 +1,6 @@
 
+var money = 5;
+
 var courtPoints = [[-1, 0, 1],
 [-1, 0, 2],
 [1, 0, 2],
@@ -187,9 +189,9 @@ function generateCompName(difficult = 4){
 	return compNames[0][round(random(0, compNames[0].length-1))] +" "+ compNames[1][round(random(0, compNames[1].length-1))] +" "+ compNames[2][round(random(0, compNames[2].length-1))];
 }
 
-function generateComp(money){
+function generateComp(money, type = false){
 	this.price = round(random(money/2, money*2));
-	this.difficult = random(this.price**0.6, this.price**0.7);
+	this.difficulty = random(this.price**0.6, this.price**0.7);
 	this.buttonNum = round(random(0, compButtonPositions.length-1));
 	this.buttonPos = compButtonPositions[this.buttonNum];
 	while(this.buttonPos[4] === true){
@@ -197,17 +199,24 @@ function generateComp(money){
 		this.buttonPos = compButtonPositions[this.buttonNum];
 	}
 	compButtonPositions[this.buttonNum][4] = true;
-	if(random(0,1) > 0.5){
+	if(random(0, 1) > 0.5){
 		this.type = "knockout";
-		comps.push([new Competition(this.type, 2**round(random(3, 5)), this.difficult), new Button(this.buttonPos, generateCompName(), drawKnockoutIcon, this.price)])
 	}else{
 		this.type = "robbin";
-		comps.push([new Competition(this.type, round(random(6, 15)), this.difficult), new Button(this.buttonPos, generateCompName(), drawRobbinIcon, this.price)])
 	}
+	if(this.type === "knockout"){
+		this.players = 2**round(random(3, 5));
+		this.icon = drawKnockoutIcon;
+	}
+	if(this.type === "robbin"){
+		this.players = round(random(6, 15));
+		this.icon = drawRobbinIcon;
+	}
+	comps.push([new Competition(this.type, this.players, this.difficulty, this.price), new Button(this.buttonPos, generateCompName(), this.icon, this.price)])
 }
 
 var compButtonPositions = [
-[0.02, 0.1, 0.46, 0.14, false],
+[0.02, 0.1, 0.46, 0.14, true],
 [0.02, 0.25, 0.46, 0.14, false],
 [0.02, 0.4, 0.46, 0.14, false],
 [0.02, 0.55, 0.46, 0.14, false],
@@ -220,18 +229,18 @@ var currentButtons = [];
 var compNames = [["Newcomers", "Beginers", "Clubs", "State", "National", "International", "Galactic"],
 ["Tennis", "Open", "Invitational", ""],
 ["Tournament", "Competition", ""]]
-var comps = [];
-// [new Competition("tutorial", 16, 3), new Button([0.02, 0.1, 0.46, 0.14], "Tutorial"), "Tutorial", 0]
-for(var i = 0; i <=7; i +=1){
-	generateComp(5);
+var comps = [[new Competition("tutorial", 0, 0, 0), new Button([0.02, 0.1, 0.46, 0.14], "Tutorial"), drawTutorialIcon, 0]]
+for(var i = 0; i < 3; i +=1){
+	generateComp(money, "robbin");
+	generateComp(money, "knockout");
 }
+generateComp(5, "knockout");
 
 var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], drawOnlineButton);
 
 var settingsButton = new Button([0.01, 0.94, 0.48, 0.05], drawSettingsButton);
 var helpButton = new Button([0.51, 0.94, 0.48, 0.05], drawHelpButton);
 
-var money = 5;
 var robbinBlur = 0;
 var knockoutBlur = 0;
 
