@@ -50,6 +50,8 @@ class Ball{
 		// this.hsl[1] += 0.1;
 		// this.hsl[2] += 0.01;
 		this.hsl[0] = random(0, 360);
+
+		this.rally += 1;
 	}
 
 	freeze(newPos, smooth = true, alpha = 0.4){
@@ -119,6 +121,7 @@ class Ball{
 				if(tutorial === true && this.hitBy === 1){
 					if(call === 2){
 						tutorialShotsIn += 1;
+						flashText("+1", [0, 100, 200]);
 					}
 					this.resetCountdown = 30;
 				}
@@ -179,7 +182,7 @@ class Ball{
 					if(this.loser === 1){
 						score[1]+=1;
 					}
-					if(this.loser === 0){
+					if(this.loser === -1){
 						score[0]+=1;
 					}
 					this.reset();
@@ -329,6 +332,7 @@ class Ball{
 		this.actualHitBy = 0;
 		coloursRGB["ball"] = [75, 75, 75];
 		this.hsl = [random(0, 360), 1, 0.55];
+		this.rally = 0;
 	}
 
 	getPos(){

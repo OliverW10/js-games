@@ -492,7 +492,7 @@ class Competition{ // for round robbin and kockout competitons
 			return this.skills[this.verses];
 		}
 		if(this.type === "tutrial"){
-			return 0
+			return 10
 		}
 	}
 	score(score){

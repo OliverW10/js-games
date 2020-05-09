@@ -123,12 +123,12 @@ class AIController{
 		// drawRacquet(this.aimX, this.aimY, this.aimZ);
 
 		// target circle
-		// c.beginPath();
-		// c.strokeStyle = "rgb(255, 0, 0)";
-		// var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-		// c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
-		// c.lineWidth = point[2]*5;
-		// c.stroke();
+		c.beginPath();
+		c.strokeStyle = "rgb(255, 0, 0)";
+		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+		c.lineWidth = point[2]*5;
+		c.stroke();
 	}
 	drawReflection(){
 		drawRacquet(this.X/1.1, -this.Y, this.Z, true, 1);
@@ -165,5 +165,28 @@ function drawRacquet(X, Y, Z, a = false, trans = 1){
 		c.lineTo(groundPoint[0] + Math.cos(angle)*point[2]*35 + Math.sign(Math.cos(angle))*15, groundPoint[1]);
 		c.lineWidth = point[2]*6;
 		c.stroke();
+	}
+}
+
+class WallController{
+	constructor(){
+
+	}
+	update(){
+		if(balls[0].Z > 3){
+			balls[0].hit(this.getVel(balls[0].X, balls[0].Y, balls[0].Z), this.getSpin(), -1)
+		}
+	}
+	getVel(X, Y, Z){ // takes the postion of hit
+		this.target = [random(-0.7, 0.7), 0, 1.2];
+
+		this.angle = Math.atan2(this.target[0]-balls[0].X, this.target[2]-balls[0].Z)+Math.PI/2;
+
+		this.shotPower = dist(X, Z, this.target[0], this.target[2])*gravity*12;
+
+		return [-this.shotPower*Math.cos(this.angle), 0.05, this.shotPower*Math.sin(this.angle)];
+	}
+	getSpin(){
+		return [random(-0.1, 0.1), 0.1]
 	}
 }

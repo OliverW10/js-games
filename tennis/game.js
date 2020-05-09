@@ -139,12 +139,11 @@ var bounceSpots = []
 
 var vingette = 0.2;
 
-var skill = 3;
-var comRacquetController = new AIController(skill);
+var comRacquetController = new AIController(2);
 var playerRacquetController = new mouseController();
+var tutorialControllers = new AIController(10)
 
 function changeSkill(newSkill){
-	skill = newSkill;
 	comRacquetController.setDifficulty(newSkill);
 	console.log(comRacquetController);
 }
@@ -158,17 +157,12 @@ renderer.spawnDrifters(courtEnemyLines, "rgb(0, 0, 0)", "enemy", 3)
 var menuPosAngle = 0;
 var menuTextOffsetAngle = 0;
 var menuTextOffset = [0, 0];
-var skillTextOffsetAngle = 0;
-var skillTextOffset = [0, 0];
 
 var menuPlayButton = new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
 var menuFade = 1;
 
 var score = [0, 0];
 var scoreLegend = {0:"0", 1:"1", 2:"2", 3:"3", 4:"4", 5:"5", 6:"6", 7:"7"};
-
-var skillChangeTrans = 1;
-var skillChange = 0;
 
 var flashTextText = "Blue Test";
 var flashTextTrans = 1;
@@ -256,6 +250,7 @@ var lastSpace = false;
 var lastMousePos = {"x":0, "y":0};
 
 var tutorialShotsIn = 0;
+var wallController = new WallController()
 
 class Game{
 	constructor(){
@@ -286,7 +281,6 @@ class Game{
 		if(this.state === this.menu){
 			if(menuPlayButton.update() === true){
 				score = [0, 0];
-				changeSkill(skill);
 				this.state = this.pickComp;
 				cameraPosAim = [0, 1, -0.4];
 				return true;
@@ -311,10 +305,10 @@ class Game{
 		showText("Tönnìs", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, "+trans+")", true, true);
 		showText("Tönnìs", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, "+trans+")", true, true);
 
-		skillTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.9, mousePos.x-canvas.width/2);
-		skillTextOffset = [Math.cos(skillTextOffsetAngle)*canvas.width*0.003, Math.sin(skillTextOffsetAngle)*canvas.width*0.003];
-		showText("Skill: "+round(skill*100), canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.07, "rgba(0, 0, 0, "+trans+")", true, true);
-		showText("Skill: "+round(skill*100), canvas.width/2, canvas.height*0.9, canvas.width*0.07, "rgba(255, 255, 255, "+trans+")", true, true);
+		// skillTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.9, mousePos.x-canvas.width/2);
+		// skillTextOffset = [Math.cos(skillTextOffsetAngle)*canvas.width*0.003, Math.sin(skillTextOffsetAngle)*canvas.width*0.003];
+		// showText("Skill: "+round(skill*100), canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.07, "rgba(0, 0, 0, "+trans+")", true, true);
+		// showText("Skill: "+round(skill*100), canvas.width/2, canvas.height*0.9, canvas.width*0.07, "rgba(255, 255, 255, "+trans+")", true, true);
 
 		menuPlayButton.draw(trans);
 		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
@@ -323,10 +317,10 @@ class Game{
 		// console.log((mousePos.y-lastMousePos.y)/1000);
 		balls[1].addRotationalSpeed([(mousePos.x-lastMousePos.x)/10000, (mousePos.y-lastMousePos.y)/10000]);
 		balls[1].draw();
-		if(skillChangeTrans > 0){
-			skillChangeTrans -= 0.003;
-			showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
-		}
+		// if(skillChangeTrans > 0){
+		// 	skillChangeTrans -= 0.003;
+		// 	showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
+		// }
 	}
 	comp(){
 		if(this.currentComp.update() === true){
@@ -393,17 +387,25 @@ class Game{
 		playerRacquetController.update()
 
 		this.background();
-		balls[0].run(true);
-		if(this.tutorialStage >= 3){
-			comRacquetController.draw();
+		if(this.tutorialStage < 2){
+			balls[0].run(true);
+		}else{
+			balls[0].run(false);
 		}
-		if(this.tutorialStage >= 1){
+		if(this.tutorialStage >= 2){
+			wallController.update();
+		}
+		if(this.tutorialStage === 1){
 			renderer.drawDrifters("enemy");
+		}
+		if(this.tutorialStage >= 2){
+			renderer.drawDrifters("outer");
+			renderer.drawDrifters("min");
 		}
 		if(balls[0].Z > 2){
 			balls[0].draw();
 		}
-		if(this.tutorialStage >= 3){
+		if(this.tutorialStage >= 2){
 			renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(0, 0, 0)", 10);
 			renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(255, 255, 255)", 5);
 		}
@@ -412,33 +414,49 @@ class Game{
 			balls[0].draw();
 		}
 
-		if(checkKey("Space") === false && lastSpace === true){
-			playDown();
-			if(aimGameSpeed === 1){ 
-				aimGameSpeed = 0.1;
-			}else{
-				aimGameSpeed = 1;
-			}
-		}
+		// if(checkKey("Space") === false && lastSpace === true){
+		// 	playDown();
+		// 	if(aimGameSpeed === 1){ 
+		// 		aimGameSpeed = 0.05;
+		// 	}else{
+		// 		aimGameSpeed = 1;
+		// 	}
+		// }
 		lastSpace = checkKey("Space");
+		if(checkKey("Space") === true){
+			aimGameSpeed = 0.05;
+		}else{
+			aimGameSpeed = 1;
+		}
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 
 		if(this.tutorialStage === 0){
-			aimGameSpeed = 0.01;
-			showText("Hold left click and move the mouse to drag the ball", canvas.width*0.5, canvas.height*0.7, canvas.width*0.03);
+			aimGameSpeed = 0.1;
+			showText("Hold click on the ball to drag it", canvas.width*0.5, canvas.height*0.7, canvas.width*0.03);
 			if(playerRacquetController.dragging === true){
 				this.tutorialStage += 1;
 			}
 		}
 		if(this.tutorialStage === 1){
-			showText("Release to throw. Try to get 3 shots in", canvas.width*0.5, canvas.height*0.37, canvas.width*0.04);
-			showText("Tip: *something like bring it back first", canvas.width*0.5, canvas.height*0.8, canvas.width*0.01);
+			showText("Fling the ball and Release to throw. Try to get 3 shots in", canvas.width*0.5, canvas.height*0.37, canvas.width*0.04);
+			showText("Tip: Releasing the ball further back will result is a lower shot", canvas.width*0.5, canvas.height*0.8, canvas.width*0.02);
+			showText(tutorialShotsIn, canvas.width*0.5, canvas.height*0.1, canvas.width*0.03);
+			if(tutorialShotsIn >= 3){
+				this.tutorialStage += 1;
+				changeSkill(15);
+			}
 		}
 		if(this.tutorialStage === 2){
-			showText("Tap space to go slow-mo", canvas.width*0.5, canvas.height*0.4, canvas.width*0.05);
+			showText("Hold space for slo-mo", canvas.width*0.5, canvas.height*0.8, canvas.width*0.04);
+			showText("Have a 5 shot rally", canvas.width*0.5, canvas.height*0.9, canvas.width*0.04);
+			showText(balls[0].rally, canvas.width*0.5, canvas.height*0.1, canvas.width*0.03);
+			if(balls[0].rally > 5){
+				this.tutorialStage += 1;
+			}
 		}
 		if(this.tutorialStage === 3){
-			showText("", canvas.width*0.5, canvas.height*0.4, canvas.width*0.05);
+			flashText("Done", [0, 100, 200]);
+			this.state = this.comp;
 		}
 		this.overlay();
 	}
@@ -469,7 +487,7 @@ class Game{
 
 		// scoring
 		showText("You", canvas.width*0.45, canvas.height*0.05, canvas.height*0.03, "rgb(0, 0, 200)", false, false);
-		showText("Lvl."+round(skill)+" AI", canvas.width*0.55, canvas.height*0.05, canvas.height*0.03, "rgb(100, 0, 0)", false, false);
+		showText("Lvl."+round(comRacquetController.difficulty)+" AI", canvas.width*0.55, canvas.height*0.05, canvas.height*0.03, "rgb(100, 0, 0)", false, false);
 		drawGlow(canvas.width*0.55, canvas.height*0.04, canvas.height*0.05, 0.15, [150, 50, 50]);
 		drawGlow(canvas.width*0.45, canvas.height*0.04, canvas.height*0.05, 0.15, [50, 50, 150]);
 		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
@@ -495,13 +513,18 @@ class Game{
 			score[0] = 3;
 			score[1] = 3;
 		}
-		if(checkKey("Space") === false && lastSpace === true){
-			playDown();
-			if(aimGameSpeed === 1){ 
-				aimGameSpeed = 0.1;
-			}else{
-				aimGameSpeed = 1;
-			}
+		// if(checkKey("Space") === false && lastSpace === true){
+		// 	playDown();
+		// 	if(aimGameSpeed === 1){ 
+		// 		aimGameSpeed = 0.1;
+		// 	}else{
+		// 		aimGameSpeed = 1;
+		// 	}
+		// }
+		if(checkKey("Space") === true){
+			aimGameSpeed = 0.05;
+		}else{
+			aimGameSpeed = 1;
 		}
 		lastSpace = checkKey("Space");
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
