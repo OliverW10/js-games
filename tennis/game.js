@@ -252,6 +252,12 @@ var lastMousePos = {"x":0, "y":0};
 var tutorialShotsIn = 0;
 var wallController = new WallController()
 
+var birds = [];
+for(var i = 0; i < 25; i += 1){
+	birds.push(new Bird(random(-10, 10), random(5, 7), random(5, 25)));
+}
+console.log(birds);
+
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -544,6 +550,11 @@ class Game{
 			c.fill();
 		}
 
+		var b;
+		for(b in birds){
+			birds[b].drawReflection();
+		}
+
 		if(noRacquet === false){
 			comRacquetController.drawReflection();
 		}
@@ -559,11 +570,13 @@ class Game{
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 	}
-	draw(noRacquet = false){
-		balls[0].run();
-		if(noRacquet === false){
-			comRacquetController.draw();
+	draw(){
+		var b;
+		for(b in birds){
+			birds[b].update();
 		}
+		balls[0].run();
+		comRacquetController.draw();
 		renderer.drawDrifters("min");
 		renderer.drawDrifters("outer");
 		if(balls[0].Z > 2){
@@ -590,25 +603,36 @@ class Game{
 		c.fill();
 
 		// mountains
-		for(var range = mountainPoints.length-1; range > 0; range-=1){
+		// for(var range = mountainPoints.length-1; range > 0; range-=1){
+		// 	renderer.polygon(mountainPoints[range], false, true);
+		// 	var grd = c.createLinearGradient(0, 0, 0, canvas.height*0.3)
+		// 	var dark = range**1.6*15-100;
+		// 	var light = range**1.6*15+50;
+		// 	grd.addColorStop(0, "rgb("+dark+", "+dark+", "+dark+")");
+		// 	grd.addColorStop(1, "rgb("+light+", "+light+", "+light+")");
+		// 	c.fillStyle = grd;
+		// 	c.fill();
+		// }
+
+		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainPoints[range], false, true);
-			var grd = c.createLinearGradient(0, 0, 0, canvas.height*0.3)
-			var dark = range**1.6*15-100;
+			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
+			var dark = range**1.6*15-50;
 			var light = range**1.6*15+50;
-			grd.addColorStop(0, "rgb("+dark+", "+dark+", "+dark+")");
-			grd.addColorStop(1, "rgb("+light+", "+light+", "+light+")");
-			c.fillStyle = grd;
+			grd.addColorStop(0, "rgba("+dark+", "+dark+", "+dark+", 1)");
+			grd.addColorStop(1, "rgba("+light+", "+light+", "+light+", 1)");
+			c.fillStyle = "rgba("+dark+", "+dark+", "+dark+", 1)";
 			c.fill();
 		}
 
 		//ground
-		c.beginPath();
-		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
-		grd.addColorStop(1, colours.ground);
-		grd.addColorStop(0, colours.sky);
-		c.fillStyle = grd;
-		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
-		c.fill();
+		// c.beginPath();
+		// var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
+		// grd.addColorStop(1, colours.ground);
+		// grd.addColorStop(0, colours.sky);
+		// c.fillStyle = grd;
+		// c.rect(0, horizonPoint[1], canvas.width, canvas.height);
+		// c.fill();
 
 	}
 	movement(){

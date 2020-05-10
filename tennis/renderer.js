@@ -181,35 +181,46 @@ class drifter{
 	}
 }
 
-class bird{
+class Bird{
 	constructor(X, Y, Z){
 		this.X = X;
 		this.Y = Y;
 		this.Z = Z;
 
+		this.pivot = [X, Y, Z];
+		this.angle = random(0, Math.PI*2);
+
 		this.points = [];
 		this.angles = [];
-		this.speeds = [];
+		this.angleSpeeds = [];
 		for(var i = 0; i < 5; i += 1){
-			this.points.push([random(-0.1, 0.1)+this.X, random(0, 0.1)+this.Y, this.Z]);
+			this.points.push([random(-0.1, 0.1), random(0, 0.1), 0]);
 			this.angles.push([random(0, Math.PI*2), random(0, Math.PI*2), 0]);
-			this.speeds.push([random(-0.002, 0.002), random(-0.001, 0.001), 0]);
+			this.angleSpeeds.push([random(-0.003, 0.003), random(-0.01, 0.01), 0]);
 		}
+		this.changeTime
 	}
 	update(){
+		// this.X += this.speed[0]*gameSpeed;
+		// this.Y += this.speed[1]*gameSpeed;
+		// this.Z += this.speed[2]*gameSpeed;
+		this.X = Math.cos(this.angle)+this.pivot[0];
+		this.Z = Math.sin(this.angle)+this.pivot[2];
+		this.angle += 0.005;
+
 		var drawPoints = [];
-		for(var i = 0; i < this.points.length; i += 1){
-			this.angles[i][0] += this.speeds[i][0];
-			this.angles[i][1] += this.speeds[i][1];
-			this.angles[i][2] += this.speeds[i][2];
-			drawPoints.push([this.points[0]+Math.sin(this.angles[0]), this.points[1]+Math.sin(this.angles[1]), this.points[2]+Math.sin(this.angles[2])]);
+		for(var i = 0; i < this.points.length; i += 1){ 
+			this.angles[i][0] += this.angleSpeeds[i][0];
+			this.angles[i][1] += this.angleSpeeds[i][1];
+			this.angles[i][2] += this.angleSpeeds[i][2];
+			drawPoints.push([this.X+this.points[i][0]+Math.sin(this.angles[i][0])*0.1, this.Y+this.points[i][1]+Math.sin(this.angles[i][1])*0.1, this.Z+this.points[i][2]+Math.sin(this.angles[i][2])*0.1]);
 		}
-		renderer.polygon(drawPoints, "rgb(20, 20, 20)");
+		renderer.polygon(drawPoints, "rgb(20, 20, 20)", true);
 	}
 	drawReflection(){
 		var drawPoints = [];
 		for(var i = 0; i < this.points.length; i += 1){
-			drawPoints.push([this.points[0]+Math.sin(this.angles[0]), -(this.points[1]+Math.sin(this.angles[1])), this.points[2]+Math.sin(this.angles[2])]);
+			drawPoints.push([this.X+this.points[i][0]+Math.sin(this.angles[i][0])*0.1, -(this.Y+this.points[i][1]+Math.sin(this.angles[i][1])*0.1), this.Z+this.points[i][2]+Math.sin(this.angles[i][2])*0.1]);
 		}
 		renderer.polygon(drawPoints, "rgb(20, 20, 20)");
 	}
