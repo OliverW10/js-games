@@ -69,7 +69,7 @@ class drawing{
 			}
 		}
 	}
-	polygon(points, colour = false, project = false){ // should remove colour so that you can have the option for gradients
+	polygon(points, colour = false, project = false){
 		c.beginPath();
 		if(project = false){
 			c.moveTo(points[0][0], points[0][1]);
@@ -178,5 +178,39 @@ class drifter{
 			c.moveTo(Math.round(point[0]), Math.round(point[1]));
 			c.arc(Math.round(point[0]), Math.round(point[1]), this.size*point[2], 0, Math.PI*2);
 		}
+	}
+}
+
+class bird{
+	constructor(X, Y, Z){
+		this.X = X;
+		this.Y = Y;
+		this.Z = Z;
+
+		this.points = [];
+		this.angles = [];
+		this.speeds = [];
+		for(var i = 0; i < 5; i += 1){
+			this.points.push([random(-0.1, 0.1)+this.X, random(0, 0.1)+this.Y, this.Z]);
+			this.angles.push([random(0, Math.PI*2), random(0, Math.PI*2), 0]);
+			this.speeds.push([random(-0.002, 0.002), random(-0.001, 0.001), 0]);
+		}
+	}
+	update(){
+		var drawPoints = [];
+		for(var i = 0; i < this.points.length; i += 1){
+			this.angles[i][0] += this.speeds[i][0];
+			this.angles[i][1] += this.speeds[i][1];
+			this.angles[i][2] += this.speeds[i][2];
+			drawPoints.push([this.points[0]+Math.sin(this.angles[0]), this.points[1]+Math.sin(this.angles[1]), this.points[2]+Math.sin(this.angles[2])]);
+		}
+		renderer.polygon(drawPoints, "rgb(20, 20, 20)");
+	}
+	drawReflection(){
+		var drawPoints = [];
+		for(var i = 0; i < this.points.length; i += 1){
+			drawPoints.push([this.points[0]+Math.sin(this.angles[0]), -(this.points[1]+Math.sin(this.angles[1])), this.points[2]+Math.sin(this.angles[2])]);
+		}
+		renderer.polygon(drawPoints, "rgb(20, 20, 20)");
 	}
 }
