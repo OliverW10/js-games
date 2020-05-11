@@ -189,6 +189,7 @@ class Bird{
 
 		this.pivot = [X, Y, Z];
 		this.angle = random(0, Math.PI*2);
+		this.speed = random(-0.01, 0.01);
 
 		this.points = [];
 		this.angles = [];
@@ -196,7 +197,7 @@ class Bird{
 		for(var i = 0; i < 5; i += 1){
 			this.points.push([random(-0.1, 0.1), random(0, 0.1), 0]);
 			this.angles.push([random(0, Math.PI*2), random(0, Math.PI*2), 0]);
-			this.angleSpeeds.push([random(-0.003, 0.003), random(-0.01, 0.01), 0]);
+			this.angleSpeeds.push([random(-0.03, 0.03), random(-0.1, 0.1), 0]);
 		}
 		this.changeTime
 	}
@@ -206,7 +207,7 @@ class Bird{
 		// this.Z += this.speed[2]*gameSpeed;
 		this.X = Math.cos(this.angle)+this.pivot[0];
 		this.Z = Math.sin(this.angle)+this.pivot[2];
-		this.angle += 0.005;
+		this.angle += this.speed;
 
 		var drawPoints = [];
 		for(var i = 0; i < this.points.length; i += 1){ 

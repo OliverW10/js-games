@@ -2,7 +2,7 @@ var old = false
 class mouseController{
 	constructor(){
 		this.prevPos = [];
-		this.pollingPeriod = [20, 8, 6]; // [recordFor, use for vel, use for anti-stop]
+		this.pollingPeriod = [20, 9, 5]; // [recordFor, use for vel, use for anti-stop]
 		this.velocity = [0, 0, 0];
 		this.spin = [0, 0];
 		this.prevSpeed = [];

@@ -114,11 +114,11 @@ var balls = [new Ball(0, 1, 1.5), new Ball(0, 0, 1.5), new Ball(-5, 1, 1.5)]; //
 
 var mountainPoints = [];
 for(var i = 0; i<6; i+=1){
-	mountainPoints.push([[-25, i-1.5, 10+i/4]]);
+	mountainPoints.push([[-25, 0, 10+i/4]]);
 	for(var j = -10; j < 10; j+=1){
-		mountainPoints[i].push([j*2+random(-1, 1), random(i, i+1)+1, 10+i/4])
+		mountainPoints[i].push([j*2+random(-1, 1), random(i-1, i)+1, 10+i/4])
 	}
-	mountainPoints[i].push([25, i-1.5, 10+i/4]);
+	mountainPoints[i].push([25, 0, 10+i/4]);
 }
 mountainPoints.push([50, -50, 30]);
 mountainPoints.push([-50, -50, 30]);
@@ -126,11 +126,11 @@ mountainPoints.push([-50, -50, 30]);
 var mountainReflectionPoints = [];
 var mountainReflectionPoints = [];
 for(var i = 0; i<6; i+=1){
-	mountainReflectionPoints.push([[-25, -i+1.5, 10+i/4]]);
+	mountainReflectionPoints.push([[-25, 0, 10+i/4]]);
 	for(var j = 0; j < 20; j+=1){
 		mountainReflectionPoints[i].push([mountainPoints[i][j][0], -(mountainPoints[i][j][1]-1)*1, mountainPoints[i][j][2]]);
 	}
-	mountainReflectionPoints[i].push([25, -i+1.5, 10+i/4]);
+	mountainReflectionPoints[i].push([25, 0, 10+i/4]);
 }
 mountainReflectionPoints.push([50, 50, 30]);
 mountainReflectionPoints.push([-50, 50, 30]);
@@ -145,7 +145,6 @@ var tutorialControllers = new AIController(10)
 
 function changeSkill(newSkill){
 	comRacquetController.setDifficulty(newSkill);
-	console.log(comRacquetController);
 }
 
 var vanishingPointPos = [0.5, 0.3];
@@ -201,10 +200,14 @@ function generateComp(money, type = false){
 		this.buttonPos = compButtonPositions[this.buttonNum];
 	}
 	compButtonPositions[this.buttonNum][4] = true;
-	if(random(0, 1) > 0.5){
-		this.type = "knockout";
+	if(type === false){
+		if(random(0, 1) > 0.5){
+			this.type = "knockout";
+		}else{
+			this.type = "robbin";
+		}
 	}else{
-		this.type = "robbin";
+		this.type = type;
 	}
 	if(this.type === "knockout"){
 		this.players = 2**round(random(3, 5));
@@ -236,7 +239,7 @@ for(var i = 0; i < 3; i +=1){
 	generateComp(money, "robbin");
 	generateComp(money, "knockout");
 }
-generateComp(5, "knockout");
+generateComp(5, "robbin");
 
 var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], drawOnlineButton);
 
@@ -256,7 +259,6 @@ var birds = [];
 for(var i = 0; i < 25; i += 1){
 	birds.push(new Bird(random(-10, 10), random(5, 7), random(5, 25)));
 }
-console.log(birds);
 
 class Game{
 	constructor(){
@@ -420,20 +422,20 @@ class Game{
 			balls[0].draw();
 		}
 
-		// if(checkKey("Space") === false && lastSpace === true){
-		// 	playDown();
-		// 	if(aimGameSpeed === 1){ 
-		// 		aimGameSpeed = 0.05;
-		// 	}else{
-		// 		aimGameSpeed = 1;
-		// 	}
-		// }
-		lastSpace = checkKey("Space");
-		if(checkKey("Space") === true){
-			aimGameSpeed = 0.05;
-		}else{
-			aimGameSpeed = 1;
+		if(checkKey("Space") === false && lastSpace === true){
+			playDown();
+			if(aimGameSpeed === 1){ 
+				aimGameSpeed = 0.05;
+			}else{
+				aimGameSpeed = 1;
+			}
 		}
+		lastSpace = checkKey("Space");
+		// if(checkKey("Space") === true){
+		// 	aimGameSpeed = 0.05;
+		// }else{
+		// 	aimGameSpeed = 1;
+		// }
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 
 		if(this.tutorialStage === 0){
@@ -519,19 +521,19 @@ class Game{
 			score[0] = 3;
 			score[1] = 3;
 		}
-		// if(checkKey("Space") === false && lastSpace === true){
-		// 	playDown();
-		// 	if(aimGameSpeed === 1){ 
-		// 		aimGameSpeed = 0.1;
-		// 	}else{
-		// 		aimGameSpeed = 1;
-		// 	}
-		// }
-		if(checkKey("Space") === true){
-			aimGameSpeed = 0.05;
-		}else{
-			aimGameSpeed = 1;
+		if(checkKey("Space") === false && lastSpace === true){
+			playDown();
+			if(aimGameSpeed === 1){ 
+				aimGameSpeed = 0.1;
+			}else{
+				aimGameSpeed = 1;
+			}
 		}
+		// if(checkKey("Space") === true){
+		// 	aimGameSpeed = 0.05;
+		// }else{
+		// 	aimGameSpeed = 1;
+		// }
 		lastSpace = checkKey("Space");
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 		this.overlay();

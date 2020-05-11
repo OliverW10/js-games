@@ -334,7 +334,12 @@ class Competition{ // for round robbin and kockout competitons
 			}
 			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], "Go");
 			this.verses = Math.floor(random(0, players));
+			while(this.verses === this.player){
+				this.verses = Math.floor(random(0, players));
+			}
 			this.played = [this.player];
+			this.progress = 0;
+			this.fakeProgress = 0;
 		}
 		if(type === "tutorial"){
 			this.stage = 0;
@@ -445,6 +450,11 @@ class Competition{ // for round robbin and kockout competitons
 				showText("Total", canvas.width*(x+0.5)/this.names.length*((1-robbinMarginLeft)-robbinMarginRight) + canvas.width*robbinMarginLeft, canvas.height*(robbinMarginTop-0.02), canvas.width*0.01, "rgb(0, 0, 0)", true);
 			}
 			showText("To play: "+(this.player+1)+". You vs "+(this.verses+1)+". "+(this.names[this.verses]), canvas.width/2, canvas.height*0.8, canvas.height*0.05);
+
+			showText("Prizes:", canvas.width*0.1, canvas.height*0.8, canvas.height*0.025);
+			for(var i = 0; i < this.names.length; i += 1){
+				showText((i+1)+"th $"+round((1-i/this.names.length)*2*this.price), canvas.width*0.1, canvas.height*(0.8+(i+1)*0.02), canvas.height*0.02);
+			}
 		}
 	}
 	update(){
@@ -513,45 +523,61 @@ class Competition{ // for round robbin and kockout competitons
 					this.verses = round(random(0, this.names.length-1));
 				}
 			}
-			this.fakeMatch();
+			this.progress = (this.played.length-1)/this.names.length;
+			this.fakeProgress += 1/((this.names.length-1)**2); // fake progress is basicly tournament progress and progress is your progress
+			// so that it can do the corrent amount of fake matches to keep them in sync
+			while(this.fakeProgress < this.progress){
+				console.log(this.fakeMatch()); // returns false if there is no more matches to play
+				// break
+				this.fakeProgress += 1/((this.names.length-1)**2);
+			}
+			console.log(this.progress, this.fakeProgress);
 		}
 	}
 	fakeMatch(){
 		// used to progress the robbin scoreboard
-		var p1 = round(random(0, this.names.length-1));
-		var p2 = round(random(0, this.names.length-1));
-		while(this.scores[p1][p2] !== false || p1 === p2 || p1 == this.player || p2 == this.player){
-			p1 = round(random(0, this.names.length-1));
-			p2 = round(random(0, this.names.length-1));
-		}
-		if(random(0, 1) > 0.7){
-			if(random(0, 1) > 0.5){
-				this.scores[p2][p1] = clip(round((this.skills[p1]/this.skills[p2])*4), 0, 4);
-				this.scores[p1][p2] = clip(round((this.skills[p2]/this.skills[p1])*4), 0, 4);
-				if(this.scores[p2][p1] === 3){ // removing the 3-4 game that cant be achived
-					this.scores[p1][p2] = 5;
-				}
-				if(this.scores[p1][p2] === 3){
-					this.scores[p2][p1] = 4;
-				}
+		var nonZero = (item) => item === false;
+		var toPlay = (list) => list.some(nonZero) === true;
+		if(this.scores.some(toPlay) === true){
+			var p1 = round(random(0, this.names.length-1));
+			var p2 = round(random(0, this.names.length-1));
+			while(this.scores[p1][p2] !== false || p1 === p2 || p1 == this.player || p2 == this.player){
+				p1 = round(random(0, this.names.length-1));
+				p2 = round(random(0, this.names.length-1));
 			}
-		}else{
-			if(random(0, 1) > 0.5){ // 30% chance of random outcome
-				this.scores[p2][p1] = 4;
-				this.scores[p1][p2] = round(random(0, 2));
+			if(random(0, 1) > 0.7){
+				if(random(0, 1) > 0.5){
+					this.scores[p2][p1] = clip(round((this.skills[p1]/this.skills[p2])*4), 0, 4);
+					this.scores[p1][p2] = clip(round((this.skills[p2]/this.skills[p1])*4), 0, 4);
+					if(this.scores[p2][p1] === 3){ // removing the 3-4 game that cant be achived
+						this.scores[p1][p2] = 5;
+					}
+					if(this.scores[p1][p2] === 3){
+						this.scores[p2][p1] = 4;
+					}
+				}
 			}else{
-				this.scores[p2][p1] = 4;
-				this.scores[p1][p2] = round(random(0, 2));
+				if(random(0, 1) > 0.5){ // 30% chance of random outcome
+					this.scores[p2][p1] = 4;
+					this.scores[p1][p2] = round(random(0, 2));
+				}else{
+					this.scores[p2][p1] = 4;
+					this.scores[p1][p2] = round(random(0, 2));
+				}
 			}
+			return true;
+		}else{
+			return false;
 		}
 	}
 	getWinnings(){
 		if(this.type === "knockout"){
 			return knockoutRatios[(this.maxDepth-this.aimProgress)+1];
-		}else{
+		}
+		if(this.type === "robbin"){
 			var playerScore = this.points[this.player];
 			var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
-			return (place/this.names.length)*2
+			return (1-place/this.names.length)*2
 		}
 	}
 }
