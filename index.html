@@ -13,12 +13,29 @@
 
 	<title>Olikat Games</title>
 	<style type="text/css">
-	body {margin: 0px;}
+		/*
+		https://coolors.co/223843-eff1f3-dbd3d8-d8b4a0-d77a61
+		*/
+		body {
+			margin: 0px;
+			background-color: #223843;
+		}
+		#links{
+			color: #D77A61;
+		}
+		#linksDiv{
+			text-align: center;
+		}
 	</style>
 </head>
 <body>
-	<a href="racer/race.html">Drift racer</a>
-	<a href="tennis/main.html">Tennis Game (WIP)</a>
-	<a href="IST/main.html">IST Game</a>
-	<a href="https://github.com/OliverW10/OliverW10.github.io">View source code</a>
+	<a id="links" href="https://github.com/OliverW10/OliverW10.github.io">View source code</a>
+	<div id="linksDiv">
+		<a href="tennis/main.html" id="tennisButton">
+			<img src="images/tennis_thumb.png" width="400" height="300">
+		</a>
+		<a href="racer/race.html" id="racerButton">
+			<img src="images/racer_thumb.png" width="400" height="300">
+		</a>
+	</div>
 </body>
