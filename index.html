@@ -22,24 +22,45 @@
 		}
 		#links{
 			color: #D77A61;
+			z-index: 10000;
 		}
 		#linksDiv{
 			text-align: center;
 			display: block
+			z-index: 10000;
 		}
 		#logo{
+			position: relative;
 			display: block;
 			margin: auto;
-			width: 20%;
-			right: 50%;
+			width: 115px;
+			right: 0%;
 			align-content: center
 		}
 		#topBar{
 			background-color: #304f5e;
 		}
+		#racerDesc{
+			position: absolute;
+			color: white;
+			left: 55%;
+			z-index: 0;
+		}
+		#tennisDesc{
+			position: absolute;
+			color: white;
+			left: 25%;
+			z-index: 0;
+		}
 	</style>
 </head>
 <body>
+	<div id="tennisDesc">
+		<p>Play psycic tennis aginst a floating<br> tennis raquet in purgatory (with birds) <br> and many lots of money</p>
+	</div>
+	<div id="racerDesc">
+		<p>Race a car around a track as fast as <br> possible, beat your times and get gold!</p>
+	</div>
 	<div id="topBar">
 		<div id="logo">
 			<img src="images/logo.png">
@@ -54,4 +75,5 @@
 			<img src="images/racer_thumb.png" width="400" height="300">
 		</a>
 	</div>
+	<script src="animations.js"></script>
 </body>
