@@ -487,6 +487,7 @@ class Competition{ // for round robbin and kockout competitons
 		c.stroke();
 		this.playButton.draw(1);
 		if(this.playButton.update() === true && this.stillGoing === true){
+			this.playButton.reset();
 			return true
 		}else{
 			return false
@@ -660,33 +661,63 @@ function drawTutorialIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	showText("?", X, Y, S, colour);
 }
 
+function drawNextIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+
+}
+function drawPrevIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
+
+}
+
 class Tutorial{
 	constructor(){
-		this.page = this.tips1;
+		this.page = 0;
+		this.pages = {"tips":[this.tips1, this.tips2, this.tips3],
+		"tournaments":[this.tournaments1, this.tournaments2, this.tournaments3, this.tournaments4]
+		};
 		this.state = false; // either tips or tournaments
+		this.nextButton = new Button([0.89, 0.89, 0.1, 0.1], "", drawNextIcon);
+		this.prevButton = new Button([0.01, 0.89, 0.1, 0.1], "", drawPrevIcon);
 	}
 	draw(){
-		this.page();
+		if(this.nextButton.update() === true){
+			this.page += 1;
+			this.nextButton.reset();
+		}
+		if(this.prevButton.update() === true){
+			this.page -= 1;
+			this.prevButton.reset();
+		}
+		console.log(this.pages[this.state][this.page], this.state, this.page);
+		this.pages[this.state][this.page]();
+		this.nextButton.draw();
+		this.prevButton.draw();
 	}
 	tips1(){
 		showText("The higher you let go of the ball the loftier the shot will be", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tips2(){
-		showText("", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("2", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tips3(){
-		showText("", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("3", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments1(){
 		showText("Each tournament will have a cost and be either a round-robbin,\na knockout or a accuracy test(not done yet)", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments2(){
-		showText("The knockout will ", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("2", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments3(){
-		showText("The higher you let go of the ball the loftier the shot will be", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("3", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments4(){
-		showText("The higher you let go of the ball the loftier the shot will be", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("4", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	done(){
+		if(this.page > this.pages[this.state].length){
+			return true;
+		}else{
+			return false;
+		}
 	}
 }

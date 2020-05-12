@@ -260,7 +260,7 @@ for(var i = 0; i < 25; i += 1){
 	birds.push(new Bird(random(-10, 10), random(5, 7), random(5, 25)));
 }
 
-var tipsPage = 
+var pagesTutorials = new Tutorial();
 
 class Game{
 	constructor(){
@@ -343,9 +343,11 @@ class Game{
 				}
 				if(this.currentComp.selected === 1){
 					this.state = this.tournTutorial;
+					pagesTutorials.state = "tournaments";
 				}
 				if(this.currentComp.selected === 2){
 					this.state = this.tips;
+					pagesTutorials.state = "tips";
 				}
 				if(this.currentComp.selected === 3){
 					this.state = this.wall;
@@ -397,10 +399,16 @@ class Game{
 		this.showMoney();
 	}
 	tips(){
-		
+		if(pagesTutorials.done() === true){
+			this.state = comp;
+		}
+		pagesTutorials.draw();
 	}
 	tournTutorial(){
-
+		if(pagesTutorials.done() === true){
+			this.state = comp;
+		}
+		pagesTutorials.draw();
 	}
 	tutorial(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
