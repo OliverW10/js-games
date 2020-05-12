@@ -26,63 +26,6 @@ function drawPlayButton(X, Y, W, H, hovering, alpha){
 	}
 }
 
-function drawRobbinButton(X, Y, W, H, hovering, alpha){
-	c.beginPath();
-	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
-	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
-	}
-	c.lineWidth = canvas.height*0.005;
-	c.rect(X, Y, W, H);
-	c.stroke();
-	c.fill();
-	showText("Round-robbin", X+W/2, Y+H*0.1, H/8, "rgb(200, 200, 200)", true, false);
-	showText("Round-robbin", X+W/2, Y+H*0.1, H/8, "rgb(100, 100, 100)", true, true);
-
-	showText("Tournaments", X+W/2, Y+H*0.2, H/7, "rgb(200, 200, 200)", true, false);
-	showText("Tournaments", X+W/2, Y+H*0.2, H/7, "rgb(100, 100, 100)", true, true);
-}
-
-function drawKnockoutButton(X, Y, W, H, hovering, alpha){
-	c.beginPath();
-	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
-	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
-	}
-	c.lineWidth = canvas.height*0.005;
-	c.rect(X, Y, W, H);
-	c.stroke();
-	c.fill();
-	showText("Knockout", X+W/2, Y+H*0.1, W/8, "rgb(200, 200, 200)", true, false);
-	showText("Knockout", X+W/2, Y+H*0.1, W/8, "rgb(100, 100, 100)", true, true);
-
-	showText("Tournaments", X+W/2, Y+H*0.2, W/7, "rgb(200, 200, 200)", true, false);
-	showText("Tournaments", X+W/2, Y+H*0.2, W/7, "rgb(100, 100, 100)", true, true);
-}
-
-function drawOnlineButton(X, Y, W, H, hovering, alpha){
-	c.beginPath();
-	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
-	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
-	}
-	c.lineWidth = canvas.height*0.005;
-	c.rect(X, Y, W, H);
-	c.stroke();
-	c.fill();
-	showText("Online leaderboard", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
-	showText("Online leaderboard", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
-}
-
 function drawSettingsButton(X, Y, W, H, hovering, alpha){
 	c.beginPath();
 	if(hovering === true){
@@ -101,23 +44,6 @@ function drawSettingsButton(X, Y, W, H, hovering, alpha){
 	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgb(100, 100, 100)", true, true);
 
 	drawSettingsIcon(X+W*0.7, Y+H/2, H*0.6);
-}
-
-function drawHelpButton(X, Y, W, H, hovering, alpha){
-	c.beginPath();
-	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
-	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
-	}
-	c.lineWidth = canvas.height*0.005;
-	c.rect(X, Y, W, H);
-	c.stroke();
-	c.fill();
-	showText("Help", X+W/2, Y+H*0.65, H*0.5, "rgb(200, 200, 200)", true, false);
-	showText("Help", X+W/2, Y+H*0.65, H*0.5, "rgb(100, 100, 100)", true, true);
 }
 
 function drawInfoButton(X, Y, W, H, hovering, alpha){
@@ -161,7 +87,11 @@ function drawIconButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgb(100, 100, 100)", true, true);
 
 	if(icon !== false){
-		icon(X+W*0.05, Y+H*0.5, H*0.3);
+		if(text === ""){
+			icon(X+W*0.5, Y+H*0.5, H*0.3);
+		}else{
+			icon(X+W*0.05, Y+H*0.5, H*0.3);
+		}
 	}
 }
 
@@ -662,10 +592,22 @@ function drawTutorialIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 }
 
 function drawNextIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
-
+	c.beginPath();
+	c.moveTo(X-S/2, Y-S/2);
+	c.lineTo(X+S/2, Y);
+	c.lineTo(X-S/2, Y+S/2);
+	c.closePath();
+	c.fillStyle = colour;
+	c.fill();
 }
 function drawPrevIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
-
+	c.beginPath();
+	c.moveTo(X+S/2, Y-S/2);
+	c.lineTo(X-S/2, Y);
+	c.lineTo(X+S/2, Y+S/2);
+	c.closePath();
+	c.fillStyle = colour;
+	c.fill();
 }
 
 class Tutorial{
@@ -687,7 +629,6 @@ class Tutorial{
 			this.page -= 1;
 			this.prevButton.reset();
 		}
-		console.log(this.pages[this.state][this.page], this.state, this.page);
 		this.pages[this.state][this.page]();
 		this.nextButton.draw();
 		this.prevButton.draw();

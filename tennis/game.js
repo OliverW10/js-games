@@ -241,10 +241,10 @@ for(var i = 0; i < 3; i +=1){
 }
 generateComp(5, "robbin");
 
-var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], drawOnlineButton);
+var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], "Online leaderboard");
 
 var settingsButton = new Button([0.01, 0.94, 0.48, 0.05], drawSettingsButton);
-var helpButton = new Button([0.51, 0.94, 0.48, 0.05], drawHelpButton);
+var helpButton = new Button([0.51, 0.94, 0.48, 0.05], "What should this button be?");
 
 var robbinBlur = 0;
 var knockoutBlur = 0;
