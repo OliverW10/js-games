@@ -346,9 +346,10 @@ class Competition{ // for round robbin and kockout competitons
 			this.draw = this.drawTutorial;
 			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], "Go");
 			this.buttons = [
-			new Button([0.1, 0.1, 0.3, 0.1], "Throwing"),
-			new Button([0.1, 0.25, 0.3, 0.1], "Returning"),
-			new Button([0.1, 0.4, 0.3, 0.1], "Tournaments"),
+			new Button([0.1, 0.1, 0.3, 0.1], "Basics"),
+			new Button([0.1, 0.25, 0.3, 0.1], "Tournaments"),
+			new Button([0.1, 0.4, 0.3, 0.1], "Tips"),
+			new Button([0.1, 0.55, 0.3, 0.1], "Practise")
 			]
 			this.selected = 0;
 		}
@@ -364,6 +365,15 @@ class Competition{ // for round robbin and kockout competitons
 				this.selected = i;
 			}
 		}
+		c.beginPath();
+		c.moveTo(canvas.width*0.5, canvas.height*0.84);
+		var lineHeight = (this.buttons[this.selected].Y+this.buttons[this.selected].H*0.5)*canvas.height;
+		c.lineTo(canvas.width*0.5, lineHeight);
+		c.lineTo(canvas.width*0.4, lineHeight);
+		c.strokeStyle = "rgb(100, 100, 100)";
+		c.lineWidth = canvas.heigth*0.001
+		c.stroke();
+		showText(this.selected, canvas.width*0.7, canvas.height*0.5, canvas.height*0.05);
 	}
 	drawKnockout(){
 		nameCounter = 0;
@@ -580,6 +590,22 @@ class Competition{ // for round robbin and kockout competitons
 			return (1-place/this.names.length)*2
 		}
 	}
+	tutorialType(){
+		if(this.type === "tutorial"){ // should only be called if this is tutorial but have to make sure
+			if(this.selected === 0){
+				return "gameplay";
+			}
+			if(this.selected === 1){
+				return "tournaments";
+			}
+			if(this.selected === 2){
+				return "tips";
+			}
+			if(this.selected === 3){
+				return "wall";
+			}
+		}
+	}
 }
 
 function drawKnockoutIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
@@ -632,4 +658,35 @@ function drawSettingsIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 
 function drawTutorialIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	showText("?", X, Y, S, colour);
+}
+
+class Tutorial{
+	constructor(){
+		this.page = this.tips1;
+		this.state = false; // either tips or tournaments
+	}
+	draw(){
+		this.page();
+	}
+	tips1(){
+		showText("The higher you let go of the ball the loftier the shot will be", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	tips2(){
+		showText("", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	tips3(){
+		showText("", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	tournaments1(){
+		showText("Each tournament will have a cost and be either a round-robbin,\na knockout or a accuracy test(not done yet)", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	tournaments2(){
+		showText("The knockout will ", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	tournaments3(){
+		showText("The higher you let go of the ball the loftier the shot will be", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	tournaments4(){
+		showText("The higher you let go of the ball the loftier the shot will be", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
 }

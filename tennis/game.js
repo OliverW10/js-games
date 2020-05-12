@@ -260,6 +260,8 @@ for(var i = 0; i < 25; i += 1){
 	birds.push(new Bird(random(-10, 10), random(5, 7), random(5, 25)));
 }
 
+var tipsPage = 
+
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -335,7 +337,19 @@ class Game{
 			score = [0, 0];
 			changeSkill(this.currentComp.getSkill())
 			if(this.currentComp.type === "tutorial"){
-				this.state = this.tutorial;
+				console.log(this.currentComp.selected);
+				if(this.currentComp.selected === 0){
+					this.state = this.tutorial;
+				}
+				if(this.currentComp.selected === 1){
+					this.state = this.tournTutorial;
+				}
+				if(this.currentComp.selected === 2){
+					this.state = this.tips;
+				}
+				if(this.currentComp.selected === 3){
+					this.state = this.wall;
+				}
 			}else{
 				this.state = this.match;
 			}
@@ -381,6 +395,12 @@ class Game{
 		settingsButton.draw(1);
 		helpButton.draw(1);
 		this.showMoney();
+	}
+	tips(){
+		
+	}
+	tournTutorial(){
+
 	}
 	tutorial(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
@@ -538,8 +558,34 @@ class Game{
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
 		this.overlay();
 	}
+	wall(){
+		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
+			cameraPosAim[0] = -balls[0].X;
+		}
+		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
+		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
 
+		playerRacquetController.update()
+		wallController.update();
+		this.background();
+		this.drawReflections();
+		this.draw();
+
+		if(checkKey("Space") === false && lastSpace === true){
+			playDown();
+			if(aimGameSpeed === 1){ 
+				aimGameSpeed = 0.1;
+			}else{
+				aimGameSpeed = 1;
+			}
+		}
+		lastSpace = checkKey("Space");
+		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
+		this.overlay();
+	}
 	drawReflections(noRacquet = false){
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainReflectionPoints[range], false, true);
