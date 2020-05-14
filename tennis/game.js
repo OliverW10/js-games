@@ -190,8 +190,13 @@ function generateCompName(difficult = 4){
 	return compNames[0][round(random(0, compNames[0].length-1))] +" "+ compNames[1][round(random(0, compNames[1].length-1))] +" "+ compNames[2][round(random(0, compNames[2].length-1))];
 }
 
-function generateComp(money, type = false){
-	this.price = round(random(money/2, money*2));
+function generateComp(currentMoney = false, type = false){
+	if(money === false){
+		this.money = money;
+	}else{
+		this.money = currentMoney;
+	}
+	this.price = round(random(this.money/2, this.money*2));
 	this.difficulty = random(this.price**0.6, this.price**0.7);
 	this.buttonNum = round(random(0, compButtonPositions.length-1));
 	this.buttonPos = compButtonPositions[this.buttonNum];
@@ -301,7 +306,7 @@ class Game{
 		this.drawMenu(1);
 		this.overlay();
 	}
-	drawMenu(trans){
+	drawMenu(){
 		if(this.state === this.menu){
 			cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
 			cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
@@ -312,25 +317,14 @@ class Game{
 		}
 		menuTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.15, mousePos.x-canvas.width/2);
 		menuTextOffset = [Math.cos(menuTextOffsetAngle)*canvas.width*0.003, Math.sin(menuTextOffsetAngle)*canvas.width*0.003];
-		showText("Tönnìs", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, "+trans+")", true, true);
-		showText("Tönnìs", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, "+trans+")", true, true);
+		showText("Tönnìs", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, 1)", true, true);
+		showText("Tönnìs", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, 1)", true, true);
 
-		// skillTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.9, mousePos.x-canvas.width/2);
-		// skillTextOffset = [Math.cos(skillTextOffsetAngle)*canvas.width*0.003, Math.sin(skillTextOffsetAngle)*canvas.width*0.003];
-		// showText("Skill: "+round(skill*100), canvas.width/2-skillTextOffset[0], canvas.height*0.9-skillTextOffset[1], canvas.width*0.07, "rgba(0, 0, 0, "+trans+")", true, true);
-		// showText("Skill: "+round(skill*100), canvas.width/2, canvas.height*0.9, canvas.width*0.07, "rgba(255, 255, 255, "+trans+")", true, true);
+		menuPlayButton.draw();
+		balls[1].freeze([-cameraPos[0]+0.5, cameraPos[1]-1.4, 5], false);
 
-		menuPlayButton.draw(trans);
-		var dist = scaleNumber(trans, 0, 1, 3, 0.3);
-		balls[1].freeze([-cameraPos[0]+0.5*dist, cameraPos[1]-1.4*dist, 5+dist], false);
-
-		// console.log((mousePos.y-lastMousePos.y)/1000);
 		balls[1].addRotationalSpeed([(mousePos.x-lastMousePos.x)/10000, (mousePos.y-lastMousePos.y)/10000]);
 		balls[1].draw();
-		// if(skillChangeTrans > 0){
-		// 	skillChangeTrans -= 0.003;
-		// 	showText("+"+round(skillChange*100), canvas.width*0.71, canvas.height*0.89, canvas.height*0.06, "rgba(255, 255, 255, "+skillChangeTrans+")", true, true);
-		// }
 	}
 	comp(){
 		if(this.currentComp.update() === true){
@@ -388,14 +382,14 @@ class Game{
 			this.currentComp = testRobbinComp;
 			this.state = this.settings;
 		}
-		onlineButton.draw(1);
+		onlineButton.draw();
 		for(var i = 0; i<comps.length; i += 1){
-			comps[i][1].draw(1);
+			comps[i][1].draw();
 		}
 		c.filter = "none";
 
-		settingsButton.draw(1);
-		helpButton.draw(1);
+		settingsButton.draw();
+		helpButton.draw();
 		this.showMoney();
 	}
 	tips(){
@@ -514,10 +508,6 @@ class Game{
 
 		// drawing
 		this.background();
-		if(menuFade > 0){
-			this.drawMenu(menuFade);
-			menuFade -= 0.05;
-		}
 		this.drawReflections();
 		this.draw();
 
@@ -540,9 +530,9 @@ class Game{
 			menuPlayButton.reset();
 
 			if(score[0] > score[1]){
-				flashText("Winner", [0, 50, 200]);
+				flashText("Victory", [0, 100, 200], 2);
 			}else{
-				flashText("Better luck next time", [50, 0, 0]);
+				flashText("Enemy wins", [255, 50, 0], 1.5);
 			}
 		}
 		if(score[0] === 4 && score[1] === 4){
@@ -725,7 +715,7 @@ class Game{
 	}
 	overlay(){ // flash and vingette
 		if(flashTextTrans > 0){
-			flashTextTrans -= 0.01;
+			flashTextTrans -= 0.0075;
 			showText(flashTextText, canvas.width/2, canvas.height/2, canvas.height*0.1, "rgba("+flashTextColour[0]+", "+flashTextColour[1]+", "+flashTextColour[2]+", "+flashTextTrans+")", true, true);
 
 			c.beginPath();

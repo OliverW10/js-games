@@ -120,8 +120,17 @@ class Button{
 		this.clickRatio = 0.025;
 		this.icon = icon
 		this.cost = cost;
+		this.alpha = 1;
+		this.fadeOut = false;
+		this.callback = null;
 	}
 	update(){
+		if(this.fadeOut === true){
+			this.alpha -= 0.01;
+		}
+		if(this.alpha < 0){
+			this.callback();
+		}
 		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
 			if(mouseButtons[0] === true){
 				this.state = 2;
@@ -137,14 +146,14 @@ class Button{
 		}
 		return false
 	}
-	draw(alpha = 1){
+	draw(){
 		if(this.text === false){
 			this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
 				this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
 				this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
 				this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
 				!!this.state,
-				alpha,
+				this.alpha,
 				this.icon);
 		}else{
 			if(this.cost != 0){
@@ -153,7 +162,7 @@ class Button{
 					this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
 					this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
 					!!this.state,
-					alpha,
+					this.alpha,
 					this.text+" $"+this.cost,
 					this.icon);
 			}else{
@@ -162,7 +171,7 @@ class Button{
 					this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
 					this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
 					!!this.state,
-					alpha,
+					this.alpha,
 					this.text,
 					this.icon);
 			}
@@ -170,6 +179,10 @@ class Button{
 	}
 	reset(){
 		this.state = 0;
+	}
+	fadeOut(callback){
+		this.fadeOut = true;
+		this.fadeCallback = callback;
 	}
 }
 
@@ -589,6 +602,13 @@ function drawSettingsIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 
 function drawTutorialIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	showText("?", X, Y, S, colour);
+	c.beginPath();
+	c.moveTo(X-S/2, Y-S/2);
+	c.lineTo(X+S/2, Y);
+	c.lineTo(X-S/2, Y+S/2);
+	c.closePath();
+	c.fillStyle = colour;
+	c.fill();
 }
 
 function drawNextIcon(X, Y, S, colour = "rgb(100, 100, 100)"){

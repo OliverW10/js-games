@@ -29,7 +29,7 @@ class AIController{
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
 		this.spin = power*0.07
-		this.speed = 0.001+0.0002*this.difficulty;
+		this.speed = 0.0005+0.00025*this.difficulty;
 		this.boost = 0;
 		this.trials = this.difficulty**1.4; // how many times to try 
 		this.predictionRate = 0.01;
@@ -94,7 +94,7 @@ class AIController{
 		this.Yvel *= 1-0.1*gameSpeed;
 
 		// going to aims
-		this.Xvel += Math.sign(this.aimX - this.X)*(Math.abs(this.aimX-this.X)+0.75)*gameSpeed*(this.speed+this.boost);
+		this.Xvel += Math.sign(this.aimX - this.X)*(Math.abs(this.aimX-this.X)+0.6)*gameSpeed*(this.speed+this.boost);
 		if(this.Z < this.aimZ){
 			this.Zvel += (this.speed+this.boost)*gameSpeed;
 		}else{
@@ -123,12 +123,12 @@ class AIController{
 		// drawRacquet(this.aimX, this.aimY, this.aimZ);
 
 		// target circle
-		c.beginPath();
-		c.strokeStyle = "rgb(255, 0, 0)";
-		var point = projectPoint(this.target[0], this.target[1], this.target[2]);
-		c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
-		c.lineWidth = point[2]*5;
-		c.stroke();
+		// c.beginPath();
+		// c.strokeStyle = "rgb(255, 0, 0)";
+		// var point = projectPoint(this.target[0], this.target[1], this.target[2]);
+		// c.ellipse(point[0], point[1], point[2]*20, point[2]*10, 0, 0, Math.PI*2);
+		// c.lineWidth = point[2]*5;
+		// c.stroke();
 	}
 	drawReflection(){
 		drawRacquet(this.X/1.1, -this.Y, this.Z, true, 1);

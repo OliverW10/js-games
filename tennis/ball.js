@@ -49,7 +49,7 @@ class Ball{
 
 		// this.hsl[1] += 0.1;
 		// this.hsl[2] += 0.01;
-		this.hsl[0] = random(0, 360);
+		// this.hsl[0] = random(0, 360);
 
 		this.rally += 1;
 	}
@@ -110,6 +110,7 @@ class Ball{
 
 			// collitions
 			if(this.Y-this.courtSize <= 0){ // ground
+				var scoreText = scoreLegend[score[0]]+" - "+scoreLegend[score[1]];
 				// this.Y = this.courtSize;
 				this.Yvel = -this.Yvel;
 				this.Y += this.Yvel*gameSpeed
@@ -138,12 +139,12 @@ class Ball{
 							this.loser = 1;
 						}
 						if(this.bounces >= 2){
-							flashText("Double Bounce", [0, 0, 255]);
+							// flashText(scoreText, [0, 0, 255]);
 						}else{
 							if(this.hitBy === -1){
-								flashText("Out", [0, 0, 255]);
+								// flashText(scoreText, [0, 0, 255]);
 							}else{
-								flashText("Out", [255, 0, 0]);
+								// flashText(scoreText, [255, 0, 0]);
 							}
 						}
 					}else{
@@ -156,7 +157,7 @@ class Ball{
 								}
 								this.hitBy = -this.hitBy;
 								if(this.bounces >= 2){
-									flashText("Double Bounce", [0, 0, 255]);
+									// flashText(scoreText, [0, 0, 255]);
 								}
 							}
 							if(this.Z <= 2){ // on player side
@@ -167,7 +168,7 @@ class Ball{
 								}
 								this.hitBy = -this.hitBy;
 								if(this.bounces >= 2){
-									flashText("Double Bounce", [255, 0, 0]);
+									// flashText(scoreText, [255, 0, 0]);
 								}
 							}
 						}
@@ -178,13 +179,17 @@ class Ball{
 
 			if(this.resetCountdown != "no"){
 				this.resetCountdown -= 1;
+				if(this.loser === 1){
+					score[1]+=1;
+					this.loser = 0;
+					flashText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], [255, 50, 0]);
+				}
+				if(this.loser === -1){
+					score[0]+=1;
+					this.loser = 0;
+					flashText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], [0, 100, 255]);
+				}
 				if(this.resetCountdown <= 0){
-					if(this.loser === 1){
-						score[1]+=1;
-					}
-					if(this.loser === -1){
-						score[0]+=1;
-					}
 					this.reset();
 				}
 			}
@@ -201,12 +206,12 @@ class Ball{
 					if(this.hitBy === 1){
 						this.resetCountdown = resetTimeNet;
 						this.loser = 1;
-						flashText("Net", [255, 0, 0]);
+						// flashText(scoreText, [255, 0, 0]);
 					}
 					if(this.hitBy === -1){
 						this.resetCountdown = resetTimeNet;
 						this.loser = -1;
-						flashText("Net", [0, 0, 255]);
+						// flashText(scoreText, [0, 0, 255]);
 					}
 				}
 			}
@@ -217,7 +222,7 @@ class Ball{
 			this.apex = 0;
 		}
 
-		this.hsl[0] += this.Zvel*20*gameSpeed;
+		// this.hsl[0] += this.Zvel*200*gameSpeed;
 	}
 	draw(shadow = true, alpha = 1){
 		if(true){ // left over from doing it a different way, remove later
@@ -236,8 +241,8 @@ class Ball{
 			this.Xrot *= 1-0.003*gameSpeed;
 			this.Yrot *= 1-0.003*gameSpeed;
 
-			this.Xangle += this.Xrot*gameSpeed*2;
-			this.Yangle += this.Yrot*gameSpeed*2;
+			this.Xangle += this.Xrot*gameSpeed*1;
+			this.Yangle += this.Yrot*gameSpeed*1;
 			if(this.Xangle > 2){
 				this.Xangle = -2;
 			}
@@ -331,7 +336,7 @@ class Ball{
 		this.loser = false;
 		this.actualHitBy = 0;
 		coloursRGB["ball"] = [75, 75, 75];
-		this.hsl = [random(0, 360), 1, 0.55];
+		this.hsl = [169, 1, 0.6];
 		this.rally = 0;
 	}
 
