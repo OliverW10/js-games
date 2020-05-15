@@ -207,13 +207,13 @@ class Bird{
 		// this.Z += this.speed[2]*gameSpeed;
 		this.X = Math.cos(this.angle)+this.pivot[0];
 		this.Z = Math.sin(this.angle)+this.pivot[2];
-		this.angle += this.speed;
+		this.angle += this.speed*gameSpeed;
 
 		var drawPoints = [];
 		for(var i = 0; i < this.points.length; i += 1){ 
-			this.angles[i][0] += this.angleSpeeds[i][0];
-			this.angles[i][1] += this.angleSpeeds[i][1];
-			this.angles[i][2] += this.angleSpeeds[i][2];
+			this.angles[i][0] += this.angleSpeeds[i][0]*gameSpeed;
+			this.angles[i][1] += this.angleSpeeds[i][1]*gameSpeed;
+			this.angles[i][2] += this.angleSpeeds[i][2]*gameSpeed;
 			drawPoints.push([this.X+this.points[i][0]+Math.sin(this.angles[i][0])*0.1, this.Y+this.points[i][1]+Math.sin(this.angles[i][1])*0.1, this.Z+this.points[i][2]+Math.sin(this.angles[i][2])*0.1]);
 		}
 		renderer.polygon(drawPoints, "rgb(20, 20, 20)", true);

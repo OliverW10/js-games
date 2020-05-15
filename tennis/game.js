@@ -120,8 +120,8 @@ for(var i = 0; i<6; i+=1){
 	}
 	mountainPoints[i].push([25, 0, 10+i/4]);
 }
-mountainPoints.push([50, -50, 30]);
-mountainPoints.push([-50, -50, 30]);
+mountainPoints.push([50, -50, 11]);
+mountainPoints.push([-50, -50, 11]);
 
 var mountainReflectionPoints = [];
 var mountainReflectionPoints = [];
@@ -299,28 +299,12 @@ class Game{
 		c.fillStyle = "rgb(200, 200, 200)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 
-		if(this.state === this.menu){
-			if(menuPlayButton.update() === true){
-				score = [0, 0];
-				// this.state = this.pickComp;
-				transition(this.pickComp);
-				cameraPosAim = [0, 1, -0.4];
-				return true;
-			}
-		}
-
-		// this.background();
-		this.drawMenu(1);
-		this.overlay();
-	}
-	drawMenu(){
-		if(this.state === this.menu){
-			cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
-			cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
-			cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
-
-			menuPosAngle += 0.003;
-			cameraPosAim = [Math.sin(menuPosAngle)*5, 1.5, -5];
+		if(menuPlayButton.update() === true){
+			score = [0, 0];
+			this.state = this.pickComp;
+			// transition(this.pickComp);
+			cameraPosAim = [0, 1, -0.4];
+			return true;
 		}
 		menuTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.15, mousePos.x-canvas.width/2);
 		menuTextOffset = [Math.cos(menuTextOffsetAngle)*canvas.width*0.003, Math.sin(menuTextOffsetAngle)*canvas.width*0.003];
@@ -332,6 +316,8 @@ class Game{
 
 		balls[1].addRotationalSpeed([(mousePos.x-lastMousePos.x)/10000, (mousePos.y-lastMousePos.y)/10000]);
 		balls[1].draw();
+
+		this.overlay();
 	}
 	comp(){
 		if(this.currentComp.update() === true){
@@ -624,7 +610,7 @@ class Game{
 		renderer.drawPoints(netOutlinePointsReflection, cameraPos, "rgba(0, 0, 0, 1)", 10);
 		renderer.drawPoints(netOutlinePointsReflection, cameraPos, "rgba(255, 255, 255, 1)", 5);
 
-		var horizonPoint = projectPoint(0, 0, 10);
+		var horizonPoint = projectPoint(0, 0, 11);
 		c.beginPath();
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
 		grd.addColorStop(1, "rgba(150, 150, 150, 0.7");
@@ -655,7 +641,7 @@ class Game{
 		}
 	}
 	background(){
-		var horizonPoint = projectPoint(0, 0, 10);
+		var horizonPoint = projectPoint(0, 0, 11);
 		// sky
 		c.beginPath();
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
