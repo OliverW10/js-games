@@ -136,6 +136,7 @@ class Button{
 				this.state = 2;
 			}else{
 				if(this.state === 2){
+					this.state = 0;
 					return true
 				}else{
 					this.state = 1;

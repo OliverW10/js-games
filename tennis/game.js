@@ -173,6 +173,12 @@ function flashText(text, colour, time = 1){
 	flashTextTrans = Math.min(time, 1);
 }
 
+var transitionProgress = 2;
+function transition(callback){
+	transitionProgress = 0;
+	transitionCallback = callback;
+}
+
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
 /*
 winnings should be
@@ -296,7 +302,8 @@ class Game{
 		if(this.state === this.menu){
 			if(menuPlayButton.update() === true){
 				score = [0, 0];
-				this.state = this.pickComp;
+				// this.state = this.pickComp;
+				transition(this.pickComp);
 				cameraPosAim = [0, 1, -0.4];
 				return true;
 			}
@@ -333,21 +340,26 @@ class Game{
 			if(this.currentComp.type === "tutorial"){
 				console.log(this.currentComp.selected);
 				if(this.currentComp.selected === 0){
-					this.state = this.tutorial;
+					// this.state = this.tutorial;
+					transition(this.tutorial);
 				}
 				if(this.currentComp.selected === 1){
-					this.state = this.tournTutorial;
+					// this.state = this.tournTutorial;
+					transition(this.tournTutorial);
 					pagesTutorials.state = "tournaments";
 				}
 				if(this.currentComp.selected === 2){
-					this.state = this.tips;
+					// this.state = this.tips;
+					transition(this.tips);
 					pagesTutorials.state = "tips";
 				}
 				if(this.currentComp.selected === 3){
-					this.state = this.wall;
+					// this.state = this.wall;
+					transition(this.wall);
 				}
 			}else{
 				this.state = this.match;
+				// transition(this.match);
 			}
 		}
 		if(this.currentComp.stillGoing === false){
@@ -355,7 +367,8 @@ class Game{
 			console.log("Cost Mult: "+winningsMulti);
 			money += winningsMulti*comps[this.currentCompNum][1].cost;
 			this.currentComp = undefined;
-			this.state = this.pickComp;
+			// this.state = this.pickComp;
+			transition(this.pickComp);
 		}
 		this.overlay();
 		this.showMoney();
@@ -366,17 +379,20 @@ class Game{
 			if(comps[i][1].update() === true){
 				this.currentComp = comps[i][0];
 				this.currentCompNum = i;
-				this.state = this.comp;
+				// this.state = this.comp;
+				transition(this.comp);
 				money -= comps[i][1].cost;
 			}
 		}
 		if(onlineButton.update() === true){
 			this.currentComp = testRobbinComp;
-			this.state = this.leaderboard;
+			// this.state = this.leaderboard;
+			transition(this.leaderboard);
 		}
 		if(helpButton.update() === true){
 			this.currentComp = testRobbinComp;
 			this.state = this.help;
+			transistion(this.help);
 		}
 		if(settingsButton.update() === true){
 			this.currentComp = testRobbinComp;
@@ -390,6 +406,7 @@ class Game{
 
 		settingsButton.draw();
 		helpButton.draw();
+		this.overlay();
 		this.showMoney();
 	}
 	tips(){
@@ -554,7 +571,7 @@ class Game{
 		// }
 		lastSpace = checkKey("Space");
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
-		this.overlay();
+		// this.overlay();
 	}
 	wall(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
@@ -623,6 +640,7 @@ class Game{
 		}
 		balls[0].run();
 		comRacquetController.draw();
+		c.fillStyle = "rgb(0, 0, 0)";
 		renderer.drawDrifters("min");
 		renderer.drawDrifters("outer");
 		if(balls[0].Z > 2){
@@ -631,7 +649,6 @@ class Game{
 
 		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(0, 0, 0)", 10);
 		renderer.drawPoints(netOutlinePoints, cameraPos, "rgb(255, 255, 255)", 5);
-
 		playerRacquetController.draw();
 		if(balls[0].Z <= 2){
 			balls[0].draw();
@@ -729,6 +746,21 @@ class Game{
 		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
 		c.fillStyle = grd;
 		c.fillRect(0, 0, canvas.width, canvas.height);
+
+		c.beginPath();
+		c.fillStyle = "rgb(0, 0, 0)";
+		if(transitionProgress > 0 && transitionProgress < 1){
+			c.arc(canvas.width*0.5, canvas.height*0.5, (transitionProgress)*canvas.width, 0, Math.PI*2);
+		}
+		if(transitionProgress > 1 && transitionProgress < 2){
+			c.arc(canvas.width*0.5, canvas.height*0.5, (2-transitionProgress)*canvas.width, 0, Math.PI*2);
+		}
+		c.fill();
+		if(transitionProgress < 1 && transitionProgress+0.05 > 1){
+			this.state = transitionCallback;
+			console.log("swapped state");
+		}
+		transitionProgress += 0.05;
 	}
 	start(){
 		c.fillStyle = "rgb(100, 100, 100)";
@@ -739,6 +771,7 @@ class Game{
 			lastMouseButtons[0] = true;
 		}
 		if(mouseButtons[0] === false && lastMouseButtons[0] === true){
+			//transition(this.menu);
 			this.state = this.menu;
 		}
 	}
