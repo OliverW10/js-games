@@ -481,17 +481,18 @@ class Competition{ // for round robbin and kockout competitons
 				}
 			}
 			this.progress = (this.played.length-1)/this.names.length;
-			this.fakeProgress += 1/((this.names.length-1)**2); // fake progress is basicly tournament progress and progress is your progress
+			this.fakeProgress += 1/((this.names.length-1)**2)*2; // fake progress is basicly tournament progress and progress is your progress
 			// so that it can do the corrent amount of fake matches to keep them in sync
 			while(this.fakeProgress < this.progress){
-				console.log(this.fakeMatch()); // returns false if there is no more matches to play
-				// break
-				this.fakeProgress += 1/((this.names.length-1)**2);
+				if(this.fakeMatch() === false){
+
+				}
+				this.fakeProgress += 1/((this.names.length-1)**2)*2;
 			}
 			console.log(this.progress, this.fakeProgress);
 		}
 	}
-	fakeMatch(){
+	fakeMatch(){ // returns false if there is no more matches to play
 		// used to progress the robbin scoreboard
 		var nonZero = (item) => item === false;
 		var toPlay = (list) => list.some(nonZero) === true;
@@ -501,6 +502,7 @@ class Competition{ // for round robbin and kockout competitons
 			while(this.scores[p1][p2] !== false || p1 === p2 || p1 == this.player || p2 == this.player){
 				p1 = round(random(0, this.names.length-1));
 				p2 = round(random(0, this.names.length-1));
+				console.log("checked pair");
 			}
 			if(random(0, 1) > 0.7){
 				if(random(0, 1) > 0.5){

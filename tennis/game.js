@@ -374,7 +374,7 @@ class Game{
 	pickComp(){
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
 		for(var i = 0; i<comps.length; i += 1){
-			if(comps[i][1].update() === true){
+			if(comps[i][1].update() === true && money >= comps[i][1].cost){
 				this.currentComp = comps[i][0];
 				this.currentCompNum = i;
 				// this.state = this.comp;
@@ -782,13 +782,7 @@ class Game{
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
 	}
 	showMoney(){
-		if(this.state === this.comp){
-			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
-			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(0, 0, 0)", false, true);
-		}
-		if(this.state === this.pickComp){
-			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
-			showText("$"+money, canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(0, 0, 0)", false, true)
-		}
+		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
+		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(0, 0, 0)", false, true);
 	}
 }
