@@ -191,18 +191,18 @@ all multipliers of cost
 	robbin
 placing in the group(0-1) * 2 * cost
 */
-var knockoutRatios = [3, 1.75, 1.1, 0.4, 0, 0, 0, 0, 0]; // goes [winner, runner up, semis, quartars, below]
+var knockoutRatios = [2, 1.4, 0.9, 0.1, 0, 0, 0, 0, 0]; // goes [winner, runner up, semis, quartars, below]
 function generateCompName(difficult = 4){
 	return compNames[0][round(random(0, compNames[0].length-1))] +" "+ compNames[1][round(random(0, compNames[1].length-1))] +" "+ compNames[2][round(random(0, compNames[2].length-1))];
 }
 
 function generateComp(currentMoney = false, type = false){
-	if(money === false){
-		this.money = money;
+	if(currentMoney === false){
+		this.cost = money;
 	}else{
-		this.money = currentMoney;
+		this.cost = currentMoney;
 	}
-	this.price = round(random(this.money/2, this.money*2));
+	this.price = clip(round(random(this.cost/3, this.cost*1.5)), 1, 150);
 	this.difficulty = random(this.price**0.6, this.price**0.7);
 	this.buttonNum = round(random(0, compButtonPositions.length-1));
 	this.buttonPos = compButtonPositions[this.buttonNum];
@@ -231,6 +231,13 @@ function generateComp(currentMoney = false, type = false){
 	comps.push([new Competition(this.type, this.players, this.difficulty, this.price), new Button(this.buttonPos, generateCompName(), this.icon, this.price)])
 }
 
+function deleteComp(num){
+	console.log("deleted comp "+num+" button num "+compButtonPositions.indexOf(comps[num][1].rect));
+	compButtonPositions[compButtonPositions.indexOf(comps[num][1].rect)][4] = false;
+	comps.splice(num, 1);
+	generateComp();
+}
+
 var compButtonPositions = [
 [0.02, 0.1, 0.46, 0.14, true],
 [0.02, 0.25, 0.46, 0.14, false],
@@ -245,7 +252,7 @@ var currentButtons = [];
 var compNames = [["Newcomers", "Beginers", "Clubs", "State", "National", "International", "Galactic"],
 ["Tennis", "Open", "Invitational", ""],
 ["Tournament", "Competition", ""]]
-var comps = [[new Competition("tutorial", 0, 0, 0), new Button([0.02, 0.1, 0.46, 0.14], "Tutorial"), drawTutorialIcon, 0]]
+var comps = [[new Competition("tutorial", 0, 0, 0), new Button(compButtonPositions[0], "Tutorial"), drawTutorialIcon, 0]]
 for(var i = 0; i < 3; i +=1){
 	generateComp(money, "robbin");
 	generateComp(money, "knockout");
@@ -272,6 +279,7 @@ for(var i = 0; i < 25; i += 1){
 }
 
 var pagesTutorials = new Tutorial();
+var paidComp = false;
 
 class Game{
 	constructor(){
@@ -348,13 +356,17 @@ class Game{
 				// transition(this.match);
 			}
 		}
-		if(this.currentComp.stillGoing === false){
+		if(this.currentComp.stillGoing === false && paidComp === false){
 			var winningsMulti = this.currentComp.getWinnings();
-			console.log("Cost Mult: "+winningsMulti);
+			// console.log("Cost Mult: "+winningsMulti);
 			money += winningsMulti*comps[this.currentCompNum][1].cost;
-			this.currentComp = undefined;
 			// this.state = this.pickComp;
-			transition(this.pickComp);
+			transition(this.pickComp);	
+			// console.log(comps[this.currentCompNum][1])
+			comps[this.currentCompNum][1].fadeOut(function(){deleteComp(main.currentCompNum)});
+			// this.currentCompNum = undefined;
+			// this.currentComp = undefined;
+			paidComp = true;
 		}
 		this.overlay();
 		this.showMoney();
@@ -368,6 +380,8 @@ class Game{
 				// this.state = this.comp;
 				transition(this.comp);
 				money -= comps[i][1].cost;
+				paidComp = false;
+				comps[i][1].reset()
 			}
 		}
 		if(onlineButton.update() === true){
@@ -557,7 +571,7 @@ class Game{
 		// }
 		lastSpace = checkKey("Space");
 		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
-		// this.overlay();
+		this.overlay();
 	}
 	wall(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball

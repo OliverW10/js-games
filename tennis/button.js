@@ -71,11 +71,11 @@ function drawBasicButton(X, Y, W, H, hovering, alpha, text, icon = false){
 function drawIconButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	c.beginPath();
 	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
+		c.fillStyle = "rgba(150, 150, 150, "+alpha+")";
+		c.strokeStyle = "rgba(0, 0, 0, "+alpha+")";
 	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
+		c.fillStyle = "rgba(200, 200, 200, "+alpha+")";
+		c.strokeStyle = "rgba(100, 100, 100, "+alpha+")";
 	}
 	c.lineWidth = canvas.height*0.005;
 	c.rect(X, Y, W, H);
@@ -83,8 +83,8 @@ function drawIconButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	c.fill();
 	c.font = 10+"px Arial";
 	this.size =  W/(c.measureText(text).width/10)*0.8;
-	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgb(200, 200, 200)", true, false);
-	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgb(100, 100, 100)", true, true);
+	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgba(200, 200, 200, "+alpha+")", true, false);
+	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgba(100, 100, 100, "+alpha+")", true, true);
 
 	if(icon !== false){
 		if(text === ""){
@@ -121,29 +121,31 @@ class Button{
 		this.icon = icon
 		this.cost = cost;
 		this.alpha = 1;
-		this.fadeOut = false;
+		this.fading = false;
 		this.callback = null;
 	}
 	update(){
-		if(this.fadeOut === true){
+		if(this.fading === true){
 			this.alpha -= 0.01;
 		}
 		if(this.alpha < 0){
 			this.callback();
 		}
-		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
-			if(mouseButtons[0] === true){
-				this.state = 2;
-			}else{
-				if(this.state === 2){
-					this.state = 0;
-					return true
+		if(this.fading === false){
+			if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
+				if(mouseButtons[0] === true){
+					this.state = 2;
 				}else{
-					this.state = 1;
+					if(this.state === 2){
+						this.state = 0;
+						return true
+					}else{
+						this.state = 1;
+					}
 				}
+			}else{
+				this.state = 0;
 			}
-		}else{
-			this.state = 0;
 		}
 		return false
 	}
@@ -182,8 +184,8 @@ class Button{
 		this.state = 0;
 	}
 	fadeOut(callback){
-		this.fadeOut = true;
-		this.fadeCallback = callback;
+		this.fading = true;
+		this.callback = callback;
 	}
 }
 
@@ -532,7 +534,7 @@ class Competition{ // for round robbin and kockout competitons
 		if(this.type === "robbin"){
 			var playerScore = this.points[this.player];
 			var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
-			return (1-place/this.names.length)*2
+			return (1-place/this.names.length)*1.75
 		}
 	}
 	tutorialType(){
@@ -629,6 +631,20 @@ function drawPrevIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	c.closePath();
 	c.fillStyle = colour;
 	c.fill();
+}
+
+function drawTargetIcon(X, Y, S){
+	var colour = "rgb(100, 100, 100)";
+	c.beginPath();
+	c.strokeStyle = colour;
+	c.lineWidth = S/10;
+	c.moveTo(X-S/2, Y);
+	c.lineTo(X+S/2, Y);
+	c.moveTo(X, Y-S/2);
+	c.lineTo(X, Y+S/2);
+	c.moveTo(X, Y);
+	c.arc(X, Y, S*0.4, 0, Math.PI*2);
+	c.stroke();
 }
 
 class Tutorial{
