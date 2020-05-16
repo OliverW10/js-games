@@ -334,26 +334,24 @@ class Game{
 			if(this.currentComp.type === "tutorial"){
 				console.log(this.currentComp.selected);
 				if(this.currentComp.selected === 0){
-					// this.state = this.tutorial;
 					transition(this.tutorial);
 				}
 				if(this.currentComp.selected === 1){
-					// this.state = this.tournTutorial;
 					transition(this.tournTutorial);
 					pagesTutorials.state = "tournaments";
+					pagesTutorials.page = 0;
 				}
 				if(this.currentComp.selected === 2){
-					// this.state = this.tips;
 					transition(this.tips);
 					pagesTutorials.state = "tips";
+					pagesTutorials.page = 0;
 				}
 				if(this.currentComp.selected === 3){
-					// this.state = this.wall;
 					transition(this.wall);
 				}
 			}else{
-				this.state = this.match;
-				// transition(this.match);
+				// this.state = this.match;
+				transition(this.match);
 			}
 		}
 		if(this.currentComp.stillGoing === false && paidComp === false){
@@ -374,29 +372,27 @@ class Game{
 	pickComp(){
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
 		for(var i = 0; i<comps.length; i += 1){
-			if(comps[i][1].update() === true && money >= comps[i][1].cost){
-				this.currentComp = comps[i][0];
-				this.currentCompNum = i;
-				// this.state = this.comp;
-				transition(this.comp);
-				money -= comps[i][1].cost;
-				paidComp = false;
-				comps[i][1].reset()
+			if(comps[i][1].update() === true){
+				if(money >= comps[i][1].cost){
+					this.currentComp = comps[i][0];
+					this.currentCompNum = i;
+					transition(this.comp);
+					money -= comps[i][1].cost;
+					paidComp = false;
+					comps[i][1].reset()
+				}else{
+					comps[i][1].shake()
+				}
 			}
 		}
 		if(onlineButton.update() === true){
-			this.currentComp = testRobbinComp;
-			// this.state = this.leaderboard;
 			transition(this.leaderboard);
 		}
 		if(helpButton.update() === true){
-			this.currentComp = testRobbinComp;
-			this.state = this.help;
 			transistion(this.help);
 		}
 		if(settingsButton.update() === true){
-			this.currentComp = testRobbinComp;
-			this.state = this.settings;
+			transition(this.settings)
 		}
 		onlineButton.draw();
 		for(var i = 0; i<comps.length; i += 1){
@@ -411,13 +407,15 @@ class Game{
 	}
 	tips(){
 		if(pagesTutorials.done() === true){
-			this.state = comp;
+			this.state = this.comp;
+			this.currentComp.complete[2] = true;
 		}
 		pagesTutorials.draw();
 	}
 	tournTutorial(){
 		if(pagesTutorials.done() === true){
-			this.state = comp;
+			this.state = this.comp;
+			this.currentComp.complete[1] = true;
 		}
 		pagesTutorials.draw();
 	}
@@ -503,6 +501,7 @@ class Game{
 		}
 		if(this.tutorialStage === 3){
 			flashText("Done", [0, 100, 200]);
+			this.currentComp.complete[0] = true;
 			this.state = this.comp;
 		}
 		this.overlay();

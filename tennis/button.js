@@ -123,8 +123,15 @@ class Button{
 		this.alpha = 1;
 		this.fading = false;
 		this.callback = null;
+		this.shakeAmount = 0;
+		this.shakeAngle = 0;
 	}
 	update(){
+		if(this.shakeAmount > 0.001){
+			this.X = this.rect[0]+Math.sin(this.shakeAngle)*this.shakeAmount;
+			this.shakeAngle += 0.1;
+			this.shakeAmount *= 0.97;
+		}
 		if(this.fading === true){
 			this.alpha -= 0.01;
 		}
@@ -186,6 +193,10 @@ class Button{
 	fadeOut(callback){
 		this.fading = true;
 		this.callback = callback;
+	}
+	shake(){ // the no shake
+		this.shakeAmount = 0.05;
+		this.shakeAngle = 0;
 	}
 }
 
@@ -288,7 +299,6 @@ class Competition{ // for round robbin and kockout competitons
 			this.fakeProgress = 0;
 		}
 		if(type === "tutorial"){
-			this.stage = 0;
 			this.draw = this.drawTutorial;
 			this.playButton = new Button([0.375, 0.84, 0.25, 0.15], "Go");
 			this.buttons = [
@@ -297,6 +307,7 @@ class Competition{ // for round robbin and kockout competitons
 			new Button([0.1, 0.4, 0.3, 0.1], "Tips"),
 			new Button([0.1, 0.55, 0.3, 0.1], "Practise")
 			]
+			this.complete = [false, false, false, false];
 			this.selected = 0;
 		}
 		this.stillGoing = true;
@@ -304,9 +315,11 @@ class Competition{ // for round robbin and kockout competitons
 	}
 	drawTutorial(){
 		showText("Tutorial", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
-
 		for(var i = 0; i < this.buttons.length; i += 1){
 			this.buttons[i].draw();
+			if(this.complete[i] === true){
+				drawCheckIcon((this.buttons[i].X+this.buttons[i].W)*canvas.width, (this.buttons[i].Y)*canvas.height, canvas.height*0.05);
+			}
 			if(this.buttons[i].update() === true){
 				this.selected = i;
 			}
@@ -649,6 +662,33 @@ function drawTargetIcon(X, Y, S){
 	c.stroke();
 }
 
+function drawCheckIcon(X, Y, S){
+	offset = S/20
+	c.beginPath();
+	c.strokeStyle = "rgb(10, 40, 12)";
+	c.lineWidth = S/20;
+	c.moveTo(X-S*0.333, Y+S*0.111+offset);
+	c.lineTo(X, Y+S/2+offset);
+	c.lineTo(X+S/2, Y-S*0.333+offset);
+	c.stroke();
+
+	c.beginPath();
+	c.strokeStyle = "rgb(150, 255, 180)";
+	c.lineWidth = S/20;
+	c.moveTo(X-S*0.333, Y+S*0.111-offset);
+	c.lineTo(X, Y+S/2-offset);
+	c.lineTo(X+S/2, Y-S*0.333-offset);
+	c.stroke();
+
+	c.beginPath();
+	c.strokeStyle = "rgb(50, 200, 60)";
+	c.lineWidth = S/20;
+	c.moveTo(X-S*0.333, Y+S*0.111);
+	c.lineTo(X, Y+S/2);
+	c.lineTo(X+S/2, Y-S*0.333);
+	c.stroke();
+}
+
 class Tutorial{
 	constructor(){
 		this.page = 0;
@@ -694,7 +734,7 @@ class Tutorial{
 		showText("4", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	done(){
-		if(this.page > this.pages[this.state].length){
+		if(this.page >= this.pages[this.state].length){
 			return true;
 		}else{
 			return false;
