@@ -24,10 +24,18 @@
 			color: #D77A61;
 			z-index: 10000;
 		}
-		#linksDiv{
+		.linksDiv{
+			position: absolute;
 			text-align: center;
 			display: block
 			z-index: 10000;
+			right: 10px;
+			top: 150px;
+		}
+		.desc{
+			position: relative;
+			color: white;
+			top: -20px;
 		}
 		#logo{
 			position: relative;
@@ -40,39 +48,27 @@
 		#topBar{
 			background-color: #304f5e;
 		}
-		#racerDesc{
-			position: absolute;
-			color: white;
-			left: 55%;
-			z-index: 0;
-		}
-		#tennisDesc{
-			position: absolute;
-			color: white;
-			left: 25%;
-			z-index: 0;
-		}
 	</style>
 </head>
 <body>
-	<div id="tennisDesc">
-		<p>Play psycic tennis aginst a floating<br> tennis raquet in purgatory (with birds) <br> and many lots of money</p>
-	</div>
-	<div id="racerDesc">
-		<p>Race a car around a track as fast as <br> possible, beat your times and get gold!</p>
-	</div>
 	<div id="topBar">
+		<a id="links" href="https://github.com/OliverW10/OliverW10.github.io">View source code</a>
 		<div id="logo">
 			<img src="images/logo.png">
 		</div>
 	</div>
-	<a id="links" href="https://github.com/OliverW10/OliverW10.github.io">View source code</a>
-	<div id="linksDiv">
+	<div class="linksDiv">
 		<a href="tennis/main.html" id="tennisButton">
 			<img src="images/tennis_thumb.png" width="400" height="300">
+			<p class="desc">You are lost in purgatory and the only thing to do<br>is play tennis against a floating raquet <br> Earn money and compete on an online leaderboard,<br>admire the birds and mouantains</p>
 		</a>
 		<a href="racer/race.html" id="racerButton">
 			<img src="images/racer_thumb.png" width="400" height="300">
+			<p class="desc">Race a car around a track as fast as <br> possible, beat your times and get gold!</p>
+		</a>
+		<a href="https://olikat.itch.io/" id="itchButton">
+			<img src="images/itch.png" width="400" height="300">
+			<p class="desc">Some of my older games on itch.io</p>
 		</a>
 	</div>
 	<script src="animations.js"></script>

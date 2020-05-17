@@ -281,6 +281,8 @@ for(var i = 0; i < 25; i += 1){
 var pagesTutorials = new Tutorial();
 var paidComp = false;
 
+var backButton = new Button([0.05, 0.05, 0.1, 0.1], "", drawPrevIcon);
+
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -366,6 +368,10 @@ class Game{
 			// this.currentComp = undefined;
 			paidComp = true;
 		}
+		if(backButton.update() === true){
+			transition(this.pickComp);
+		}
+		backButton.draw();
 		this.overlay();
 		this.showMoney();
 	}
