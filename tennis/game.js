@@ -395,7 +395,7 @@ class Game{
 			transition(this.leaderboard);
 		}
 		if(helpButton.update() === true){
-			transistion(this.help);
+			transition(this.help);
 		}
 		if(settingsButton.update() === true){
 			transition(this.settings)
@@ -782,9 +782,17 @@ class Game{
 	}
 	settings(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
+		if(backButton.update() === true){
+			transition(this.pickComp);
+		}
+		backButton.draw();
 	}
 	leaderboard(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
+		if(backButton.update() === true){
+			transition(this.pickComp);
+		}
+		backButton.draw();
 	}
 	showMoney(){
 		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
