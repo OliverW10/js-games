@@ -283,6 +283,9 @@ var paidComp = false;
 
 var backButton = new Button([0.05, 0.05, 0.1, 0.1], "", drawPrevIcon);
 
+var leaderboardPerPage = 10; // how many items per page
+var leaderboardPage = 0;
+
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -393,6 +396,7 @@ class Game{
 		}
 		if(onlineButton.update() === true){
 			transition(this.leaderboard);
+			getScores();
 		}
 		if(helpButton.update() === true){
 			transition(this.help);
@@ -799,7 +803,19 @@ class Game{
 		backButton.draw();
 	}
 	leaderboard(){
-		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
+		showText("Leaderboard", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
+		showText(`Page ${leaderboardPage+1}`, canvas.width*0.9, canvas.height*0.2, canvas.height*0.03);
+		for(var i = 0; i < leaderboardPerPage; i += 1){
+			if(i < sortedLeaderboard.length){
+				c.beginPath();
+				c.strokeStyle = "rgb(0, 0, 0)";
+				c.moveTo(canvas.width*0.1, canvas.height*((i/leaderboardPerPage)*0.9+0.2));
+				c.lineTo(canvas.width*0.9, canvas.height*((i/leaderboardPerPage)*0.9+0.2));
+				c.stroke();
+				showText(sortedLeaderboard[i][0], canvas.width*0.3, canvas.height*(((i+0.5)/leaderboardPerPage)*0.9+0.2), canvas.height*0.03);
+				showText(sortedLeaderboard[i][1], canvas.width*0.6, canvas.height*(((i+0.5)/leaderboardPerPage)*0.9+0.2), canvas.height*0.03);
+			}
+		}
 		if(backButton.update() === true){
 			transition(this.pickComp);
 		}
