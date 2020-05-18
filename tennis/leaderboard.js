@@ -38,3 +38,22 @@ function sortLeaderboard(){
 	});
 	return newScores
 }
+
+var textBox = document.getElementById("nameBox");
+console.log(textBox);
+
+function getBoxText(){
+	return textBox.value;
+}
+
+function setTextBoxPos(x, y){
+	textBox.style.left = x+"px";
+	textBox.style.top = y+"px";
+	textBox.style.visibility = "visible";
+}
+
+function hideTextBox(){
+	textBox.style.visibility = "hidden";
+}
+
+hideTextBox();

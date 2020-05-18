@@ -13,21 +13,28 @@
 	<title>Tennis game</title>
 	<!-- meant to stop blurring on low res (pixel art) images -->
 	<style type="text/css">
-	canvas {
-		image-rendering: -moz-crisp-edges;
-		image-rendering: -webkit-crisp-edges;
-		image-rendering: pixelated;
-		image-rendering: crisp-edges;
-		border : 1px solid black;
-		left : 100px;
-	}
-	body {margin: 0px;}
+		canvas {
+			image-rendering: -moz-crisp-edges;
+			image-rendering: -webkit-crisp-edges;
+			image-rendering: pixelated;
+			image-rendering: crisp-edges;
+			border : 1px solid black;
+			left : 100px;
+		}
+		body {margin: 0px;}
+		#nameBox{
+			position: absolute;
+			background-color: rgb(200, 200, 200);
+			height: 3%;
+			width: 10%;
+		}
 	</style>
 </head>
 <body>
 	<div id="game" draggable="false">
-		<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 		<canvas id="canvasTag" width = "800" height = "600"></canvas>
+		<input type="text" id="nameBox">
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/pizzicato/0.6.4/Pizzicato.min.js"></script><!-- sound library-->
 		<script src="lib.js"></script> <!-- homemade functions library-->
 		<script src="names.js"></script>

@@ -285,6 +285,9 @@ var backButton = new Button([0.05, 0.05, 0.1, 0.1], "", drawPrevIcon);
 
 var leaderboardPerPage = 10; // how many items per page
 var leaderboardPage = 0;
+var leaderboardSubmitButton = new Button([0.3, 0.875, 0.4, 0.1], "Submit Score");
+var leaderboardNextButton = new Button([0.89, 0.89, 0.1, 0.1], "", drawNextIcon);
+var leaderboardPrevButton = new Button([0.01, 0.89, 0.1, 0.1], "", drawPrevIcon);
 
 class Game{
 	constructor(){
@@ -806,16 +809,32 @@ class Game{
 		showText("Leaderboard", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
 		showText(`Page ${leaderboardPage+1}`, canvas.width*0.9, canvas.height*0.2, canvas.height*0.03);
 		for(var i = 0; i < leaderboardPerPage; i += 1){
-			if(i < sortedLeaderboard.length){
+			var place = i+leaderboardPage*leaderboardPerPage;
+			if(place < sortedLeaderboard.length){
 				c.beginPath();
 				c.strokeStyle = "rgb(0, 0, 0)";
 				c.moveTo(canvas.width*0.1, canvas.height*((i/leaderboardPerPage)*0.9+0.2));
 				c.lineTo(canvas.width*0.9, canvas.height*((i/leaderboardPerPage)*0.9+0.2));
 				c.stroke();
-				showText(sortedLeaderboard[i][0], canvas.width*0.3, canvas.height*(((i+0.5)/leaderboardPerPage)*0.9+0.2), canvas.height*0.03);
-				showText(sortedLeaderboard[i][1], canvas.width*0.6, canvas.height*(((i+0.5)/leaderboardPerPage)*0.9+0.2), canvas.height*0.03);
+				showText(sortedLeaderboard[place][0], canvas.width*0.3, canvas.height*(((i+0.5)/leaderboardPerPage)*0.9+0.2), canvas.height*0.03);
+				showText(sortedLeaderboard[place][1], canvas.width*0.6, canvas.height*(((i+0.5)/leaderboardPerPage)*0.9+0.2), canvas.height*0.03);
 			}
 		}
+		leaderboardPrevButton.draw();
+		leaderboardNextButton.draw();
+		if(leaderboardNextButton.update() === true){
+			leaderboardPage += 1
+			leaderboardNextButton.reset();
+		}
+		if(leaderboardPrevButton.update() === true && leaderboardPage > 0){
+			leaderboardPage -= 1
+			leaderboardPrevButton.reset();
+		}
+		setTextBoxPos(canvas.width*0.5, canvas.height*0.8);
+		if(leaderboardSubmitButton.update() === true){
+			console.log("score submitted "+getBoxText()+":"+money);
+		}
+		leaderboardSubmitButton.draw()
 		if(backButton.update() === true){
 			transition(this.pickComp);
 		}
