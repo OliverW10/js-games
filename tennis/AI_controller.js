@@ -182,11 +182,11 @@ class WallController{
 
 		this.angle = Math.atan2(this.target[0]-balls[0].X, this.target[2]-balls[0].Z)+Math.PI/2;
 
-		this.shotPower = dist(X, Z, this.target[0], this.target[2])*gravity*12;
+		this.shotPower = dist(X, Z, this.target[0], this.target[2])*gravity*13;
 
 		return [-this.shotPower*Math.cos(this.angle), 0.05, this.shotPower*Math.sin(this.angle)];
 	}
 	getSpin(){
-		return [random(-0.1, 0.1), 0.1]
+		return [random(-0.1, 0.1), 0.2]
 	}
 }

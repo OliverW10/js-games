@@ -1,3 +1,6 @@
+//
+// All the UI stuff is here and is very poorly structured, might want to create a base button class that others inherit from
+//
 function drawPlayButton(X, Y, W, H, hovering, alpha){
 	var curveSize = canvas.height*0.05;
 	c.beginPath();
@@ -716,22 +719,25 @@ class Tutorial{
 		showText("The higher you let go of the ball the loftier the shot will be", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tips2(){
-		showText("2", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("Hit the ball away from the enemy", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tips3(){
-		showText("3", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("Moving the mouse directly up will make the ball move directly forwards", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments1(){
-		showText("Each tournament will have a cost and be either a round-robbin,\na knockout or a accuracy test(not done yet)", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("Each tournament has a entry cost and will be either a round-robbin, a knockout or an accuracy test(not done yet)", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments2(){
-		showText("2", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("Click on a tournament to pay entry and then press go to play your first match", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05)
 	}
 	tournaments3(){
-		showText("3", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("In the knockout if you lose a match you get knocked out and get the prize for whatever stage you were at (eg. semi-finals, runner-up)", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments4(){
-		showText("4", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("In a round robbin, you get points for each match and at the you get a prize for the stage", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+	}
+	tournaments4(){
+		showText("pee pee poo poo man", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	done(){
 		if(this.page >= this.pages[this.state].length){

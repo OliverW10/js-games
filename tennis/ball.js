@@ -35,39 +35,43 @@ class Ball{
 	}
 
 	hit(vel, spin, by){ // set the velocity and spin of the ball
-		this.Xvel = vel[0];
-		this.Yvel = vel[1];
-		this.Zvel = vel[2];
+		if(this.loser === false){
+			this.Xvel = vel[0];
+			this.Yvel = vel[1];
+			this.Zvel = vel[2];
 
-		this.Xrot = spin[0];
-		this.Yrot = spin[1];
+			this.Xrot = spin[0];
+			this.Yrot = spin[1];
 
-		aimGameSpeed = 1;
-		this.hitBy = by;
-		this.actualHitBy = by;
-		this.bounces = 0;
+			aimGameSpeed = 1;
+			this.hitBy = by;
+			this.actualHitBy = by;
+			this.bounces = 0;
 
-		// this.hsl[1] += 0.1;
-		// this.hsl[2] += 0.01;
-		// this.hsl[0] = random(0, 360);
+			// this.hsl[1] += 0.1;
+			// this.hsl[2] += 0.01;
+			// this.hsl[0] = random(0, 360);
 
-		this.rally += 1;
+			this.rally += 1;
+		}
 	}
 
 	freeze(newPos, smooth = true, alpha = 0.4){
-		this.Zvel = 0;
-		this.Xvel = 0;
-		this.Yvel = 0;
-		if(smooth === true){
-			this.X = newPos[0] * alpha + this.X * (1-alpha);
-			this.Y = newPos[1] * alpha + this.Y * (1-alpha);
-			this.Z = newPos[2] * alpha + this.Z * (1-alpha);
-		}else{
-			this.X = newPos[0];
-			this.Y = newPos[1];
-			this.Z = newPos[2];
+		if(this.loser === false){
+			this.Zvel = 0;
+			this.Xvel = 0;
+			this.Yvel = 0;
+			if(smooth === true){
+				this.X = newPos[0] * alpha + this.X * (1-alpha);
+				this.Y = newPos[1] * alpha + this.Y * (1-alpha);
+				this.Z = newPos[2] * alpha + this.Z * (1-alpha);
+			}else{
+				this.X = newPos[0];
+				this.Y = newPos[1];
+				this.Z = newPos[2];
+			}
+			this.stopped = true;
 		}
-		this.stopped = true;
 	}
 	setRotationalSpeed(speeds){
 		this.Xrot = speeds[0];
@@ -101,9 +105,13 @@ class Ball{
 			this.Z += this.Zvel*gameSpeed;
 
 			// drag
-			this.Yvel *= 1-0.01*gameSpeed;
-			this.Xvel *= 1-0.01*gameSpeed;
-			this.Zvel *= 1-0.01*gameSpeed;
+			if(tutorial === 2){
+
+			}else{
+				this.Yvel *= 1-0.01*gameSpeed;
+				this.Xvel *= 1-0.01*gameSpeed;
+				this.Zvel *= 1-0.01*gameSpeed;
+			}
 			// spin
 			this.Yvel += (this.Xrot*-this.Xvel + this.Yrot*this.Zvel)*0.1*gameSpeed;
 			this.Xvel += (this.Xrot*this.Zvel)*-0.01*gameSpeed;
@@ -114,7 +122,9 @@ class Ball{
 				// this.Y = this.courtSize;
 				this.Yvel = -this.Yvel;
 				this.Y += this.Yvel*gameSpeed
-				this.Yvel *= 0.9;
+				if(tutorial !== 2){
+					this.Yvel *= 0.9;
+				}
 
 				this.Xrot = this.Xrot*0.6 + this.Xvel*0.4;
 				this.Yrot *= 0.9;
