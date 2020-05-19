@@ -1,5 +1,13 @@
 
-var money = 5;
+if(localStorage.getItem("money") !== null){
+	var money = localStorage["money"];
+}else{
+	var money = 5;
+}
+
+function saveMoney(){
+	localStorage.money = money;
+}
 
 var courtPoints = [[-1, 0, 1],
 [-1, 0, 2],
@@ -167,7 +175,7 @@ var flashTextText = "Blue Test";
 var flashTextTrans = 1;
 var flashTextColour = [0, 0, 255];
 
-function flashText(text, colour, time = 1){
+function flashText(text, colour = [0, 0, 0], time = 1){
 	flashTextText = text;
 	flashTextColour = colour;
 	flashTextTrans = Math.min(time, 1);
@@ -177,6 +185,7 @@ var transitionProgress = 2;
 function transition(callback){
 	transitionProgress = 0;
 	transitionCallback = callback;
+	saveMoney()
 }
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
@@ -196,13 +205,20 @@ function generateCompName(difficult = 4){
 	return compNames[0][round(random(0, compNames[0].length-1))] +" "+ compNames[1][round(random(0, compNames[1].length-1))] +" "+ compNames[2][round(random(0, compNames[2].length-1))];
 }
 
+function getRobbinPlayers(n){
+	return clip(random(n**0.3*2, n**0.4*2+2), 4, 32)
+}
+function getKnockoutPlayers(n){
+	return 2**clip(round(random(n**0.15+1, n**0.25+2)), 3, 6)
+}
+
 function generateComp(currentMoney = false, type = false){
 	if(currentMoney === false){
 		this.cost = money;
 	}else{
 		this.cost = currentMoney;
 	}
-	this.price = clip(round(random(this.cost/3, this.cost*1.5)), 1, 150);
+	this.price = clip(round(random(this.cost/5, this.cost*1.5)), 1, 9999);
 	this.difficulty = random(this.price**0.6, this.price**0.7);
 	this.buttonNum = round(random(0, compButtonPositions.length-1));
 	this.buttonPos = compButtonPositions[this.buttonNum];
@@ -221,11 +237,11 @@ function generateComp(currentMoney = false, type = false){
 		this.type = type;
 	}
 	if(this.type === "knockout"){
-		this.players = 2**round(random(3, 5));
+		this.players = getKnockoutPlayers(currentMoney);
 		this.icon = drawKnockoutIcon;
 	}
 	if(this.type === "robbin"){
-		this.players = round(random(6, 15));
+		this.players = getRobbinPlayers(currentMoney);
 		this.icon = drawRobbinIcon;
 	}
 	comps.push([new Competition(this.type, this.players, this.difficulty, this.price), new Button(this.buttonPos, generateCompName(), this.icon, this.price)])
@@ -288,6 +304,11 @@ var leaderboardPage = 0;
 var leaderboardSubmitButton = new Button([0.3, 0.875, 0.4, 0.1], "Submit Score");
 var leaderboardNextButton = new Button([0.89, 0.89, 0.1, 0.1], "", drawNextIcon);
 var leaderboardPrevButton = new Button([0.01, 0.89, 0.1, 0.1], "", drawPrevIcon);
+
+var gameSpeedAlpha = 0.3;
+var slowGameSpeed = 0.05;
+
+var resetButton = new Button([0.1, 0.9, 0.15, 0.05], "Reset Save");
 
 class Game{
 	constructor(){
@@ -382,6 +403,7 @@ class Game{
 		this.showMoney();
 	}
 	pickComp(){
+		hideTextBox()
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
 		for(var i = 0; i<comps.length; i += 1){
 			if(comps[i][1].update() === true){
@@ -477,16 +499,16 @@ class Game{
 			balls[0].draw();
 		}
 
-		if(checkKey("Space") === false && lastSpace === true){
+		if(checkKey("Space") === true && lastSpace === false){
 			playDown();
 			if(aimGameSpeed === 1){ 
-				aimGameSpeed = 0.05;
+				aimGameSpeed = slowGameSpeed;
 			}else{
 				aimGameSpeed = 1;
 			}
 		}
 		lastSpace = checkKey("Space");
-		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
+		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 
 		if(this.tutorialStage === 0){
 			aimGameSpeed = 0.1;
@@ -575,10 +597,10 @@ class Game{
 			score[0] = 3;
 			score[1] = 3;
 		}
-		if(checkKey("Space") === false && lastSpace === true){
+		if(checkKey("Space") === true && lastSpace === false){
 			playDown();
 			if(aimGameSpeed === 1){ 
-				aimGameSpeed = 0.1;
+				aimGameSpeed = slowGameSpeed;
 			}else{
 				aimGameSpeed = 1;
 			}
@@ -589,7 +611,7 @@ class Game{
 		// 	aimGameSpeed = 1;
 		// }
 		lastSpace = checkKey("Space");
-		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
+		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		this.overlay();
 	}
 	wall(){
@@ -608,16 +630,16 @@ class Game{
 		this.drawReflections(true);
 		this.draw(true);
 
-		if(checkKey("Space") === false && lastSpace === true){
+		if(checkKey("Space") === true && lastSpace === false){
 			playDown();
 			if(aimGameSpeed === 1){ 
-				aimGameSpeed = 0.1;
+				aimGameSpeed = slowGameSpeed;
 			}else{
 				aimGameSpeed = 1;
 			}
 		}
 		lastSpace = checkKey("Space");
-		gameSpeed = aimGameSpeed*0.2 + gameSpeed*0.8;
+		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		this.overlay();
 	}
 	drawReflections(noRacquet = false){
@@ -800,10 +822,17 @@ class Game{
 	}
 	settings(){
 		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
+		if(resetButton.update() === true){
+			localStorage.clear();
+			money = 5;
+			flashText("SAVE RESET", [255, 0, 0])
+		}
+		resetButton.draw();
 		if(backButton.update() === true){
 			transition(this.pickComp);
 		}
 		backButton.draw();
+		this.overlay();
 	}
 	leaderboard(){
 		showText("Leaderboard", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
@@ -832,13 +861,21 @@ class Game{
 		}
 		setTextBoxPos(canvas.width*0.5, canvas.height*0.8);
 		if(leaderboardSubmitButton.update() === true){
-			console.log("score submitted "+getBoxText()+":"+money);
+			if(localStorage.getItem("name") !== null){
+				console.log("score submitted "+localStorage.name+":"+money);
+				flashText("Used old name: "+localStorage.name)
+			}else{
+				localStorage["name"] = getBoxText();
+				console.log("score submitted "+getBoxText()+":"+money);
+				flashText("Score Submitted under: "+getBoxText());
+			}
 		}
 		leaderboardSubmitButton.draw()
 		if(backButton.update() === true){
 			transition(this.pickComp);
 		}
 		backButton.draw();
+		this.overlay();
 	}
 	showMoney(){
 		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);

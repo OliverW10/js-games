@@ -28,7 +28,7 @@ class AIController{
 		this.tendency = 0;
 		var power = random(this.difficulty-1, this.difficulty+1)
 		this.power = 0.03+power/300
-		this.spin = power*0.07
+		this.spin = power*0.075
 		this.speed = 0.0005+0.00025*this.difficulty;
 		this.boost = 0;
 		this.trials = this.difficulty**1.4; // how many times to try 
@@ -63,7 +63,7 @@ class AIController{
 		return [-this.shotPower*Math.cos(this.angle), 0.07, this.shotPower*Math.sin(this.angle)];
 	}
 	getSpin(){
-		return [random(-0.1, 0.1), this.spin]
+		return [random(-0.1, 0.1), this.spin+this.Y]
 	}
 	update(){
 		if(this.cooldown > 0){
@@ -111,7 +111,7 @@ class AIController{
 		this.Y += this.Yvel*gameSpeed;
 
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
-		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 1){
+		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 0.5){
 			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), -1);
 			this.boost = 0;
 			playHit(this.shotPower);

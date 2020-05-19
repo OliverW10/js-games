@@ -298,3 +298,15 @@ function drawGlow(X, Y, size, brightness, col=[255, 255, 255]){
 	c.fillStyle = glow;
 	c.fillRect(X-size, Y-size, size*2, size*2);
 }
+
+function fairRandom(min, max, number){
+
+}
+
+function guasianRandom(min, max, amount = 2){
+	var total = 0
+	for(var i = 0; i < amount; i += 1){
+		total += random(min,max);
+	}
+	return total/Math.floor(amount)
+}
