@@ -803,7 +803,6 @@ class Game{
 		c.fill();
 		if(transitionProgress < 1 && transitionProgress+0.05 > 1){
 			this.state = transitionCallback;
-			console.log("swapped state");
 		}
 		transitionProgress += 0.05;
 	}
@@ -835,8 +834,9 @@ class Game{
 		this.overlay();
 	}
 	leaderboard(){
-		showText("Leaderboard", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
+		showText("Money Leaderboard", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
 		showText(`Page ${leaderboardPage+1}`, canvas.width*0.9, canvas.height*0.2, canvas.height*0.03);
+		showText("Your score: "+money, canvas.width*0.)
 		for(var i = 0; i < leaderboardPerPage; i += 1){
 			var place = i+leaderboardPage*leaderboardPerPage;
 			if(place < sortedLeaderboard.length){
@@ -860,13 +860,19 @@ class Game{
 			leaderboardPrevButton.reset();
 		}
 		setTextBoxPos(canvas.width*0.5, canvas.height*0.8);
-		if(leaderboardSubmitButton.update() === true){
+		if(localStorage.getItem("name") === null){
+			textBox.readonly = false;
+		}else{
+			textBox.readonly = true;
+			setBoxText(localStorage.name);
+		}
+		if(leaderboardSubmitButton.update() === true){ // currently this logic is a bit messy
 			if(localStorage.getItem("name") !== null){
-				console.log("score submitted "+localStorage.name+":"+money);
+				sendScore(money, localStorage.name);
 				flashText("Used old name: "+localStorage.name)
 			}else{
 				localStorage["name"] = getBoxText();
-				console.log("score submitted "+getBoxText()+":"+money);
+				sendScore(money, localStorage.name);
 				flashText("Score Submitted under: "+getBoxText());
 			}
 		}

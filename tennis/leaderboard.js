@@ -15,22 +15,30 @@ function getScores(){
 }
 
 function sendScore(score, name) {
-    var http = new XMLHttpRequest();
-    http.open("POST", `https://game.chocolatejade42.repl.co?token=blah&name=${name}&score=${score}`);
-    http.send();
-    http.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-           // Typical action to be performed when the document is ready:
-           console.log("finished send");
-        }
-    };
+	// assumes that getScores has been called before
+	if(leaderboard[name] === undefined || leaderboard[name] < score){ // only sends if eiter the name dosent exist or it does and its lower
+	    var http = new XMLHttpRequest();
+	    http.open("POST", `https://game.chocolatejade42.repl.co?token=blah&name=${name}&score=${score}`);
+	    http.send();
+	    console.log(`send score${score} ${name}`);
+	    http.onreadystatechange = function() {
+	        if (this.readyState == 4 && this.status == 200) {
+	           // Typical action to be performed when the document is ready:
+	           console.log("finished send");
+	           getScores(); // automaticly updates scoreboard after sending a score
+	        }
+	    };
+	    return true
+	}else{
+		return false
+	}
 }
 
 function sortLeaderboard(){
 	var newScores = [];
 	for(var i = 0; i < Object.keys(leaderboard).length; i+=1){
 		var key = Object.keys(leaderboard)[i];
-		console.log(key);
+		// console.log(key);
 		newScores.push([key, leaderboard[key]])
 	}
 	newScores.sort(function(a,b){
@@ -44,6 +52,10 @@ console.log(textBox);
 
 function getBoxText(){
 	return textBox.value;
+}
+
+function setBoxText(text){
+	textBox.value = text;
 }
 
 function setTextBoxPos(x, y){
