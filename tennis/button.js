@@ -32,19 +32,19 @@ function drawPlayButton(X, Y, W, H, hovering, alpha){
 function drawSettingsButton(X, Y, W, H, hovering, alpha){
 	c.beginPath();
 	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
-		settingsGearOffset += 0.01;
+		c.fillStyle = "rgba(150, 150, 150, "+alpha*0.7+")";
+		c.strokeStyle = "rgba(0, 0, 0, "+alpha*0.7+")";
+		settingsGearOffset += 0.03;
 	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
+		c.fillStyle = "rgba(200, 200, 200, "+alpha+")";
+		c.strokeStyle = "rgba(100, 100, 100, "+alpha+")";
 	}
 	c.lineWidth = canvas.height*0.005;
 	c.rect(X, Y, W, H);
 	c.stroke();
 	c.fill();
-	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgb(200, 200, 200)", true, false);
-	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgb(100, 100, 100)", true, true);
+	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgba(200, 200, 200, "+alpha+")", true, false);
+	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgba(100, 100, 100, "+alpha+")", true, true);
 
 	drawSettingsIcon(X+W*0.7, Y+H/2, H*0.6);
 }
@@ -56,26 +56,26 @@ function drawInfoButton(X, Y, W, H, hovering, alpha){
 function drawBasicButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	c.beginPath();
 	if(hovering === true){
-		c.fillStyle = "rgb(150, 150, 150)";
-		c.strokeStyle = "rgb(0, 0, 0)";
+		c.fillStyle = "rgba(150, 150, 150, "+alpha*0.7+")";
+		c.strokeStyle = "rgba(0, 0, 0, "+alpha*0.7+")";
 	}else{
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.strokeStyle = "rgb(100, 100, 100)";
+		c.fillStyle = "rgba(200, 200, 200, "+alpha+")";
+		c.strokeStyle = "rgba(100, 100, 100, "+alpha+")";
 	}
 	c.lineWidth = canvas.height*0.005;
 	c.rect(X, Y, W, H);
 	c.stroke();
 	c.fill();
 	c.font = 10+"px Arial";
-	showText(text, X+W/2, Y+H/2, H*0.4, "rgb(200, 200, 200)", true, false);
-	showText(text, X+W/2, Y+H/2, H*0.4, "rgb(100, 100, 100)", true, true);
+	showText(text, X+W/2, Y+H/2, H*0.4, "rgba(200, 200, 200, "+alpha+")", true, false);
+	showText(text, X+W/2, Y+H/2, H*0.4, "rgba(100, 100, 100, "+alpha+")", true, true);
 }
 
 function drawIconButton(X, Y, W, H, hovering, alpha, text, icon = false){
 	c.beginPath();
 	if(hovering === true){
-		c.fillStyle = "rgba(150, 150, 150, "+alpha+")";
-		c.strokeStyle = "rgba(0, 0, 0, "+alpha+")";
+		c.fillStyle = "rgba(150, 150, 150, "+alpha*0.7+")";
+		c.strokeStyle = "rgba(0, 0, 0, "+alpha*0.7+")";
 	}else{
 		c.fillStyle = "rgba(200, 200, 200, "+alpha+")";
 		c.strokeStyle = "rgba(100, 100, 100, "+alpha+")";

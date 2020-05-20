@@ -310,6 +310,10 @@ var slowGameSpeed = 0.05;
 
 var resetButton = new Button([0.1, 0.9, 0.15, 0.05], "Reset Save");
 
+var menuBackgroundProgress = 0;
+var menuBackgroundOverlay = 0;
+var menuBackgroundOverlayAim = 0;
+
 class Game{
 	constructor(){
 		this.state = this.start;
@@ -323,6 +327,8 @@ class Game{
 		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
 	}
 	menu(){
+		this.menuBackground()
+		menuBackgroundOverlayAim = 0;
 		// will have three types of tournaments
 		// knock-out, classic winner goes forward best of 8 or 16
 		// round robbin, play everyone most points wins
@@ -357,6 +363,8 @@ class Game{
 		this.overlay();
 	}
 	comp(){
+		menuBackgroundOverlayAim = 0;
+		this.menuBackground()
 		if(this.currentComp.update() === true){
 			score = [0, 0];
 			changeSkill(this.currentComp.getSkill())
@@ -403,6 +411,8 @@ class Game{
 		this.showMoney();
 	}
 	pickComp(){
+		menuBackgroundOverlayAim = 0;
+		this.menuBackground()
 		hideTextBox()
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
 		for(var i = 0; i<comps.length; i += 1){
@@ -456,7 +466,7 @@ class Game{
 	}
 	tutorial(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
-			cameraPosAim[0] = -balls[0].X;
+			cameraPosAim = [-balls[0].X, 1, -0.4];
 		}
 		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
@@ -551,7 +561,7 @@ class Game{
 	match(){
 		// camera movement
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
-			cameraPosAim[0] = -balls[0].X;
+			cameraPosAim = [-balls[0].X, 1, -0.4]
 		}
 		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
@@ -616,7 +626,7 @@ class Game{
 	}
 	wall(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
-			cameraPosAim[0] = -balls[0].X;
+			cameraPosAim = [-balls[0].X, 1, -0.4];
 		}
 		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
@@ -886,5 +896,30 @@ class Game{
 	showMoney(){
 		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
 		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(0, 0, 0)", false, true);
+	}
+	menuBackground(){
+		// for(var i = 0; i < 50; i += 1){
+		// 	c.beginPath();
+		// 	c.strokeStyle = "rgba(0, 0, 0, 0.5)";
+		// 	c.lineWidth = menuBackgroundAngles[i][2]*(1/50)*canvas.width
+		// 	menuBackgroundAngles[i][0][0] += menuBackgroundAngles[i][0][1];
+		// 	menuBackgroundAngles[i][1][0] += menuBackgroundAngles[i][1][1];
+		// 	c.arc(canvas.width*0.5, canvas.height*0.5, (i/50)*canvas.width, menuBackgroundAngles[i][0][0], menuBackgroundAngles[i][1][0], menuBackgroundAngles[i][0][0]>menuBackgroundAngles[i][1][0]);
+		// 	c.stroke();
+		// }
+		if(menuBackgroundOverlay < menuBackgroundOverlayAim){
+			menuBackgroundOverlay += 0.01;
+		}
+		if(menuBackgroundOverlay > menuBackgroundOverlayAim){
+			menuBackgroundOverlay -= 0.01;
+		}
+		c.fillStyle = "rgba(255, 255, 255, "+menuBackgroundOverlay+")";
+		c.fillRect(0, 0, canvas.width, canvas.height);
+		menuBackgroundProgress += 0.001;
+		cameraPosAim = [Math.sin(menuBackgroundProgress)*3, 7, -8];
+		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
+		this.background();
 	}
 }
