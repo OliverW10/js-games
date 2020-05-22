@@ -114,7 +114,7 @@ class AIController{
 		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 0.5){
 			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), -1);
 			this.boost = 0;
-			playHit(this.shotPower);
+			playSound(hitSound);
 			this.cooldown = 10; // has to wait 10 frames between each hit
 		}
 	}

@@ -335,7 +335,7 @@ class Game{
 		// ladder get points for online leaderboard, maybe against a unique ultra hard ai
 		// you have to pay for each game (like btd battles)
 		if(welcomePlayed === false){
-			if(playWelcome() === true){
+			if(playSound(welcomeSound) === true){
 				welcomePlayed = true;
 			}
 		}
@@ -510,7 +510,7 @@ class Game{
 		}
 
 		if(checkKey("Space") === true && lastSpace === false){
-			playDown();
+			
 			if(aimGameSpeed === 1){ 
 				aimGameSpeed = slowGameSpeed;
 			}else{
@@ -608,7 +608,7 @@ class Game{
 			score[1] = 3;
 		}
 		if(checkKey("Space") === true && lastSpace === false){
-			playDown();
+			playSound(downSound, true);;
 			if(aimGameSpeed === 1){ 
 				aimGameSpeed = slowGameSpeed;
 			}else{
@@ -641,7 +641,7 @@ class Game{
 		this.draw(true);
 
 		if(checkKey("Space") === true && lastSpace === false){
-			playDown();
+			playSound(downSound, true);;
 			if(aimGameSpeed === 1){ 
 				aimGameSpeed = slowGameSpeed;
 			}else{

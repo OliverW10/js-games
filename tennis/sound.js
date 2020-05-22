@@ -1,54 +1,24 @@
 // have to host a local https server for this to work
 // python -m http.server
-var welcomeLoaded = false;
 var welcomePlayed = false;
-var welcomeSound = new Pizzicato.Sound({ 
-    source: 'file',
-    options: {"path": './sounds/welcome.mp3' }
-}, function() {
-	welcomeLoaded = true;
-    console.log("welcome loaded");
-});
-welcomeSound.attack = 0.1;
 
-var hitLoaded = false;
-var hitSound = new Pizzicato.Sound({
-	source: "file",
-	options: {"path": "./sounds/hit.mp3"}
-}, function(){
-	hitLoaded = true;
-	console.log("hit sound loaded");
-});
+var selectSound = [new Pizzicato.Sound("./sounds/select.wav", function(){selectSound[1] = true}), false];
+var hitSound = [new Pizzicato.Sound("./sounds/hit.mp3", function(){hitSound[1] = true}), false];
+var welcomeSound = [new Pizzicato.Sound("./sounds/welcome.mp3", function(){welcomeSound[1] = true}), false];
+var downSound = [new Pizzicato.Sound("./sounds/down.mp3", function(){downSound[1] = true}), false];
 
-var downLoaded = false;
-var downSound = new Pizzicato.Sound({
-	source: "file",
-	options: {"path": "./sounds/down.mp3"}
-}, function(){
-	downLoaded = true;
-	console.log("down sound loaded");
-});
+var sineWave = new Pizzicato.Sound({source: 'wave', options:{frequency: 390}});
 
-function playDown(){
-	if(downLoaded === true){
-		downSound.play();
-		return true
-	}
-	return false
+function playRally(){
+	sineWave.play();
 }
 
-function playHit(speed = 1){
-	if(hitLoaded === true){
-		hitSound.volume = scaleNumber(speed, 0, 0.1, 0.3, 1);
-		hitSound.play();
-		return true;
-	}
-	return false;
-}
-
-function playWelcome(){
-	if(welcomeLoaded === true){
-		welcomeSound.play();
+function playSound(sound, override = false){
+	if(sound[1] === true){
+		if(override === true){
+			sound[0].stop();
+		}
+		sound[0].play();
 		return true
 	}
 	return false

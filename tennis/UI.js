@@ -1,6 +1,40 @@
 //
 // All the UI stuff is here and is very poorly structured, might want to create a base button class that others inherit from
 //
+class baseButton{
+	/*
+	the default text button others inherit from
+	*/
+	constructor(rect, text){
+		// drawFunc can be either a function to draw the button or a string for the basic button
+		this.X = rect[0];
+		this.Y = rect[1];
+		this.W = rect[2];
+		this.H = rect[3];
+		this.rect = rect; // save both beacuse ease later
+		this.state = 0; // 0 is none, 1 is hovered, 2 is pressed
+	}
+	update(){
+		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
+			if(mouseButtons[0] === true){
+				this.state = 2;
+			}else{
+				if(this.state === 2){
+					this.state = 0;
+					return true
+				}else{
+					this.state = 1;
+				}
+			}
+		}else{
+			this.state = 0;
+		}
+	}
+}
+
+class TextButton extends baseButton{
+
+}
 function drawPlayButton(X, Y, W, H, hovering, alpha){
 	var curveSize = canvas.height*0.05;
 	c.beginPath();

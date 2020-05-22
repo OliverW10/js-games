@@ -20,11 +20,18 @@
 			margin: 0px;
 			background-color: #223843;
 		}
-		#links{
-			color: #D77A61;
-			z-index: 10000;
+		.links{
+			color: rgb(60, 60, 40);/*#D77A61;*/
+			background-color: rgb(200, 190, 50);
+			position: relative;
+			border-style: solid;
+			border-color: rgb(100, 90, 10);
+			border-width: 3px;
+			float: left;
+			left: 450px;
+			top: -10px;
 		}
-		.linksDiv{
+		.games{
 			position: absolute;
 			text-align: center;
 			display: block
@@ -48,17 +55,21 @@
 		#topBar{
 			background-color: #304f5e;
 		}
+		#sourceLink{
+			
+		}
 	</style>
-	<script data-ad-client="ca-pub-2031931814518094" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
 <body>
 	<div id="topBar">
-		<a id="links" href="https://github.com/OliverW10/OliverW10.github.io">View source code</a>
 		<div id="logo">
 			<img src="images/logo.png">
 		</div>
+		<div id="">
+			<a class="links" id="sourceLink" href="https://github.com/OliverW10/OliverW10.github.io"><h3>Source code</h3></a>
+		</div>
 	</div>
-	<div class="linksDiv">
+	<div class="games">
 		<a href="tennis/main.html" id="tennisButton">
 			<img src="images/tennis_thumb.png" width="400" height="300">
 			<p class="desc">You are lost in purgatory and the only thing to do<br>is play tennis against a floating raquet <br> Earn money and compete on an online leaderboard,<br>admire the birds and mouantains</p>
