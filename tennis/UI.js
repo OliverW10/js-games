@@ -5,16 +5,31 @@ class baseButton{
 	/*
 	the default text button others inherit from
 	*/
-	constructor(rect, text){
+	constructor(rect){
 		// drawFunc can be either a function to draw the button or a string for the basic button
-		this.X = rect[0];
-		this.Y = rect[1];
-		this.W = rect[2];
-		this.H = rect[3];
+		this.X = rect[0]*canvas.width;
+		this.Y = rect[1]*canvas.height;
+		this.W = rect[2]*canvas.width;
+		this.H = rect[3]*canvas.height;
 		this.rect = rect; // save both beacuse ease later
 		this.state = 0; // 0 is none, 1 is hovered, 2 is pressed
+		this.fading = false;
+		this.alpha = 1;
+		this.callback = undefined;
+		this.clickRatio = 0.025;
 	}
 	update(){
+		if(this.shakeAmount > 0.001){
+			this.X = this.rect[0]+Math.sin(this.shakeAngle)*this.shakeAmount;
+			this.shakeAngle += 0.1;
+			this.shakeAmount *= 0.97;
+		}
+		if(this.fading === true){
+			this.alpha -= 0.01;
+		}
+		if(this.alpha < 0){
+			this.callback();
+		}
 		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
 			if(mouseButtons[0] === true){
 				this.state = 2;
@@ -29,12 +44,85 @@ class baseButton{
 		}else{
 			this.state = 0;
 		}
+		this.updatePoints();
+		return false
+	}
+	updatePoints(){
+		this.X = this.rect[0]*canvas.width + this.state*this.rect[2]*canvas.width*this.clickRatio/2;
+		this.Y = this.rect[1]*canvas.height + this.state*this.rect[3]*canvas.height*this.clickRatio/2;
+		this.W = this.rect[2]*canvas.width - this.state*this.rect[2]*canvas.width*this.clickRatio;
+		this.H = this.rect[3]*canvas.height - this.state*this.rect[3]*canvas.height*this.clickRatio;
+	}
+	fadeOut(callback){
+		this.fading = true;
+		this.callback = callback;
+	}
+	shake(){
+		this.shakeAmount = 0.05;
+		this.shakeAngle = 0;
+	}
+
+	draw(){
+		this.drawButton();
+		this.drawFeatures();
+	}
+	drawButton(){
+		c.beginPath();
+		if(this.state === 1){
+			c.fillStyle = "rgba(150, 150, 150, "+this.alpha*0.7+")";
+			c.strokeStyle = "rgba(0, 0, 0, "+this.alpha*0.7+")";
+		}else{
+			c.fillStyle = "rgba(200, 200, 200, "+this.alpha+")";
+			c.strokeStyle = "rgba(100, 100, 100, "+this.alpha+")";
+		}
+		c.lineWidth = canvas.height*0.005;
+		c.rect(this.X, this.Y, this.W, this.H);
+		c.stroke();
+		c.fill();
+	}
+	drawFeatures(){
+
 	}
 }
 
 class TextButton extends baseButton{
-
+	constructor(rect, text){
+		super(rect);
+		this.text = text;
+	}
+	drawFeatures(){
+		showText(this.text, this.X+this.W/2, this.Y+this.H*0.6, this.H*0.4, "rgba(200, 200, 200, "+this.alpha+")", true, false);
+		showText(this.text, this.X+this.W/2, this.Y+this.H*0.6, this.H*0.4, "rgba(100, 100, 100, "+this.alpha+")", true, true);
+	}
 }
+
+class IconButton extends baseButton{
+	constructor(rect, icon){
+		super(rect);
+		this.text = text;
+		this.icon = icon;
+	}
+	drawFeatures(){
+		this.icon(this.X+this.W*0.5, this.Y+this.H*0.5, this.H*0.3);
+	}
+}
+
+class CompButton extends baseButton{
+	constructor(rect, text, icon, price){
+		super(rect);
+		this.text = text;
+		this.icon = icon;
+		this.price = price;
+	}
+	drawFeatures(){
+		showText(this.text+" $"+this.price, X+W/2, Y+H/2, H*0.4, "rgba(200, 200, 200, "+alpha+")", true, false);
+		showText(this.text+" $"+this.price, X+W/2, Y+H/2, H*0.4, "rgba(100, 100, 100, "+alpha+")", true, true);
+
+		this.icon(this.X+this.W*0.05, this.Y+this.H*0.5, this.H*0.3);
+	}
+}
+
+
 function drawPlayButton(X, Y, W, H, hovering, alpha){
 	var curveSize = canvas.height*0.05;
 	c.beginPath();

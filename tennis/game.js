@@ -165,7 +165,7 @@ var menuPosAngle = 0;
 var menuTextOffsetAngle = 0;
 var menuTextOffset = [0, 0];
 
-var menuPlayButton = new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
+var menuPlayButton = new TextButton([0.25, 0.4, 0.5, 0.3], "Play"); //new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
 var menuFade = 1;
 
 var score = [0, 0];
@@ -327,7 +327,6 @@ class Game{
 		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
 	}
 	menu(){
-		this.menuBackground()
 		menuBackgroundOverlayAim = 0;
 		// will have three types of tournaments
 		// knock-out, classic winner goes forward best of 8 or 16
@@ -595,7 +594,7 @@ class Game{
 				this.currentComp.lost();
 			}
 			this.state = this.comp;
-			menuPlayButton.reset();
+			//menuPlayButton.reset();
 
 			if(score[0] > score[1]){
 				flashText("Victory", [0, 100, 200], 2);
@@ -615,11 +614,9 @@ class Game{
 				aimGameSpeed = 1;
 			}
 		}
-		// if(checkKey("Space") === true){
-		// 	aimGameSpeed = 0.05;
-		// }else{
-		// 	aimGameSpeed = 1;
-		// }
+		if(checkKey("Escape") || checkKey("KeyP")){
+			transition(this.comp);
+		}
 		lastSpace = checkKey("Space");
 		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		this.overlay();
@@ -735,8 +732,8 @@ class Game{
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainPoints[range], false, true);
 			var grd = c.createRadialGradient(canvas.width/2, canvas.height*0.3, 50, canvas.width/2 , canvas.height*0.3,300)
-			var dark = range**1.6*15-50;
-			var light = range**1.6*15+50;
+			var dark = range**1.6*15-10;
+			var light = range**1.6*15+100;
 			grd.addColorStop(0, "rgba("+dark+", "+dark+", "+dark+", 1)");
 			grd.addColorStop(1, "rgba("+light+", "+light+", "+light+", 1)");
 			c.fillStyle = "rgba("+dark+", "+dark+", "+dark+", 1)";
@@ -795,7 +792,11 @@ class Game{
 			c.fillRect(0, 0, canvas.width, canvas.height)
 		}
 
-		vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
+		if(this.state === this.match || this.state === this.tutorial || this.state === this.wall){
+			vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
+		}else{
+			vingette = 0.8;
+		}
 		var grd = c.createRadialGradient(canvas.width/2, canvas.height/2, 1, canvas.width/2, canvas.height/2, canvas.width);
 		grd.addColorStop(0, "rgba(0, 0, 0, 0)");
 		grd.addColorStop(1, "rgba(0, 0, 0, "+vingette+")");
