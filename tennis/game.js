@@ -165,7 +165,7 @@ var menuPosAngle = 0;
 var menuTextOffsetAngle = 0;
 var menuTextOffset = [0, 0];
 
-var menuPlayButton = new TextButton([0.25, 0.4, 0.5, 0.3], "Play"); //new Button([0.25, 0.4, 0.5, 0.3], drawPlayButton);
+var menuPlayButton = new TextButton([0.25, 0.4, 0.5, 0.3], "Play");
 var menuFade = 1;
 
 var score = [0, 0];
@@ -244,7 +244,7 @@ function generateComp(currentMoney = false, type = false){
 		this.players = getRobbinPlayers(currentMoney);
 		this.icon = drawRobbinIcon;
 	}
-	comps.push([new Competition(this.type, this.players, this.difficulty, this.price), new Button(this.buttonPos, generateCompName(), this.icon, this.price)])
+	comps.push([new Competition(this.type, this.players, this.difficulty, this.price), new CompButton(this.buttonPos, generateCompName(), this.icon, this.price)])
 }
 
 function deleteComp(num){
@@ -268,17 +268,17 @@ var currentButtons = [];
 var compNames = [["Newcomers", "Beginers", "Clubs", "State", "National", "International", "Galactic"],
 ["Tennis", "Open", "Invitational", ""],
 ["Tournament", "Competition", ""]]
-var comps = [[new Competition("tutorial", 0, 0, 0), new Button(compButtonPositions[0], "Tutorial"), drawTutorialIcon, 0]]
+var comps = [[new Competition("tutorial", 0, 0, 0), new TextButton(compButtonPositions[0], "Tutorial")]]
 for(var i = 0; i < 3; i +=1){
 	generateComp(money, "robbin");
 	generateComp(money, "knockout");
 }
 generateComp(5, "robbin");
 
-var onlineButton = new Button([0.01, 0.72, 0.98, 0.2], "Online leaderboard");
+var onlineButton = new TextButton([0.01, 0.72, 0.98, 0.2], "Online leaderboard");
 
-var settingsButton = new Button([0.01, 0.94, 0.48, 0.05], drawSettingsButton);
-var helpButton = new Button([0.51, 0.94, 0.48, 0.05], "What should this button be?");
+var settingsButton = new BothButton([0.01, 0.94, 0.48, 0.05], "Settings", drawSettingsIcon);
+var helpButton = new TextButton([0.51, 0.94, 0.48, 0.05], "What should this button be?");
 
 var robbinBlur = 0;
 var knockoutBlur = 0;
@@ -297,18 +297,18 @@ for(var i = 0; i < 25; i += 1){
 var pagesTutorials = new Tutorial();
 var paidComp = false;
 
-var backButton = new Button([0.05, 0.05, 0.1, 0.1], "", drawPrevIcon);
+var backButton = new IconButton([0.05, 0.05, 0.1, 0.1], drawPrevIcon);
 
 var leaderboardPerPage = 10; // how many items per page
 var leaderboardPage = 0;
-var leaderboardSubmitButton = new Button([0.3, 0.875, 0.4, 0.1], "Submit Score");
-var leaderboardNextButton = new Button([0.89, 0.89, 0.1, 0.1], "", drawNextIcon);
-var leaderboardPrevButton = new Button([0.01, 0.89, 0.1, 0.1], "", drawPrevIcon);
+var leaderboardSubmitButton = new TextButton([0.3, 0.875, 0.4, 0.1], "Submit Score");
+var leaderboardNextButton = new IconButton([0.89, 0.89, 0.1, 0.1], drawNextIcon);
+var leaderboardPrevButton = new IconButton([0.01, 0.89, 0.1, 0.1], drawPrevIcon);
 
 var gameSpeedAlpha = 0.3;
 var slowGameSpeed = 0.05;
 
-var resetButton = new Button([0.1, 0.9, 0.15, 0.05], "Reset Save");
+var resetButton = new TextButton([0.1, 0.9, 0.15, 0.05], "Reset Save");
 
 var menuBackgroundProgress = 0;
 var menuBackgroundOverlay = 0;
@@ -402,10 +402,10 @@ class Game{
 			// this.currentComp = undefined;
 			paidComp = true;
 		}
-		if(backButton.update() === true){
-			transition(this.pickComp);
-		}
-		backButton.draw();
+		// if(backButton.update() === true){ // removed beacuse it uses the money but dosent make any
+		// 	transition(this.pickComp);
+		// }
+		// backButton.draw();
 		this.overlay();
 		this.showMoney();
 	}
@@ -416,13 +416,13 @@ class Game{
 		showText("Select Mode", canvas.width/2, canvas.height*0.075, canvas.height*0.08, "rgb(0, 0, 0)", true);
 		for(var i = 0; i<comps.length; i += 1){
 			if(comps[i][1].update() === true){
-				if(money >= comps[i][1].cost){
+				if(money >= comps[i][0].price){
+					console.log("into comp")
 					this.currentComp = comps[i][0];
 					this.currentCompNum = i;
 					transition(this.comp);
-					money -= comps[i][1].cost;
+					money -= comps[i][0].price;
 					paidComp = false;
-					comps[i][1].reset()
 				}else{
 					comps[i][1].shake()
 				}
@@ -533,7 +533,6 @@ class Game{
 			if(tutorialShotsIn >= 3){
 				this.tutorialStage += 1;
 				changeSkill(15);
-				balls[0].reset();
 				aimGameSpeed = 1;
 			}
 		}
