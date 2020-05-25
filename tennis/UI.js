@@ -605,13 +605,11 @@ class Competition{ // for round robbin and kockout competitons
 		if(this.type === "knockout"){
 			this.aimProgress += 1;
 		}
-		this.playButton.reset();
 	}
 	lost(){
 		if(this.type === "knockout"){
 			this.stillGoing = false;
 		}
-		this.playButton.reset();
 	}
 	getSkill(){
 		if(this.type === "knockout"){
@@ -625,7 +623,6 @@ class Competition{ // for round robbin and kockout competitons
 		}
 	}
 	score(score){
-		this.playButton.reset();
 		if(this.type === "robbin"){
 			this.scores[this.player][this.verses] = score[1];
 			this.scores[this.verses][this.player] = score[0];
@@ -851,11 +848,9 @@ class Tutorial{
 	draw(){
 		if(this.nextButton.update() === true){
 			this.page += 1;
-			this.nextButton.reset();
 		}
 		if(this.prevButton.update() === true){
 			this.page -= 1;
-			this.prevButton.reset();
 		}
 		this.pages[this.state][this.page]();
 		this.nextButton.draw();

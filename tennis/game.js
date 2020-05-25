@@ -402,10 +402,10 @@ class Game{
 			// this.currentComp = undefined;
 			paidComp = true;
 		}
-		// if(backButton.update() === true){ // removed beacuse it uses the money but dosent make any
-		// 	transition(this.pickComp);
-		// }
-		// backButton.draw();
+		if(backButton.update() === true){ // removed beacuse it uses the money but dosent make any
+			transition(this.pickComp);
+		}
+		backButton.draw();
 		this.overlay();
 		this.showMoney();
 	}
@@ -593,7 +593,6 @@ class Game{
 				this.currentComp.lost();
 			}
 			this.state = this.comp;
-			//menuPlayButton.reset();
 
 			if(score[0] > score[1]){
 				flashText("Victory", [0, 100, 200], 2);
@@ -863,11 +862,9 @@ class Game{
 		leaderboardNextButton.draw();
 		if(leaderboardNextButton.update() === true){
 			leaderboardPage += 1
-			leaderboardNextButton.reset();
 		}
 		if(leaderboardPrevButton.update() === true && leaderboardPage > 0){
 			leaderboardPage -= 1
-			leaderboardPrevButton.reset();
 		}
 		setTextBoxPos(canvas.width*0.5, canvas.height*0.8);
 		if(localStorage.getItem("name") === null){
