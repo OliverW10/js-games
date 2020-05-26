@@ -249,7 +249,6 @@ function generateComp(currentMoney = false, type = false){
 }
 
 function deleteComp(num){
-	console.log("deleted comp "+num+" button num "+compButtonPositions.indexOf(comps[num][1].rect));
 	compButtonPositions[compButtonPositions.indexOf(comps[num][1].rect)][4] = false;
 	comps.splice(num, 1);
 	generateComp();
@@ -310,6 +309,9 @@ var gameSpeedAlpha = 0.3;
 var slowGameSpeed = 0.05;
 
 var resetButton = new TextButton([0.1, 0.9, 0.15, 0.05], "Reset Save");
+var qualityButton = new TextButton([0.1, 0.2, 0.25, 0.1], "Quality");
+var graphicsQuality = 1;
+var graphicsQualityKey = {0:"low", 1:"normal"}
 
 var menuBackgroundProgress = 0;
 var menuBackgroundOverlay = 0;
@@ -659,9 +661,10 @@ class Game{
 			c.fill();
 		}
 
-		var b;
-		for(b in birds){
-			birds[b].drawReflection();
+		if(graphicsQuality >= 1){
+			for(var b in birds){
+				birds[b].drawReflection();
+			}
 		}
 
 		if(noRacquet === false){
@@ -682,9 +685,10 @@ class Game{
 		c.fill();
 	}
 	draw(noRacquet = false){
-		var b;
-		for(b in birds){
-			birds[b].update();
+		if(graphicsQuality >= 1){
+			for(var b in birds){
+				birds[b].update();
+			}
 		}
 		balls[0].run();
 		if(noRacquet === false){
@@ -829,7 +833,6 @@ class Game{
 		}
 	}
 	settings(){
-		showText("Not done yet", canvas.width*0.5, canvas.height*0.5, canvas.height*0.1);
 		if(resetButton.update() === true){
 			localStorage.clear();
 			money = 5;
@@ -839,6 +842,16 @@ class Game{
 			}
 		}
 		resetButton.draw();
+
+		if(qualityButton.update() === true){
+			graphicsQuality += 1;
+			if(graphicsQuality > 1){
+				graphicsQuality = 0;
+			}
+			flashText(graphicsQualityKey[graphicsQuality]+" Quality", [0, 0, 0]);
+		}
+		qualityButton.draw();
+
 		if(backButton.update() === true){
 			transition(this.pickComp);
 		}
