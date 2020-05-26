@@ -310,3 +310,7 @@ function guasianRandom(min, max, amount = 2){
 	}
 	return total/Math.floor(amount)
 }
+
+function lerp(v0, v1, t) {
+    return v0*(1-t)+v1*t
+}

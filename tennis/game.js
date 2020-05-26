@@ -116,9 +116,10 @@ var playerDrag = 0.1;
 var playerMaxSpeed = [0.02, 0, 0.015]
 
 var gravity = 0.003;
-var balls = [new Ball(0, 1, 1.5), new Ball(0, 0, 1.5), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
+var balls = [new Ball(0, 1, 1.5), new Ball(0, 1, 1.5), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 // now contrary to the origonal purose it is now used to store the game AND menu bals
 // third ball is the ghost
+balls[1].menuReset();
 
 var mountainPoints = [];
 for(var i = 0; i<6; i+=1){
@@ -172,7 +173,7 @@ var score = [0, 0];
 var scoreLegend = {0:"0", 1:"1", 2:"2", 3:"3", 4:"4", 5:"5", 6:"6", 7:"7"};
 
 var flashTextText = "Blue Test";
-var flashTextTrans = 1;
+var flashTextTrans = 0;
 var flashTextColour = [0, 0, 255];
 
 function flashText(text, colour = [0, 0, 0], time = 1){
@@ -316,7 +317,7 @@ var menuBackgroundOverlayAim = 0;
 
 class Game{
 	constructor(){
-		this.state = this.start;
+		this.state = this.menu;
 		this.tutorialStage = 0;
 		this.currentComp = false;
 		this.currentCompNum = undefined;
@@ -354,16 +355,15 @@ class Game{
 		showText("Tönnìs", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, 1)", true, true);
 
 		menuPlayButton.draw();
-		balls[1].freeze([-cameraPos[0]+0.5, cameraPos[1]-1.4, 5], false);
 
-		balls[1].addRotationalSpeed([(mousePos.x-lastMousePos.x)/10000, (mousePos.y-lastMousePos.y)/10000]);
+		balls[1].menuRun();
 		balls[1].draw();
 
 		this.overlay();
 	}
 	comp(){
 		menuBackgroundOverlayAim = 0;
-		this.menuBackground()
+		/// this.menuBackground()
 		if(this.currentComp.update() === true){
 			score = [0, 0];
 			changeSkill(this.currentComp.getSkill())
@@ -791,7 +791,7 @@ class Game{
 		}
 
 		if(this.state === this.match || this.state === this.tutorial || this.state === this.wall){
-			vingette = scaleNumber(gameSpeed, 0, 1, 0.9, 0.1);
+			vingette = scaleNumber(gameSpeed, 0, 1, 1, 0.2);
 		}else{
 			vingette = 0.8;
 		}
@@ -833,7 +833,10 @@ class Game{
 		if(resetButton.update() === true){
 			localStorage.clear();
 			money = 5;
-			flashText("SAVE RESET", [255, 0, 0])
+			flashText("SAVE RESET", [255, 0, 0]);
+			for(var i = 0; i < comps.length-1; i ++){
+				deleteComp(1);
+			}
 		}
 		resetButton.draw();
 		if(backButton.update() === true){

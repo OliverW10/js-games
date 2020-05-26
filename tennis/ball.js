@@ -30,7 +30,7 @@ class Ball{
 		this.startY = Y;
 		this.startZ = Z;
 		this.courtSize = 0.025; // court base size
-		this.size = this.courtSize*canvas.width;
+		this.size = false;		this.tailLength = 30;
 		this.reset();
 	}
 
@@ -93,7 +93,6 @@ class Ball{
 	}
 
 	run(tutorial = false){
-		this.size = this.courtSize*canvas.width;
 		if(this.stopped === false){
 			this.lastX = this.X;
 			this.lastZ = this.Z;
@@ -234,7 +233,52 @@ class Ball{
 
 		// this.hsl[0] += this.Zvel*200*gameSpeed;
 	}
+	menuRun(){
+			this.size = this.courtSize*canvas.width;
+			this.Yvel -= gravity*gameSpeed;
+			this.X += this.Xvel*gameSpeed;
+			this.Y += this.Yvel*gameSpeed;
+			this.Z += this.Zvel*gameSpeed;
+			if(this.X > 1 || this.X < 1){
+				this.Xvel = -this.Xvel;
+				//this.X += this.Xvel
+				//console.log("side bounced")
+			}
+			if(this.Y < 0){
+				this.Yvel = -this.Yvel;
+				this.Y += this.Yvel
+			}
+	}
+	drawTail(){
+		this.prevPoints.push([this.X, this.Y, this.Z]);
+		if(this.prevPoints.length > this.tailLength){
+			this.prevPoints.splice(0, 1)
+		}
+
+		if(this.prevPoints.length >= this.tailLength){
+			var points = [];
+			for(var x of this.prevPoints){
+				points.push(projectPoint(...x));
+			}
+			c.beginPath();
+			for(var x of points){
+				var i = points.indexOf(x);
+				var size = scaleNumber(i, 0, points.length, 0, 1);
+
+				c.fillStyle = hslCvt(this.hsl, size*0.2);
+				c.moveTo(x[0], x[1])
+				c.arc(x[0], x[1], size*this.size, 0, Math.PI*2);
+
+				if(i < points.length-1){
+					c.arc(lerp(points[i][0], points[i+1][0], 0.333), lerp(points[i][1], points[i+1][1], 0.333), size*this.size, 0, Math.PI*2);
+					c.arc(lerp(points[i][0], points[i+1][0], 0.666), lerp(points[i][1], points[i+1][1], 0.666), size*this.size, 0, Math.PI*2);
+				}
+			}
+			c.fill();
+		}
+	}
 	draw(shadow = true, alpha = 1){
+		this.drawTail();
 		if(true){ // left over from doing it a different way, remove later
 			var X = this.X;
 			var Y = this.Y;
@@ -281,7 +325,7 @@ class Ball{
 			var shaW = Math.abs(shaPoint[0] - shaPointX[0]);
 			var shaH = Math.abs(shaPoint[1] - shaPointZ[1]);
 
-			if(onScreen(shaPoint[0], shaPoint[1], this.size*shaPoint[2]) === true && Z+cameraPos[2] > 0){
+			if(onScreen(shaPoint[0], shaPoint[1], this.size) === true && Z+cameraPos[2] > 0){
 				c.beginPath();
 				c.fillStyle = "rgba(0, 0, 0, 0.5)";
 				c.ellipse(shaPoint[0], shaPoint[1], shaW, shaH, 0, 0, Math.PI*2);
@@ -292,6 +336,7 @@ class Ball{
 		var point = projectPoint(X, Y, Z);
 		var edgePoint = projectPoint(X+this.courtSize, Y, Z);
 		var frameSize = Math.abs(point[0]-edgePoint[0]);
+		this.size = frameSize;
 		var patternSize = frameSize*0.8
 		// ball
 		c.beginPath();
@@ -346,10 +391,16 @@ class Ball{
 		this.loser = false;
 		this.actualHitBy = 0;
 		coloursRGB["ball"] = [75, 75, 75];
-		this.hsl = [169, 1, 0.6];
+		this.hsl = [0, 1, 0.5];
 		this.rally = 0;
+		this.prevPoints = [];
 	}
-
+	menuReset(){
+		this.Xvel = 0.01;
+		this.Yvel = random(-0.05, 0.05);
+		this.Xrot = 0.0001;
+		this.Yrot = 0.0001;
+	}
 	getPos(){
 		return [this.X, this.Y, this.Z];
 	}
