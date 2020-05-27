@@ -234,22 +234,28 @@ class Ball{
 		// this.hsl[0] += this.Zvel*200*gameSpeed;
 	}
 	menuRun(){
-		this.size = this.courtSize*canvas.width;
 		this.Yvel -= gravity*gameSpeed;
 		this.X += this.Xvel*gameSpeed;
 		this.Y += this.Yvel*gameSpeed;
 		this.Z += this.Zvel*gameSpeed;
-		if(this.X > 1 || this.X < 1){
+		if(this.X > 1 || this.X < -1){
 			this.Xvel = -this.Xvel;
-			//this.X += this.Xvel
-			//console.log("side bounced")
+			this.X = clip(this.X, -1, 1);
 		}
 		if(this.Y < 0){
 			this.Yvel = -this.Yvel;
 			this.Y += this.Yvel
 		}
+		if(this.Z < 2 || this.Z > 3){
+			this.Zvel = -this.Zvel;
+			this.Z = clip(this.Z, 2, 3);
+		}
 	}
 	drawTail(){
+		var point = projectPoint(this.X, this.Y, this.Z);
+		var edgePoint = projectPoint(this.X+this.courtSize, this.Y, this.Z);
+		this.size = Math.abs(point[0]-edgePoint[0]);
+
 		this.prevPoints.push([this.X, this.Y, this.Z]);
 		if(this.prevPoints.length > this.tailLength){
 			this.prevPoints.splice(0, 1)
@@ -398,8 +404,9 @@ class Ball{
 		this.prevPoints = [];
 	}
 	menuReset(){
-		this.Xvel = 0.01;
+		this.Xvel = 0.05;
 		this.Yvel = random(-0.05, 0.05);
+		//this.Zvel = 0.01;
 		this.Xrot = 0.0001;
 		this.Yrot = 0.0001;
 	}

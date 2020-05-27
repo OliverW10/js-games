@@ -116,7 +116,7 @@ var playerDrag = 0.1;
 var playerMaxSpeed = [0.02, 0, 0.015]
 
 var gravity = 0.003;
-var balls = [new Ball(0, 1, 1.5), new Ball(0, 1, 1.5), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
+var balls = [new Ball(0, 1, 1.5), new Ball(0, 1, 1), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 // now contrary to the origonal purose it is now used to store the game AND menu bals
 // third ball is the ghost
 balls[1].menuReset();
@@ -158,9 +158,15 @@ function changeSkill(newSkill){
 
 var vanishingPointPos = [0.5, 0.3];
 var renderer = new drawing(0.5);
-renderer.spawnDrifters(courtLinesOuter, "rgb(0, 0, 0)", "outer", 2);
-renderer.spawnDrifters(courtLinesMin, "rgb(0, 0, 0)", "min", 4);
-renderer.spawnDrifters(courtEnemyLines, "rgb(0, 0, 0)", "enemy", 3)
+
+var graphicsQuality = 1;
+var graphicsQualityKey = {0:"low", 1:"normal"}
+function generateCourtDirfters(quality){
+	renderer.spawnDrifters(courtLinesOuter, "rgb(0, 0, 0)", "outer", 2, quality);
+	renderer.spawnDrifters(courtLinesMin, "rgb(0, 0, 0)", "min", 4, quality);
+	renderer.spawnDrifters(courtEnemyLines, "rgb(0, 0, 0)", "enemy", 3, quality);
+}
+generateCourtDirfters(50);
 
 var menuPosAngle = 0;
 var menuTextOffsetAngle = 0;
@@ -310,8 +316,6 @@ var slowGameSpeed = 0.05;
 
 var resetButton = new TextButton([0.1, 0.9, 0.15, 0.05], "Reset Save");
 var qualityButton = new TextButton([0.1, 0.2, 0.25, 0.1], "Quality");
-var graphicsQuality = 1;
-var graphicsQualityKey = {0:"low", 1:"normal"}
 
 var menuBackgroundProgress = 0;
 var menuBackgroundOverlay = 0;
@@ -330,6 +334,7 @@ class Game{
 		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
 	}
 	menu(){
+		cameraPos = [0, 2.5, 0];
 		menuBackgroundOverlayAim = 0;
 		// will have three types of tournaments
 		// knock-out, classic winner goes forward best of 8 or 16
@@ -344,6 +349,12 @@ class Game{
 		c.fillStyle = "rgb(200, 200, 200)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 
+		if(menuPlayButton.state != 0){
+			aimGameSpeed = 0.01;
+		}else{
+			aimGameSpeed = 1;
+		}
+		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		if(menuPlayButton.update() === true){
 			score = [0, 0];
 			this.state = this.pickComp;
@@ -848,6 +859,8 @@ class Game{
 			if(graphicsQuality > 1){
 				graphicsQuality = 0;
 			}
+			console.log(graphicsQuality*30+20);
+			generateCourtDirfters(graphicsQuality*30+20);
 			flashText(graphicsQualityKey[graphicsQuality]+" Quality", [0, 0, 0]);
 		}
 		qualityButton.draw();
