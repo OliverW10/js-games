@@ -116,7 +116,7 @@ var playerDrag = 0.1;
 var playerMaxSpeed = [0.02, 0, 0.015]
 
 var gravity = 0.003;
-var balls = [new Ball(0, 1, 1.5), new Ball(0, 1, 1), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
+var balls = [new Ball(0, 1, 1.5), new Ball(0, 1.5, 1), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
 // now contrary to the origonal purose it is now used to store the game AND menu bals
 // third ball is the ghost
 balls[1].menuReset();
@@ -379,6 +379,7 @@ class Game{
 		/// this.menuBackground()
 		if(this.currentComp.update() === true){
 			score = [0, 0];
+			aimGameSpeed = 1;
 			changeSkill(this.currentComp.getSkill())
 			if(this.currentComp.type === "tutorial"){
 				console.log(this.currentComp.selected);
@@ -540,9 +541,10 @@ class Game{
 			}
 		}
 		if(this.tutorialStage === 1){
-			showText("'Throw' The ball moving the mouse upwards and releasing. Try to get 3 shots in", canvas.width*0.5, canvas.height*0.37, canvas.height*0.04);
+			showText("'Throw' The ball moving the mouse upwards and releasing. Try to get 3 shots in", canvas.width*0.5, canvas.height*0.37, canvas.height*0.03);
 			showText("Tip: Releasing the ball further back will result is a lower shot", canvas.width*0.5, canvas.height*0.8, canvas.width*0.02);
 			showText(tutorialShotsIn, canvas.width*0.5, canvas.height*0.1, canvas.width*0.03);
+			//drawArrow(canvas.width*0.5, canvas.height*0.6, canvas.width*0.5, canvas.height*0.8, canvas.width*0.05)
 			if(tutorialShotsIn >= 3){
 				this.tutorialStage += 1;
 				changeSkill(15);
@@ -551,6 +553,7 @@ class Game{
 		}
 		if(this.tutorialStage === 2){
 			showText("Tap space for slow-mo", canvas.width*0.5, canvas.height*0.8, canvas.width*0.04);
+			drawSpacebar(canvas.width*0.3, canvas.height*0.9, canvas.width*0.4);
 			if(aimGameSpeed < 0.5){
 				this.tutorialStage += 1;
 			}

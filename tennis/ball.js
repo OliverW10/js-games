@@ -409,6 +409,8 @@ class Ball{
 		//this.Zvel = 0.01;
 		this.Xrot = 0.0001;
 		this.Yrot = 0.0001;
+		this.Xangle = random(-1, 1);
+		this.Yangle = random(-1, 1);
 	}
 	getPos(){
 		return [this.X, this.Y, this.Z];

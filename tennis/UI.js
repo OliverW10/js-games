@@ -148,208 +148,6 @@ class CompButton extends baseButton{
 }
 
 
-// function drawPlayButton(X, Y, W, H, hovering, alpha){
-// 	var curveSize = canvas.height*0.05;
-// 	c.beginPath();
-// 	if(hovering === true){
-// 		c.fillStyle = "rgba(150, 150, 150, 1)";
-// 		var offset = [random(-2, 2), random(-2, 2)];
-// 	}else{
-// 		var offset = [0, 0];
-// 		c.fillStyle = "rgba(50, 50, 50, 1)";
-// 	}
-// 	c.moveTo(X+offset[0]+curveSize, Y+offset[1]);
-// 	c.lineTo(X+W+offset[0]-curveSize, Y+offset[1]);
-// 	c.quadraticCurveTo(X+W+offset[0], Y+offset[1], X+W+offset[0], Y+curveSize+offset[1]);
-// 	c.lineTo(X+W+offset[0], Y+H+offset[1]-curveSize*2);
-// 	c.quadraticCurveTo(X+W-curveSize*2+offset[0], Y+H-curveSize*2+offset[1], X+W-curveSize*2+offset[0], Y+H+offset[1]);
-// 	c.lineTo(X+offset[0]+curveSize, Y+H+offset[1]);
-// 	c.quadraticCurveTo(X+offset[0], Y+H, X+offset[0], Y+H-curveSize+offset[1]);
-// 	c.lineTo(X+offset[0], Y-curveSize+offset[1]);
-// 	c.quadraticCurveTo(X+offset[0], Y+offset[1], X+curveSize+offset[0], Y+offset[1]);
-// 	c.fill();
-
-// 	if(hovering === true){
-// 		showText("Play", X+W/2+offset[0], Y+H*0.65+offset[1], W/4.2, "rgba(0, 0, 0, "+alpha+")", true, true);
-// 	}else{
-// 		showText("Play", X+W/2+offset[0], Y+H*0.65+offset[1], W/4, "rgba(150, 150, 150, "+alpha+")", true, true);
-// 	}
-// }
-
-// function drawSettingsButton(X, Y, W, H, hovering, alpha){
-// 	c.beginPath();
-// 	if(hovering === true){
-// 		c.fillStyle = "rgba(150, 150, 150, "+alpha*0.7+")";
-// 		c.strokeStyle = "rgba(0, 0, 0, "+alpha*0.7+")";
-// 		settingsGearOffset += 0.03;
-// 	}else{
-// 		c.fillStyle = "rgba(200, 200, 200, "+alpha+")";
-// 		c.strokeStyle = "rgba(100, 100, 100, "+alpha+")";
-// 	}
-// 	c.lineWidth = canvas.height*0.005;
-// 	c.rect(X, Y, W, H);
-// 	c.stroke();
-// 	c.fill();
-// 	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgba(200, 200, 200, "+alpha+")", true, false);
-// 	showText("Settings", X+W*0.4, Y+H*0.75, H*0.8, "rgba(100, 100, 100, "+alpha+")", true, true);
-
-// 	drawSettingsIcon(X+W*0.7, Y+H/2, H*0.6);
-// }
-
-// function drawInfoButton(X, Y, W, H, hovering, alpha){
-
-// }
-
-// function drawBasicButton(X, Y, W, H, hovering, alpha, text, icon = false){
-// 	c.beginPath();
-// 	if(hovering === true){
-// 		c.fillStyle = "rgba(150, 150, 150, "+alpha*0.7+")";
-// 		c.strokeStyle = "rgba(0, 0, 0, "+alpha*0.7+")";
-// 	}else{
-// 		c.fillStyle = "rgba(200, 200, 200, "+alpha+")";
-// 		c.strokeStyle = "rgba(100, 100, 100, "+alpha+")";
-// 	}
-// 	c.lineWidth = canvas.height*0.005;
-// 	c.rect(X, Y, W, H);
-// 	c.stroke();
-// 	c.fill();
-// 	c.font = 10+"px Arial";
-// 	showText(text, X+W/2, Y+H/2, H*0.4, "rgba(200, 200, 200, "+alpha+")", true, false);
-// 	showText(text, X+W/2, Y+H/2, H*0.4, "rgba(100, 100, 100, "+alpha+")", true, true);
-// }
-
-// function drawIconButton(X, Y, W, H, hovering, alpha, text, icon = false){
-// 	c.beginPath();
-// 	if(hovering === true){
-// 		c.fillStyle = "rgba(150, 150, 150, "+alpha*0.7+")";
-// 		c.strokeStyle = "rgba(0, 0, 0, "+alpha*0.7+")";
-// 	}else{
-// 		c.fillStyle = "rgba(200, 200, 200, "+alpha+")";
-// 		c.strokeStyle = "rgba(100, 100, 100, "+alpha+")";
-// 	}
-// 	c.lineWidth = canvas.height*0.005;
-// 	c.rect(X, Y, W, H);
-// 	c.stroke();
-// 	c.fill();
-// 	c.font = 10+"px Arial";
-// 	this.size =  W/(c.measureText(text).width/10)*0.8;
-// 	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgba(200, 200, 200, "+alpha+")", true, false);
-// 	showText(text, X+W*0.55, Y+H/2+this.size*0.333, this.size, "rgba(100, 100, 100, "+alpha+")", true, true);
-
-// 	if(icon !== false){
-// 		if(text === ""){
-// 			icon(X+W*0.5, Y+H*0.5, H*0.3);
-// 		}else{
-// 			icon(X+W*0.05, Y+H*0.5, H*0.3);
-// 		}
-// 	}
-// }
-
-// should probrobly make other button classes the inherit from this one
-// class Button{
-// 	// will cann a draw function with a rect argument and manage the hovering and click detection
-// 	constructor(rect, drawFunc, icon = false, cost = 0){
-// 		// drawFunc can be either a function to draw the button or a string for the basic button
-// 		this.X = rect[0];
-// 		this.Y = rect[1];
-// 		this.W = rect[2];
-// 		this.H = rect[3];
-// 		this.rect = rect; // save both beacuse ease later
-// 		if(typeof(drawFunc) === "string"){
-// 			this.text = drawFunc;
-// 			if(icon === false){
-// 				this.drawFunc = drawBasicButton;
-// 			}else{
-// 				this.drawFunc = drawIconButton;
-// 			}
-// 		}else{
-// 			this.text = false
-// 			this.drawFunc = drawFunc;
-// 		}
-// 		this.state = 0; // 0 is none, 1 is hovered, 2 is pressed
-// 		this.clickRatio = 0.025;
-// 		this.icon = icon
-// 		this.cost = cost;
-// 		this.alpha = 1;
-// 		this.fading = false;
-// 		this.callback = null;
-// 		this.shakeAmount = 0;
-// 		this.shakeAngle = 0;
-// 	}
-// 	update(){
-// 		if(this.shakeAmount > 0.001){
-// 			this.X = this.rect[0]+Math.sin(this.shakeAngle)*this.shakeAmount;
-// 			this.shakeAngle += 0.1;
-// 			this.shakeAmount *= 0.97;
-// 		}
-// 		if(this.fading === true){
-// 			this.alpha -= 0.01;
-// 		}
-// 		if(this.alpha < 0){
-// 			this.callback();
-// 		}
-// 		if(this.fading === false){
-// 			if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
-// 				if(mouseButtons[0] === true){
-// 					this.state = 2;
-// 				}else{
-// 					if(this.state === 2){
-// 						this.state = 0;
-// 						return true
-// 					}else{
-// 						this.state = 1;
-// 					}
-// 				}
-// 			}else{
-// 				this.state = 0;
-// 			}
-// 		}
-// 		return false
-// 	}
-// 	draw(){
-// 		if(this.text === false){
-// 			this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
-// 				this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
-// 				this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
-// 				this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
-// 				!!this.state,
-// 				this.alpha,
-// 				this.icon);
-// 		}else{
-// 			if(this.cost != 0){
-// 				this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
-// 					this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
-// 					this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
-// 					this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
-// 					!!this.state,
-// 					this.alpha,
-// 					this.text+" $"+this.cost,
-// 					this.icon);
-// 			}else{
-// 				this.drawFunc(this.X*canvas.width + this.state*this.W*canvas.width*this.clickRatio/2,
-// 					this.Y*canvas.height + this.state*this.H*canvas.height*this.clickRatio/2,
-// 					this.W*canvas.width - this.state*this.W*canvas.width*this.clickRatio,
-// 					this.H*canvas.height - this.state*this.H*canvas.height*this.clickRatio,
-// 					!!this.state,
-// 					this.alpha,
-// 					this.text,
-// 					this.icon);
-// 			}
-// 		}
-// 	}
-// 	reset(){
-// 		this.state = 0;
-// 	}
-// 	fadeOut(callback){
-// 		this.fading = true;
-// 		this.callback = callback;
-// 	}
-// 	shake(){ // the no shake
-// 		this.shakeAmount = 0.05;
-// 		this.shakeAngle = 0;
-// 	}
-// }
-
 var knockoutBoardDepth = 10;
 var knockoutBoardRatio = 0.8;
 var nameCounter = 0;
@@ -833,6 +631,26 @@ function drawCheckIcon(X, Y, S){
 	c.lineTo(X, Y+S/2);
 	c.lineTo(X+S/2, Y-S*0.333);
 	c.stroke();
+}
+
+function drawArrow(X1, Y1, X2, Y2, size, p = 0){
+	// for(var i = 0; i < 5; i +=1){
+	// 	roundedLine([lerp(X1, X2, (i+p)/5), lerp(Y1, Y2, (i+p)/5)], [lerp(X1, X2, (i+0.5+p)/5), lerp(Y1, Y2, (i+0.5+p)/5)], canvas.width*0.01, "rgb(150, 150, 150)");
+	// }
+	roundedLine([X1, Y1], [X2, Y2], canvas.width*0.01, "rgb(100, 100, 100)")
+	roundedLine([X1, Y1], [X1+size, Y1+size], canvas.width*0.01, "rgb(100, 100, 100)");
+	roundedLine([X1, Y1], [X1-size, Y1+size], canvas.width*0.01, "rgb(100, 100, 100)");
+}
+
+function drawSpacebar(X, Y, S){
+	roundedRect(X, Y, S*5, S, S*0.1);
+	c.fillStyle = "rgb(200, 200, 200)";
+	c.strokeStyle = "rgb(100, 100, 100)";
+	c.lineWidth = S*0.05
+	c.fill();
+	c.stroke();
+
+	roundedLine(X+S*0.3, Y+S*0.07, X+S*0.7, Y+S*0.07, S*0.05, "rgb(100, 100, 100)");
 }
 
 class Tutorial{

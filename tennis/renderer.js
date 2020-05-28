@@ -16,24 +16,6 @@ function warp(pos){ // position is one axis with 0 being in the middle and 1 and
 	return newPos
 }
 
-function roundedLine(startPos, endPos, width, colour){
-	c.beginPath();
-	c.strokeStyle = colour;
-	c.lineWidth = width;
-	c.moveTo(startPos[0], startPos[1]);
-	c.lineTo(endPos[0], endPos[1]);
-	c.stroke();
-
-	c.beginPath();
-	c.fillStyle = colour;
-	c.arc(startPos[0], startPos[1], width/2, Math.PI*0.5, Math.PI*1.5);
-	c.fill();
-
-	c.beginPath();
-	c.arc(endPos[0], endPos[1], width/2, Math.PI*1.5, Math.PI*2.5);
-	c.fill();
-}
-
 var colours = {"ground" : "rgb(150, 150, 150)",
 "sky": "rgb(250, 250, 250)",
 "ball" : "rgb(255, 50, 50)",

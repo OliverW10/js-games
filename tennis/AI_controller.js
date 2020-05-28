@@ -62,8 +62,8 @@ class AIController{
 
 		return [-this.shotPower*Math.cos(this.angle), 0.07, this.shotPower*Math.sin(this.angle)];
 	}
-	getSpin(){
-		return [random(-0.1, 0.1), this.spin+this.Y]
+	getSpin(vel){
+		return [vel[0]*0.05, this.spin+this.Y]
 	}
 	update(){
 		if(this.cooldown > 0){
@@ -112,7 +112,8 @@ class AIController{
 
 		var ballDist = dist(this.X, this.Z, balls[0].X, balls[0].Z);
 		if(ballDist < 0.05+this.difficulty/100 && this.cooldown <= 0 && Math.abs(this.Y-balls[0].Y) < 0.5){
-			balls[0].hit(this.getVel(this.X, this.Y, this.Z), this.getSpin(), -1);
+			var vel = this.getVel(this.X, this.Y, this.Z);
+			balls[0].hit(vel, this.getSpin(vel), -1);
 			this.boost = 0;
 			playSound(hitSound);
 			this.cooldown = 10; // has to wait 10 frames between each hit

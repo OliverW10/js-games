@@ -139,40 +139,51 @@ function onScreen(X, Y, size){
 	}
 }
 
-function roundRect(ctx, x, y, width, height, radius, fill, stroke) { // stolen
-  if (typeof stroke == 'undefined') {
-	stroke = true;
-  }
-  if (typeof radius === 'undefined') {
-	radius = 5;
-  }
-  if (typeof radius === 'number') {
-	radius = {tl: radius, tr: radius, br: radius, bl: radius};
-  } else {
-	var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-	for (var side in defaultRadius) {
-	  radius[side] = radius[side] || defaultRadius[side];
+function roundRect(x, y, width, height, radius) { // stolen
+	/*
+	creates the path for a rectangle with rounded corners
+	*/
+	if (typeof radius === 'undefined') {
+		radius = 5;
 	}
-  }
-  ctx.beginPath();
-  ctx.moveTo(x + radius.tl, y);
-  ctx.lineTo(x + width - radius.tr, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-  ctx.lineTo(x + width, y + height - radius.br);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-  ctx.lineTo(x + radius.bl, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-  ctx.lineTo(x, y + radius.tl);
-  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
-  ctx.closePath();
-  if (fill) {
-	ctx.fill();
-  }
-  if (stroke) {
-	ctx.stroke();
-  }
-
+	if (typeof radius === 'number') {
+		radius = {tl: radius, tr: radius, br: radius, bl: radius};
+	} else {
+		var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+		for (var side in defaultRadius) {
+			radius[side] = radius[side] || defaultRadius[side];
+		}
+	}
+	c.beginPath();
+	c.moveTo(x + radius.tl, y);
+	c.lineTo(x + width - radius.tr, y);
+	c.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+	c.lineTo(x + width, y + height - radius.br);
+	c.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+	c.lineTo(x + radius.bl, y + height);
+	c.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+	c.lineTo(x, y + radius.tl);
+	c.quadraticCurveTo(x, y, x + radius.tl, y);
+	c.closePath();
 }
+function roundedLine(startPos, endPos, width, colour){
+	c.beginPath();
+	c.strokeStyle = colour;
+	c.lineWidth = width;
+	c.moveTo(startPos[0], startPos[1]);
+	c.lineTo(endPos[0], endPos[1]);
+	c.stroke();
+
+	c.beginPath();
+	c.fillStyle = colour;
+	c.arc(startPos[0], startPos[1], width/2, Math.PI*0.5, Math.PI*1.5);
+	c.fill();
+
+	c.beginPath();
+	c.arc(endPos[0], endPos[1], width/2, Math.PI*1.5, Math.PI*2.5);
+	c.fill();
+}
+
 function drawCorners(rect){
 	c.beginPath();
 	c.moveTo(rect[0]+rect[2]*0.1, rect[1]); //top left right
