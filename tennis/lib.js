@@ -139,22 +139,13 @@ function onScreen(X, Y, size){
 	}
 }
 
-function roundRect(x, y, width, height, radius) { // stolen
+function roundRect(x, y, width, height, radius = 5) { // stolen
 	/*
 	creates the path for a rectangle with rounded corners
 	*/
-	if (typeof radius === 'undefined') {
-		radius = 5;
-	}
 	if (typeof radius === 'number') {
 		radius = {tl: radius, tr: radius, br: radius, bl: radius};
-	} else {
-		var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-		for (var side in defaultRadius) {
-			radius[side] = radius[side] || defaultRadius[side];
-		}
 	}
-	c.beginPath();
 	c.moveTo(x + radius.tl, y);
 	c.lineTo(x + width - radius.tr, y);
 	c.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
@@ -176,11 +167,11 @@ function roundedLine(startPos, endPos, width, colour){
 
 	c.beginPath();
 	c.fillStyle = colour;
-	c.arc(startPos[0], startPos[1], width/2, Math.PI*0.5, Math.PI*1.5);
+	c.arc(startPos[0], startPos[1], width/2, Math.PI*0, Math.PI*2);
 	c.fill();
 
 	c.beginPath();
-	c.arc(endPos[0], endPos[1], width/2, Math.PI*1.5, Math.PI*2.5);
+	c.arc(endPos[0], endPos[1], width/2, Math.PI*0, Math.PI*2);
 	c.fill();
 }
 

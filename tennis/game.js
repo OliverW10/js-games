@@ -371,7 +371,6 @@ class Game{
 
 		balls[1].menuRun();
 		balls[1].draw();
-
 		this.overlay();
 	}
 	comp(){
@@ -469,6 +468,7 @@ class Game{
 			this.currentComp.complete[2] = true;
 		}
 		pagesTutorials.draw();
+		this.overlay();
 	}
 	tournTutorial(){
 		if(pagesTutorials.done() === true){
@@ -476,6 +476,7 @@ class Game{
 			this.currentComp.complete[1] = true;
 		}
 		pagesTutorials.draw();
+		this.overlay();
 	}
 	tutorial(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
@@ -493,6 +494,7 @@ class Game{
 
 		this.background();
 		this.drawReflections();
+		// balls[0].tutorialRun(this.tutorialStage);
 		if(this.tutorialStage < 2){
 			balls[0].run(true);
 		}else if(this.tutorialStage === 2){
@@ -544,7 +546,7 @@ class Game{
 			showText("'Throw' The ball moving the mouse upwards and releasing. Try to get 3 shots in", canvas.width*0.5, canvas.height*0.37, canvas.height*0.03);
 			showText("Tip: Releasing the ball further back will result is a lower shot", canvas.width*0.5, canvas.height*0.8, canvas.width*0.02);
 			showText(tutorialShotsIn, canvas.width*0.5, canvas.height*0.1, canvas.width*0.03);
-			//drawArrow(canvas.width*0.5, canvas.height*0.6, canvas.width*0.5, canvas.height*0.8, canvas.width*0.05)
+			drawArrow(canvas.width*0.5, canvas.height*0.6, canvas.width*0.5, canvas.height*0.8, canvas.width*0.05)
 			if(tutorialShotsIn >= 3){
 				this.tutorialStage += 1;
 				changeSkill(15);
@@ -553,7 +555,7 @@ class Game{
 		}
 		if(this.tutorialStage === 2){
 			showText("Tap space for slow-mo", canvas.width*0.5, canvas.height*0.8, canvas.width*0.04);
-			drawSpacebar(canvas.width*0.3, canvas.height*0.9, canvas.width*0.4);
+			drawSpacebar(canvas.width*0.3, canvas.height*0.85, canvas.width*0.4);
 			if(aimGameSpeed < 0.5){
 				this.tutorialStage += 1;
 			}
@@ -568,7 +570,7 @@ class Game{
 		if(this.tutorialStage === 4){
 			flashText("Done", [0, 100, 200]);
 			this.currentComp.complete[0] = true;
-			this.state = this.comp;
+			transition(this.comp)
 		}
 		this.overlay();
 	}

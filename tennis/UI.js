@@ -643,15 +643,19 @@ function drawArrow(X1, Y1, X2, Y2, size, p = 0){
 }
 
 function drawSpacebar(X, Y, S){
-	roundedRect(X, Y, S*5, S, S*0.1);
+	c.beginPath();
+	roundRect(X, Y, S, S/6, S*0.05);
 	c.fillStyle = "rgb(200, 200, 200)";
 	c.strokeStyle = "rgb(100, 100, 100)";
-	c.lineWidth = S*0.05
+	c.lineWidth = S*0.03;
 	c.fill();
 	c.stroke();
 
-	roundedLine(X+S*0.3, Y+S*0.07, X+S*0.7, Y+S*0.07, S*0.05, "rgb(100, 100, 100)");
+	roundedLine([X+S*0.3, Y+S*0.7/6], [X+S*0.7, Y+S*0.7/6], S*0.03, "rgb(100, 100, 100)");
 }
+var demoComps = [[new CompButton([0.25, 0.4, 0.5, 0.15], "Round Robbin Tournament", drawRobbinIcon, 5),
+new CompButton([0.25, 0.56, 0.5, 0.15], "Knockout Tournament", drawKnockoutIcon, 5),
+new CompButton([0.25, 0.72, 0.5, 0.15], "Accuracy Tournament", drawTargetIcon, 5)]];
 
 class Tutorial{
 	constructor(){
@@ -664,13 +668,17 @@ class Tutorial{
 		this.prevButton = new IconButton([0.01, 0.89, 0.1, 0.1], drawPrevIcon);
 	}
 	draw(){
-		if(this.nextButton.update() === true){
+		if(this.nextButton.update() === true && this.page < this.pages[this.state].length){
 			this.page += 1;
 		}
-		if(this.prevButton.update() === true){
+		if(this.prevButton.update() === true && this.page > 0){
 			this.page -= 1;
 		}
-		this.pages[this.state][this.page]();
+		try{
+			this.pages[this.state][this.page]();
+		}catch{
+			console.log("done");
+		}
 		this.nextButton.draw();
 		this.prevButton.draw();
 	}
@@ -684,7 +692,14 @@ class Tutorial{
 		showText("Moving the mouse directly up will make the ball move directly forwards", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
 	}
 	tournaments1(){
-		showText("Each tournament has a entry cost and will be either a round-robbin, a knockout or an accuracy test(not done yet)", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05);
+		showText("Each tournament has a entry cost and, will be either a round-robbin, a knockout or an accuracy test", canvas.width*0.5, canvas.height*0.2, canvas.height*0.029);
+		demoComps[0][0].update();
+		demoComps[0][1].update();
+		demoComps[0][2].update();
+
+		demoComps[0][0].draw();
+		demoComps[0][1].draw();
+		demoComps[0][2].draw();
 	}
 	tournaments2(){
 		showText("Click on a tournament to pay entry and then press go to play your first match", canvas.width*0.5, canvas.height*0.5, canvas.heigth*0.05)
