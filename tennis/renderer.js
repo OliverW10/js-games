@@ -25,9 +25,8 @@ var colours = {"ground" : "rgb(150, 150, 150)",
 
 var coloursRGB = {"ball":[255, 50, 50]}
 
-class drawing{
-	constructor(quality){
-		this.quality = quality;
+class Renderer{
+	constructor(){
 		this.style = 0;
 		this.points = {};
 	}
@@ -36,7 +35,7 @@ class drawing{
 			if(points[i][2]+cameraPos[2] > 0 || points[i-1][2]+cameraPos[2] > 0){
 				var point1 = projectPoint(points[i-1][0], points[i-1][1], points[i-1][2], cameraPos);
 				var point2 = projectPoint(points[i][0], points[i][1], points[i][2], cameraPos);
-				renderer.line(point1, point2, colour,  (point1[2] + point2[2])*0.5*width)
+				this.line(point1, point2, colour,  (point1[2] + point2[2])*0.5*width)
 			}
 		}
 	}
@@ -47,7 +46,7 @@ class drawing{
 				var point1 = projectPoint(lines[i][0][0], lines[i][0][1], lines[i][0][2], cameraPos);
 				var point2 = projectPoint(lines[i][1][0], lines[i][1][1], lines[i][1][2], cameraPos);
 				c.lineWidth = Math.min(point1[2], point2[2])*width;
-				renderer.line(point1, point2, colour, (point1[2] + point2[2])*0.5*width);
+				this.line(point1, point2, colour, (point1[2] + point2[2])*0.5*width);
 			}
 		}
 	}
@@ -74,17 +73,6 @@ class drawing{
 	}
 
 	arc(point, radius, startAngle, endAngle, colour, width, transparency = 0){
-		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
-		var rgb = colour.match(/\d+/g);
-		var toDraw = Math.min(Math.round(width*this.quality), 50)
-		// for(var i = toDraw; i > 0; i-=1){
-		// 	c.beginPath();
-		// 	c.lineWidth = i*1/this.quality;
-		// 	var saturation = scaleNumber(i, toDraw, 0, 0.9, 1.5)
-		// 	c.strokeStyle = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
-		// 	c.arc(point[0], point[1], radius, startAngle, endAngle)
-		// 	c.stroke();
-		// }
 		c.beginPath();
 		c.strokeStyle = colour;
 		c.lineWidth = width;
@@ -92,26 +80,8 @@ class drawing{
 		c.fill();
 	}
 
-	line(point1, point2, colour, width, glowAmount, transparency = 0){
-		// currently uses RGB but HSL wouldn't take too much effort if RGB dosent work very well
-		var rgb = colour.match(/\d+/g);
-		var toDraw = Math.min(Math.round(width*this.quality), 50) // the number of lines to draw, is the width*quality
-		var newColour = colour;
-
-		// this is done to prevent the sudden stepping of sizes caused by doing the glow this way
+	line(point1, point2, colour, width){
 		roundedLine(point1, point2, width, colour);
-
-		// drawing the lines
-		// for(var i = toDraw; i > 0; i-=1){
-		// 	c.beginPath();
-		// 	c.lineWidth = i*1/this.quality;
-		// 	var thisWidth = i*1/this.quality;
-		// 	var saturation = scaleNumber(i, toDraw, 0, 1, 2)
-		// 	newColour = "rgba("+Math.min(rgb[0]*saturation, 255)+", "+Math.min(rgb[1]*saturation, 255)+", "+Math.min(rgb[2]*saturation, 255)+", "+transparency+")";
-		// 	roundedLine(point1, point2, thisWidth, newColour);
-		// }
-
-		// glow
 	}
 	drawDrifters(key){
 		c.beginPath();

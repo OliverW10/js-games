@@ -48,7 +48,6 @@ function sortLeaderboard(){
 }
 
 var textBox = document.getElementById("nameBox");
-console.log(textBox);
 
 function getBoxText(){
 	return textBox.value;

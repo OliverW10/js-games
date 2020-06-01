@@ -135,7 +135,6 @@ class Ball{
 					}
 					this.resetCountdown = 30;
 				}
-				bounceSpots.push([this.X, this.Y-this.courtSize, this.Z, call]);
 
 				if(this.loser === false && tutorial === false){
 					this.bounces += 1;

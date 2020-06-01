@@ -9,155 +9,30 @@ function saveMoney(){
 	localStorage.money = money;
 }
 
-var courtPoints = [[-1, 0, 1],
-[-1, 0, 2],
-[1, 0, 2],
-[1, 0, 1],
-[-1.4, 0, 1],
-[-1.4, 0, 2],
-[1.4, 0, 2],
-[1.4, 0, 1],
-[1, 0, 1],
-[1, 0, 1.5],
-[0, 0, 1.5],
-[0, 0, 2],
-[0, 0, 1.5],
-[-1, 0, 1.5],
-[-1, 0, 3],
-[1, 0, 3],
-[1, 0, 2],
-[0, 0, 2],
-[0, 0, 2.5],
-[1, 0, 2.5],
-[-1, 0, 2.5],
-[-1, 0, 3],
-[1.4, 0, 3],
-[1.4, 0, 2],
-[-1.4, 0, 2],
-[-1.4, 0, 3],
-[-1, 0, 3]
-]
-
-var courtLines = [[[-1, 0, 1], [1, 0, 1]],
-[[1, 0, 1], [1, 0, 2]],
-[[1, 0, 2], [-1, 0, 2]],
-[[-1, 0, 2], [-1, 0, 1]],
-[[1, 0, 2], [1, 0, 3]],
-[[1, 0, 3], [-1, 0, 3]],
-[[-1, 0, 3], [-1, 0, 2]],
-[[-1, 0, 1.5], [1, 0, 1.5]],
-[[-1, 0, 2.5], [1, 0, 2.5]],
-[[0, 0, 1.5], [0, 0, 2]],
-[[0, 0, 2.5], [0, 0, 2]],
-[[-1.4, 0, 1], [-1.4, 0, 2]],
-[[-1.4, 0, 2], [-1.4, 0, 3]],
-[[-1.4, 0, 3], [-1, 0, 3]],
-[[1.4, 0, 1], [1.4, 0, 2]],
-[[1.4, 0, 2], [1.4, 0, 3]],
-[[1.4, 0, 3], [1, 0, 3]],
-[[-1.4, 0, 1], [-1, 0, 1]],
-[[1.4, 0, 1], [1, 0, 1]]];
-
-var courtLinesOuter = [[[-1.4, 0, 1], [-1.4, 0, 2]],
-[[-1.4, 0, 2], [-1.4, 0, 3]],
-[[-1.4, 0, 3], [-1, 0, 3]],
-[[1.4, 0, 1], [1.4, 0, 2]],
-[[1.4, 0, 2], [1.4, 0, 3]],
-[[1.4, 0, 3], [1, 0, 3]],
-[[-1.4, 0, 1], [-1, 0, 1]],
-[[1.4, 0, 1], [1, 0, 1]]];
-
-var courtLinesMin = [[[-1, 0, 1], [1, 0, 1]],
-[[1, 0, 1], [1, 0, 2]],
-[[-1, 0, 2], [-1, 0, 1]],
-[[1, 0, 2], [1, 0, 3]],
-[[1, 0, 3], [-1, 0, 3]],
-[[-1, 0, 3], [-1, 0, 2]],
-];
-
-var courtEnemyLines = [
-[[1, 0, 2], [-1, 0, 2]],
-[[1, 0, 2], [1, 0, 3]],
-[[1, 0, 3], [-1, 0, 3]],
-[[-1, 0, 3], [-1, 0, 2]],
-];
-
-var courtEdges = [[-1, 0, 1],
-[1, 0, 1],
-[1, 0, 3],
-[-1, 0, 3]];
-
-var netHeight = 0.3;
-var netBase = 0.015;
-
-var netOutlinePoints = [[-1.6, netBase, 2],
-[-1.6, netHeight, 2],
-[1.6, netHeight, 2],
-[1.6, netBase, 2],
-[-1.6, netBase, 2]];
-
-var netOutlinePointsReflection = [[-1.6, -netBase, 2],
-[-1.6, -netHeight, 2],
-[1.6, -netHeight, 2],
-[1.6, -netBase, 2],
-[-1.6, -netBase, 2]];
-
-// "rgb(0, 50, 125)"
-
 var aimGameSpeed = 1; // to allow for smoothing in and out of slow-mo
 var gameSpeed = 1;
 
 var cameraPosAim = [0, 1, -0.4];
-var cameraPosAlpha = 0.2;
+var cameraPosAlpha = 0.2; // the amount that cameraPos is shifted towards cameraPosAim every frame
 var cameraPos = [0, 0, 0];
-var playerVel = [0, 0, 0];
-var playerSpeed = [0.003, 0.1, 0.002];
-var playerDrag = 0.1;
-var playerMaxSpeed = [0.02, 0, 0.015]
 
 var gravity = 0.003;
-var balls = [new Ball(0, 1, 1.5), new Ball(0, 1.5, 1), new Ball(-5, 1, 1.5)]; // origonally planned for multiple balls but so far only used one
-// now contrary to the origonal purose it is now used to store the game AND menu bals
-// third ball is the ghost
+var balls = [new Ball(0, 1, 1.5), new Ball(0, 1.5, 1), new Ball(-5, 1, 1.5)];
+// first one is gameplay ball, second one is show ball for the menu, third one is ghost ball
 balls[1].menuReset();
-
-var mountainPoints = [];
-for(var i = 0; i<6; i+=1){
-	mountainPoints.push([[-25, 0, 10+i/4]]);
-	for(var j = -10; j < 10; j+=1){
-		mountainPoints[i].push([j*2+random(-1, 1), random(i-1, i)+1, 10+i/4])
-	}
-	mountainPoints[i].push([25, 0, 10+i/4]);
-}
-mountainPoints.push([50, -50, 11]);
-mountainPoints.push([-50, -50, 11]);
-
-var mountainReflectionPoints = [];
-var mountainReflectionPoints = [];
-for(var i = 0; i<6; i+=1){
-	mountainReflectionPoints.push([[-25, 0, 10+i/4]]);
-	for(var j = 0; j < 20; j+=1){
-		mountainReflectionPoints[i].push([mountainPoints[i][j][0], -(mountainPoints[i][j][1]-1)*1, mountainPoints[i][j][2]]);
-	}
-	mountainReflectionPoints[i].push([25, 0, 10+i/4]);
-}
-mountainReflectionPoints.push([50, 50, 30]);
-mountainReflectionPoints.push([-50, 50, 30]);
-
-var bounceSpots = []
 
 var vingette = 0.2;
 
 var comRacquetController = new AIController(2);
 var playerRacquetController = new mouseController();
-var tutorialControllers = new AIController(10)
+var tutorialControllers = new AIController(10);
 
 function changeSkill(newSkill){
 	comRacquetController.setDifficulty(newSkill);
 }
 
 var vanishingPointPos = [0.5, 0.3];
-var renderer = new drawing(0.5);
+var renderer = new Renderer(0.5);
 
 var graphicsQuality = 1;
 var graphicsQualityKey = {0:"low", 1:"normal"}
@@ -404,9 +279,7 @@ class Game{
 			}
 		}
 		if(this.currentComp.stillGoing === false && paidComp === false){
-			var winningsMulti = this.currentComp.getWinnings();
-			// console.log("Cost Mult: "+winningsMulti);
-			money += winningsMulti*comps[this.currentCompNum][1].cost;
+			money += this.currentComp.getWinnings();
 			// this.state = this.pickComp;
 			transition(this.pickComp);	
 			// console.log(comps[this.currentCompNum][1])
@@ -602,14 +475,13 @@ class Game{
 		drawGlow(canvas.width*0.45, canvas.height*0.04, canvas.height*0.05, 0.15, [50, 50, 150]);
 		showText(scoreLegend[score[0]]+" - "+scoreLegend[score[1]], canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
 
+		if(score[0] === 4 && score[1] === 4){
+			score[0] = 3;
+			score[1] = 3;
+		}
 		if((score[0] >= 4 && score[0] > score[1]+1)||
 			score[1] >= 4 && score[1] > score[0]+1){
 			this.currentComp.score(score);
-			if(score[0] > score[1]){
-				this.currentComp.won();
-			}else{
-				this.currentComp.lost();
-			}
 			this.state = this.comp;
 
 			if(score[0] > score[1]){
@@ -617,10 +489,6 @@ class Game{
 			}else{
 				flashText("Enemy wins", [255, 50, 0], 1.5);
 			}
-		}
-		if(score[0] === 4 && score[1] === 4){
-			score[0] = 3;
-			score[1] = 3;
 		}
 		if(checkKey("Space") === true && lastSpace === false){
 			playSound(downSound, true);;
@@ -767,38 +635,6 @@ class Game{
 		// c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		// c.fill();
 
-	}
-	movement(){
-		if(checkKey("Space") == true){
-			playerVel[1] += playerSpeed[1]*gameSpeed;
-		}
-		if(checkKey("ShiftLeft") == true){
-			playerVel[1] -= playerSpeed[1]*gameSpeed;
-		}
-		if(checkKey("KeyA") == true){
-			playerVel[0] += playerSpeed[0]*(gameSpeed+0.1);
-		}
-		if(checkKey("KeyD") == true){
-			playerVel[0] -= playerSpeed[0]*(gameSpeed+0.1);
-		}
-		if(checkKey("KeyS") == true){
-			playerVel[2] += playerSpeed[2]*(gameSpeed+0.1);
-		}
-		if(checkKey("KeyW") == true){
-			playerVel[2] -= playerSpeed[2]*(gameSpeed+0.1);
-		}
-		
-		cameraPos[0] += playerVel[0]*(gameSpeed+0.1);
-		cameraPos[1] += playerVel[1]*(gameSpeed+0.1);
-		cameraPos[2] += playerVel[2]*(gameSpeed+0.1);
-
-		playerVel[0] *= 1-playerDrag*(gameSpeed+0.1);
-		playerVel[1] *= 1-playerDrag*(gameSpeed+0.1);
-		playerVel[2] *= 1-playerDrag*(gameSpeed+0.1);
-
-		playerVel[0] = clip(playerVel[0], -playerMaxSpeed[0], playerMaxSpeed[0])
-		playerVel[1] = clip(playerVel[1], -playerMaxSpeed[1], playerMaxSpeed[1])
-		playerVel[2] = clip(playerVel[2], -playerMaxSpeed[2], playerMaxSpeed[2])
 	}
 	overlay(){ // flash and vingette
 		if(flashTextTrans > 0){

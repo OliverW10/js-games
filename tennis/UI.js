@@ -405,16 +405,6 @@ class Competition{ // for round robbin and kockout competitons
 			return false
 		}
 	}
-	won(){
-		if(this.type === "knockout"){
-			this.aimProgress += 1;
-		}
-	}
-	lost(){
-		if(this.type === "knockout"){
-			this.stillGoing = false;
-		}
-	}
 	getSkill(){
 		if(this.type === "knockout"){
 			return (this.difficulty + this.aimProgress*2)
@@ -452,7 +442,13 @@ class Competition{ // for round robbin and kockout competitons
 				}
 				this.fakeProgress += 1/((this.names.length-1)**2)*2;
 			}
-			console.log(this.progress, this.fakeProgress);
+		}
+		if(this.type == "knockout"){
+			if(score[0] > score[1]){
+				this.aimProgress += 1;
+			}else{
+				this.stillGoing = false;
+			}
 		}
 	}
 	fakeMatch(){ // returns false if there is no more matches to play
@@ -498,7 +494,10 @@ class Competition{ // for round robbin and kockout competitons
 		}
 		if(this.type === "robbin"){
 			var playerScore = this.points[this.player];
+			console.log(playerScore);
 			var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
+			console.log(place);
+			console.log((1-place/this.names.length)*1.75);
 			return (1-place/this.names.length)*1.75
 		}
 	}

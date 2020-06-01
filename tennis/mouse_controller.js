@@ -124,17 +124,10 @@ class mouseController{
 		var returnVel = [Math.max(...this.prevSpeed)*Math.cos(angles[0]),
 			Math.max(...this.prevSpeed)*Math.cos(angles[1]),
 			Math.max(...this.prevSpeed)*Math.sin(angles[0])];
-
-		returnVel[0] -= playerVel[0];
-		returnVel[1] -= playerVel[1];
-		returnVel[2] -= playerVel[2];
 		return returnVel;
 	}
 
 	getVelOld(){
-		this.velocity[0] -= playerVel[0];
-		this.velocity[1] -= playerVel[1];
-		this.velocity[2] -= playerVel[2];
 		return this.velocity;
 	}
 
