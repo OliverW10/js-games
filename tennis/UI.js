@@ -33,6 +33,9 @@ class baseButton{
 			this.callback();
 		}
 		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
+			if(this.state === 0){
+				playSound(selectSound, true);
+			}
 			if(mouseButtons[0] === true){
 				this.state = 2;
 			}else{
@@ -44,6 +47,9 @@ class baseButton{
 				}
 			}
 		}else{
+			// if(this.state === 1 || this.state === 2){
+			// 	playSound(selectSound, true);
+			// }
 			this.state = 0;
 		}
 		this.updatePoints();
@@ -361,7 +367,7 @@ class Competition{ // for round robbin and kockout competitons
 					showText((x+1)+". "+"You", canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.015, "rgb(0, 0, 0)", true);
 				}else{
 					showText(x+1, xPos+xSize/2, canvas.height*(robbinMarginTop-0.02), canvas.width*0.01);
-					showText((x+1)+". "+this.names[x]+this.skills[x], canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.01);
+					showText((x+1)+". "+this.names[x], canvas.width*(robbinMarginLeft-0.03), yPos+ySize/2, canvas.width*0.01);
 				}
 			}else{
 				showText("Total", canvas.width*(x+0.5)/this.names.length*((1-robbinMarginLeft)-robbinMarginRight) + canvas.width*robbinMarginLeft, canvas.height*(robbinMarginTop-0.02), canvas.width*0.01, "rgb(0, 0, 0)", true);

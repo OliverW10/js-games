@@ -3,6 +3,8 @@
 var welcomePlayed = false;
 
 var selectSound = [new Pizzicato.Sound("./sounds/select.wav", function(){selectSound[1] = true}), false];
+selectSound[0].volume = 0.5;
+selectSound[0].release = 1;
 var hitSound = [new Pizzicato.Sound("./sounds/hit.mp3", function(){hitSound[1] = true}), false];
 var welcomeSound = [new Pizzicato.Sound("./sounds/welcome.mp3", function(){welcomeSound[1] = true}), false];
 var downSound = [new Pizzicato.Sound("./sounds/down.mp3", function(){downSound[1] = true}), false];

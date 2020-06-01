@@ -569,8 +569,8 @@ class Game{
 		}
 		if(this.tutorialStage === 4){
 			flashText("Done", [0, 100, 200]);
+			transition(this.comp);
 			this.currentComp.complete[0] = true;
-			transition(this.comp)
 		}
 		this.overlay();
 	}
@@ -912,9 +912,13 @@ class Game{
 				sendScore(money, localStorage.name);
 				flashText("Used old name: "+localStorage.name)
 			}else{
-				localStorage["name"] = getBoxText();
-				sendScore(money, localStorage.name);
-				flashText("Score Submitted under: "+getBoxText());
+				if(getBoxText != ""){
+					localStorage["name"] = getBoxText();
+					sendScore(money, localStorage.name);
+					flashText("Score Submitted under: "+getBoxText());
+				}else{
+					flashText("No name entered");
+				}
 			}
 		}
 		leaderboardSubmitButton.draw()
