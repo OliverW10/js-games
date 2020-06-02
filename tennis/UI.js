@@ -1,6 +1,4 @@
-//
-// All the UI stuff is here and is very poorly structured, might want to create a base button class that others inherit from
-//
+
 class baseButton{
 	/*
 	the default text button others inherit from
@@ -153,6 +151,31 @@ class CompButton extends baseButton{
 	}
 }
 
+class HelpButton extends baseButton{
+	constructor(rect){
+		super(rect);
+		this.text = "?";
+	}
+	drawButton(){
+		c.beginPath();
+		if(this.state === 1){
+			c.fillStyle = "rgba(150, 150, 150, "+this.alpha*0.7+")";
+			c.strokeStyle = "rgba(0, 0, 0, "+this.alpha*0.7+")";
+		}else{
+			c.fillStyle = "rgba(200, 200, 200, "+this.alpha+")";
+			c.strokeStyle = "rgba(100, 100, 100, "+this.alpha+")";
+		}
+		c.lineWidth = canvas.height*0.005;
+		c.arc(this.X+this.W/2, this.Y+this.H/2, this.W/2, 0, Math.PI*2);
+		c.stroke();
+		c.fill();
+	}
+	drawFeatures(){
+		showText(this.text+" $"+this.price, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.22, "rgba(200, 200, 200, "+this.alpha+")", true, false);
+		showText(this.text+" $"+this.price, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.22, "rgba(100, 100, 100, "+this.alpha+")", true, true);
+	}
+
+}
 
 var knockoutBoardDepth = 10;
 var knockoutBoardRatio = 0.8;

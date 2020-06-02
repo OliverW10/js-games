@@ -128,12 +128,16 @@ class Ball{
 				this.Xrot = this.Xrot*0.6 + this.Xvel*0.4;
 				this.Yrot *= 0.9;
 				var call = inCheck([this.X, this.Y-this.courtSize, this.Z]);
+				console.log(call);
 				if(tutorial === true && this.hitBy === 1){
 					if(call === 2){
 						tutorialShotsIn += 1;
 						flashText("+1", [0, 100, 200]);
 					}
-					this.resetCountdown = 30;
+					if(this.resetCountdown === "no"){
+						this.resetCountdown = 30;
+						console.log("set resetCountdown")
+					}
 				}
 
 				if(this.loser === false && tutorial === false){

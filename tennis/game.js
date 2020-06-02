@@ -71,17 +71,7 @@ function transition(callback){
 }
 
 var lastMouseButtons = [false, false, false]; // what the state of mouse buttons was last frame
-/*
-winnings should be
-all multipliers of cost
-	knockout
-	quarter - 0.4
-	semi - 1.1
-	finals - 1.75
-	winner - 3
-	robbin
-placing in the group(0-1) * 2 * cost
-*/
+
 var knockoutRatios = [2, 1.4, 0.9, 0.1, 0, 0, 0, 0, 0]; // goes [winner, runner up, semis, quartars, below]
 function generateCompName(difficult = 4){
 	return compNames[0][round(random(0, compNames[0].length-1))] +" "+ compNames[1][round(random(0, compNames[1].length-1))] +" "+ compNames[2][round(random(0, compNames[2].length-1))];
@@ -130,6 +120,9 @@ function generateComp(currentMoney = false, type = false){
 }
 
 function deleteComp(num){
+	/*
+	deletes the comp with the given index in the comps array
+	*/
 	compButtonPositions[compButtonPositions.indexOf(comps[num][1].rect)][4] = false;
 	comps.splice(num, 1);
 	generateComp();
@@ -181,7 +174,7 @@ var paidComp = false;
 var backButton = new IconButton([0.05, 0.05, 0.1, 0.1], drawPrevIcon);
 
 var leaderboardPerPage = 10; // how many items per page
-var leaderboardPage = 0;
+var leaderboardPage = 0; // what page you are on
 var leaderboardSubmitButton = new TextButton([0.3, 0.875, 0.4, 0.1], "Submit Score");
 var leaderboardNextButton = new IconButton([0.89, 0.89, 0.1, 0.1], drawNextIcon);
 var leaderboardPrevButton = new IconButton([0.01, 0.89, 0.1, 0.1], drawPrevIcon);
@@ -208,21 +201,20 @@ class Game{
 		this.state();
 		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
 	}
+
 	menu(){
+		/*
+		main menu with the play button
+		*/
 		cameraPos = [0, 2.5, 0];
 		menuBackgroundOverlayAim = 0;
-		// will have three types of tournaments
-		// knock-out, classic winner goes forward best of 8 or 16
-		// round robbin, play everyone most points wins
-		// ladder get points for online leaderboard, maybe against a unique ultra hard ai
-		// you have to pay for each game (like btd battles)
 		if(welcomePlayed === false){
 			if(playSound(welcomeSound) === true){
 				welcomePlayed = true;
 			}
 		}
-		c.fillStyle = "rgb(200, 200, 200)";
-		c.fillRect(0, 0, canvas.width, canvas.height);
+		// c.fillStyle = "rgb(200, 200, 200)";
+		// c.fillRect(0, 0, canvas.width, canvas.height);
 
 		if(menuPlayButton.state != 0){
 			aimGameSpeed = 0.01;
@@ -239,8 +231,8 @@ class Game{
 		}
 		menuTextOffsetAngle = Math.atan2(mousePos.y-canvas.height*0.15, mousePos.x-canvas.width/2);
 		menuTextOffset = [Math.cos(menuTextOffsetAngle)*canvas.width*0.003, Math.sin(menuTextOffsetAngle)*canvas.width*0.003];
-		showText("Tönnìs", canvas.width/2-menuTextOffset[0], canvas.height*0.15-menuTextOffset[1], canvas.width*0.1, "rgba(0, 0, 0, 1)", true, true);
-		showText("Tönnìs", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(255, 255, 255, 1)", true, true);
+		showText("Tönnìs", canvas.width/2, canvas.height*0.15, canvas.width*0.1, "rgba(0, 0, 0, 1)", true, true);
+		showText("Tönnìs", canvas.width/2+menuTextOffset[0], canvas.height*0.15+menuTextOffset[1], canvas.width*0.1, "rgba(255, 255, 255, 1)", true, true);
 
 		menuPlayButton.draw();
 
@@ -248,6 +240,7 @@ class Game{
 		balls[1].draw();
 		this.overlay();
 	}
+
 	comp(){
 		menuBackgroundOverlayAim = 0;
 		/// this.menuBackground()
@@ -295,6 +288,7 @@ class Game{
 		this.overlay();
 		this.showMoney();
 	}
+
 	pickComp(){
 		menuBackgroundOverlayAim = 0;
 		this.menuBackground()
@@ -335,6 +329,7 @@ class Game{
 		this.overlay();
 		this.showMoney();
 	}
+
 	tips(){
 		if(pagesTutorials.done() === true){
 			this.state = this.comp;
@@ -343,6 +338,7 @@ class Game{
 		pagesTutorials.draw();
 		this.overlay();
 	}
+
 	tournTutorial(){
 		if(pagesTutorials.done() === true){
 			this.state = this.comp;
@@ -351,6 +347,7 @@ class Game{
 		pagesTutorials.draw();
 		this.overlay();
 	}
+
 	tutorial(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
 			cameraPosAim = [-balls[0].X, 1, -0.4];
@@ -447,6 +444,7 @@ class Game{
 		}
 		this.overlay();
 	}
+
 	match(){
 		// camera movement
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
@@ -505,6 +503,7 @@ class Game{
 		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		this.overlay();
 	}
+
 	wall(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
 			cameraPosAim = [-balls[0].X, 1, -0.4];
@@ -533,6 +532,7 @@ class Game{
 		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		this.overlay();
 	}
+
 	drawReflections(noRacquet = false){
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainReflectionPoints[range], false, true);
@@ -568,6 +568,7 @@ class Game{
 		c.rect(0, horizonPoint[1], canvas.width, canvas.height);
 		c.fill();
 	}
+
 	draw(noRacquet = false){
 		if(graphicsQuality >= 1){
 			for(var b in birds){
@@ -592,6 +593,7 @@ class Game{
 			balls[0].draw();
 		}
 	}
+
 	background(){
 		var horizonPoint = projectPoint(0, 0, 11);
 		// sky
@@ -602,18 +604,6 @@ class Game{
 		c.fillStyle = grd;
 		c.rect(0, 0, canvas.width, horizonPoint[1]);
 		c.fill();
-
-		// mountains
-		// for(var range = mountainPoints.length-1; range > 0; range-=1){
-		// 	renderer.polygon(mountainPoints[range], false, true);
-		// 	var grd = c.createLinearGradient(0, 0, 0, canvas.height*0.3)
-		// 	var dark = range**1.6*15-100;
-		// 	var light = range**1.6*15+50;
-		// 	grd.addColorStop(0, "rgb("+dark+", "+dark+", "+dark+")");
-		// 	grd.addColorStop(1, "rgb("+light+", "+light+", "+light+")");
-		// 	c.fillStyle = grd;
-		// 	c.fill();
-		// }
 
 		for(var range = mountainReflectionPoints.length-1; range > 0; range-=1){
 			renderer.polygon(mountainPoints[range], false, true);
@@ -626,16 +616,8 @@ class Game{
 			c.fill();
 		}
 
-		//ground
-		// c.beginPath();
-		// var grd = c.createRadialGradient(canvas.width/2, canvas.height*vanishingPointPos[1], 1, canvas.width/2, canvas.height*vanishingPointPos[1], canvas.width/2);
-		// grd.addColorStop(1, colours.ground);
-		// grd.addColorStop(0, colours.sky);
-		// c.fillStyle = grd;
-		// c.rect(0, horizonPoint[1], canvas.width, canvas.height);
-		// c.fill();
-
 	}
+
 	overlay(){ // flash and vingette
 		if(flashTextTrans > 0){
 			flashTextTrans -= 0.0075;
@@ -671,6 +653,7 @@ class Game{
 		}
 		transitionProgress += 0.05;
 	}
+
 	start(){
 		c.fillStyle = "rgb(100, 100, 100)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
@@ -684,6 +667,7 @@ class Game{
 			this.state = this.menu;
 		}
 	}
+
 	settings(){
 		if(resetButton.update() === true){
 			localStorage.clear();
@@ -712,6 +696,7 @@ class Game{
 		backButton.draw();
 		this.overlay();
 	}
+
 	leaderboard(){
 		showText("Money Leaderboard", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
 		showText(`Page ${leaderboardPage+1}`, canvas.width*0.9, canvas.height*0.2, canvas.height*0.03);
@@ -764,20 +749,13 @@ class Game{
 		backButton.draw();
 		this.overlay();
 	}
+
 	showMoney(){
 		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(200, 150, 50)", false, false);
 		showText("$"+round(money, 1), canvas.width*0.9, canvas.height*0.07, canvas.height*0.05, "rgb(0, 0, 0)", false, true);
 	}
+
 	menuBackground(){
-		// for(var i = 0; i < 50; i += 1){
-		// 	c.beginPath();
-		// 	c.strokeStyle = "rgba(0, 0, 0, 0.5)";
-		// 	c.lineWidth = menuBackgroundAngles[i][2]*(1/50)*canvas.width
-		// 	menuBackgroundAngles[i][0][0] += menuBackgroundAngles[i][0][1];
-		// 	menuBackgroundAngles[i][1][0] += menuBackgroundAngles[i][1][1];
-		// 	c.arc(canvas.width*0.5, canvas.height*0.5, (i/50)*canvas.width, menuBackgroundAngles[i][0][0], menuBackgroundAngles[i][1][0], menuBackgroundAngles[i][0][0]>menuBackgroundAngles[i][1][0]);
-		// 	c.stroke();
-		// }
 		if(menuBackgroundOverlay < menuBackgroundOverlayAim){
 			menuBackgroundOverlay += 0.01;
 		}
