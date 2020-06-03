@@ -749,3 +749,26 @@ class Tutorial{
 		}
 	}
 }
+
+
+class PopUp{
+	constructor(attachTo, text){
+		this.button = attachTo;
+		this.texts = text;
+		this.alpha = 0;
+		this.rect = []
+		this.textWidth;
+	}
+	getRect(follow){
+		// updates and returns the rect
+		var x = this.button.X;
+		return [x, y, w, h]
+	}
+	draw(followPoint){
+		this.
+
+	}
+	update(){
+
+	}
+}
