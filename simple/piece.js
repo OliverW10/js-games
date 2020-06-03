@@ -2,16 +2,20 @@ class Enemy{
 	constructor(){
 		this.progress = 1
 		this.alive = true
+		this.colour = "rgb(150, 20, 20)"
 	}
 	draw(X, Y, S){
 		c.beginPath();
-		c.strokeStyle = "rgb(150, 20, 20)";
+		c.strokeStyle = this.colour;
 		c.lineWidth = S*0.2;
 		c.arc(X, Y, S*this.progress/3, 0, Math.PI*2);
 		c.stroke();
 	}
 	develop(){
 		this.progress += 1;
+	}
+	kill(){
+		this.alive = false;
 	}
 }
 
@@ -25,7 +29,7 @@ class Draggable{
 		this.Y = Y;
 		this.size = S;
 	}
-	update(){
+	update(){ // returns true when it has been placed
 		// c.beginPath();
 		// c.fillStyle = "rgb(255, 255, 255, 0.5)";
 		// c.fillRect(this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height - this.size*canvas.height, this.size*canvas.width*2, this.size*canvas.height*2)

@@ -24,12 +24,28 @@ class Game{
 		c.fillStyle = "rgb(0, 0, 0)";
 		c.fillRect(0, 0, canvas.width, canvas.height);
 
-		this.board.updateSelected(this.board.getPosX(mousePos.x), this.board.getPosY(mousePos.y));
+		if(this.board.getOver(mousePos.x, mousePos.y) === true){
+			this.board.updateSelected(this.board.getPosX(mousePos.x), this.board.getPosY(mousePos.y));
+			this.board.drawSelected();
+		}
 		this.board.draw();
 
 		for(var i = 0; i < this.currentPieces.length; i += 1){
-			this.currentPieces[i].update();
+			if( this.currentPieces[i].update() != false){
+				this.board.affectSquares(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
+			}
 			this.currentPieces[i].draw();
+		}
+
+		var deleted = 0;
+		for(var i = 0; i < particles.length-deleted; i += 1){
+			particles[i].update();
+			particles[i].draw();
+			// if(particles[i].alive === false){
+			// 	console.log("removed "+deleted)
+			// 	particles.splice(i, 0);
+			// 	deleted += 1;
+			// }
 		}
 	}
 

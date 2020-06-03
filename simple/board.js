@@ -24,8 +24,24 @@ class Board{
 		this.array[X][Y] = type;
 	}
 
-	deleteAt(pos){
-		this.array[pos[0]][pos[1]] = false;
+	deleteAt(X, Y){
+		if(this.array[X][Y] === false){
+			explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), "rgb(255, 255, 255)", 15);
+		}else{
+			explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), this.array[X][Y].colour, 15);
+		}
+		this.array[X][Y] = false;
+	}
+	affectSquares(squares, position){
+		// killes all the enmies on the squares given
+		for(var i = 0; i < squares.length; i += 1){
+			var X = squares[i][0] + position[0];
+			var Y = squares[i][1] + position[1]
+			if(X >= 0 && X < this.size && Y >= 0 && Y < this.size){
+				console.log([X, Y]);
+				this.deleteAt(X, Y);
+			}
+		}
 	}
 
 	draw(){
@@ -34,10 +50,6 @@ class Board{
 	}
 
 	drawBoard(){
-		c.beginPath();
-		c.fillStyle = "rgb(255, 255, 255, 0.2)";
-		c.rect(this.getSquareX(this.selected[0]), this.getSquareY(this.selected[1]), this.getSquareW(), this.getSquareH());
-		c.fill();
 		for(var i = 1; i < this.size; i += 1){
 			roundedLine([this.getSquareX(i), this.getSquareY(0)], [this.getSquareX(i), this.getSquareY(this.size)], canvas.width*0.01, "rgb(50, 50, 50)");
 			roundedLine([this.getSquareX(0), this.getSquareY(i)], [this.getSquareX(this.size), this.getSquareY(i)], canvas.width*0.01, "rgb(50, 50, 50)");
@@ -94,5 +106,11 @@ class Board{
 
 	updateSelected(X, Y){
 		this.selected = [X, Y];
+	}
+	drawSelected(){
+		c.beginPath();
+		c.fillStyle = "rgb(255, 255, 255, 0.2)";
+		c.rect(this.getSquareX(this.selected[0]), this.getSquareY(this.selected[1]), this.getSquareW(), this.getSquareH());
+		c.fill();
 	}
 }
