@@ -1,0 +1,98 @@
+// a class to store a state of a board
+class Board{
+	constructor(size){
+		this.size = size;
+		this.array = createNdArray(false, [this.size, this.size]);// an array filled with Peices
+		this.margin = {"left": 0.2, "right": 1-0.05, "top": 0.1, "bottom": 1-0.03};
+		this.selected = [0, 1];
+	}
+
+	spawnAt(type, pos = false){
+		console.log(this.array);
+		if(pos === false){
+			var X = round(random(0, this.size-1));
+			var Y = round(random(0, this.size-1));
+			while(this.array[X][Y] !== false){
+				X = round(random(0, this.size-1));
+				Y = round(random(0, this.size-1));
+			}
+		}else{
+			var X = pos[0];
+			var Y = pos[1];
+		}
+		console.log(X, Y)
+		this.array[X][Y] = type;
+	}
+
+	deleteAt(pos){
+		this.array[pos[0]][pos[1]] = false;
+	}
+
+	draw(){
+		this.drawBoard();
+		this.drawPieces();
+	}
+
+	drawBoard(){
+		c.beginPath();
+		c.fillStyle = "rgb(255, 255, 255, 0.2)";
+		c.rect(this.getSquareX(this.selected[0]), this.getSquareY(this.selected[1]), this.getSquareW(), this.getSquareH());
+		c.fill();
+		for(var i = 1; i < this.size; i += 1){
+			roundedLine([this.getSquareX(i), this.getSquareY(0)], [this.getSquareX(i), this.getSquareY(this.size)], canvas.width*0.01, "rgb(50, 50, 50)");
+			roundedLine([this.getSquareX(0), this.getSquareY(i)], [this.getSquareX(this.size), this.getSquareY(i)], canvas.width*0.01, "rgb(50, 50, 50)");
+		}
+	}
+
+	drawPieces(){
+		for(var x = 0; x < this.size; x += 1){
+			for(var y = 0; y < this.size; y += 1){
+				if(this.selected[0] == x && this.selected[1] == y){
+				}
+				if(this.array[x][y] != false){
+					this.array[x][y].draw(this.getSquareX(x)+this.getSquareW()/2, this.getSquareY(y)+this.getSquareH()/2, Math.min(this.getSquareW(), this.getSquareH())/3);
+				}
+			}
+		}
+	}
+
+	progressAll(){
+		for(var x = 0; x < this.size; x += 1){
+			for(var y = 0; y < this.size; y += 1){
+				if(this.array[x][y] != false){
+					this.array[x][y].develop()
+				}
+			}
+		}
+	}
+
+	// all of these return the screen coordinates of their square
+	getSquareW(){
+		return (this.margin.right-this.margin.left)/this.size * canvas.width;
+	}
+	getSquareH(){
+		return (this.margin.bottom-this.margin.top)/this.size * canvas.height;
+	}
+	getSquareX(X){
+		return scaleNumber(X, 0, this.size, this.margin.left, this.margin.right)*canvas.width;
+	}
+	getSquareY(Y){
+		return scaleNumber(Y, 0, this.size, this.margin.top, this.margin.bottom)*canvas.height
+	}
+
+
+	// all these return the board square nearest to coordinate
+	getPosX(X){
+		return clip(Math.floor(scaleNumber(X/canvas.width, this.margin.left, this.margin.right, 0, this.size)), 0, this.size-1);
+	}
+	getPosY(Y){
+		return clip(Math.floor(scaleNumber(Y/canvas.height, this.margin.top, this.margin.bottom, 0, this.size)), 0, this.size-1);
+	}
+	getOver(X, Y){
+		return collidePoint([X/canvas.width, Y/canvas.height], [this.margin.left, this.margin.top, this.margin.right-this.margin.left, this.margin.bottom-this.margin.top])
+	}
+
+	updateSelected(X, Y){
+		this.selected = [X, Y];
+	}
+}
