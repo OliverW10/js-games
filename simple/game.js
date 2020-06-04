@@ -7,9 +7,12 @@ some have more powerful movesets that other like chess pieces
 class Game{
 	constructor(){
 		this.state = this.main;
-		this.board = new Board(5);
-		this.board.spawnAt(new Enemy(), [0, 0])
-		this.currentPieces = [new HLine(0.1, 0.5, 0.05)];
+		this.board = new Board(4);
+		this.board.spawnRand(new Enemy())
+		this.currentPieces = [randPiece(0.1, 0.1, 0.05), randPiece(0.1, 0.25, 0.05), randPiece(0.1, 0.4, 0.05), randPiece(0.1, 0.55, 0.05)];
+		this.score = 0;
+		this.multiplier = 1;
+		this.spawnRate = 1.3;
 	}
 	execute(){
 		this.state();
@@ -32,7 +35,18 @@ class Game{
 
 		for(var i = 0; i < this.currentPieces.length; i += 1){
 			if( this.currentPieces[i].update() != false){
-				this.board.affectSquares(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
+				console.log(this.currentPieces[i])
+				this.spawnRate += 0.1
+				var toSpawn = round(random(1, this.spawnRate));
+				for(var i = 0; i < toSpawn; i += 1){
+					this.board.spawnRand(new Enemy());
+				}
+				this.multiplier -= 0.1
+				var killed = this.board.affectSquares(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
+				this.multiplier += killed * 0.15
+				this.score += killed * this.multiplier;
+				this.board.progressAll();
+				//this.currentPieces[i] = randPiece(this.currentPieces[i].startX, this.currentPieces[i].startY, this.currentPieces[i].size)
 			}
 			this.currentPieces[i].draw();
 		}
@@ -47,6 +61,9 @@ class Game{
 			// 	deleted += 1;
 			// }
 		}
+		this.gameUI();
 	}
-
+	gameUI(){
+		showText("Score: "+round(this.score), canvas.width*0.9, canvas.height*0.05, canvas.width*0.015, "rgb(255, 255, 255)");
+	}
 }

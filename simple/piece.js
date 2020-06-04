@@ -41,7 +41,7 @@ class Draggable{
 			this.Y = mousePos.y/canvas.height;
 			if(mouseButtons[0] === false){
 				this.held = false;
-				return [this.X, this.Y]
+				return true
 			}
 		}
 		if(this.held === false){
@@ -60,4 +60,75 @@ class HLine extends Draggable{
 	draw(){
 		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], this.size*canvas.width*0.2, "rgb(20, 150, 20)")
 	}
+}
+
+class VLine extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[0, -1], [0, -2], [0, -3], [0, -4], [0, 1], [0, 2], [0, 3], [0, 4]]
+	}
+	draw(){
+		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.height], [this.X*canvas.width, this.Y*canvas.height + this.size*canvas.height], this.size*canvas.width*0.2, "rgb(20, 20, 150)")
+	}
+}
+
+class Around extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
+	}
+	draw(){
+		var X = this.X*canvas.width;
+		var Y = this.Y*canvas.height;
+		var W = this.size*canvas.width;
+		var H = this.size*canvas.width;
+		var col = "rgb(150, 150, 150)";
+		roundedLine([X-W/2, Y-H/2], [X+W/2, Y-H/2], this.size*canvas.width*0.2, col);
+		roundedLine([X+W/2, Y-H/2], [X+W/2, Y+H/2], this.size*canvas.width*0.2, col);
+		roundedLine([X+W/2, Y+H/2], [X-W/2, Y+H/2], this.size*canvas.width*0.2, col);
+		roundedLine([X-W/2, Y-H/2], [X-W/2, Y+H/2], this.size*canvas.width*0.2, col);
+	}
+}
+
+class RDiag extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[-1, -1], [-2, -2], [-3, -3], [-4, -4], [1, 1], [2, 2], [3, 3], [4, 4]]
+	}
+	draw(){
+		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, "rgb(20, 150, 150)")
+	}
+}
+
+class LDiag extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[-1, 1], [-2, 2], [-3, 3], [-4, 4], [1, -1], [2, -2], [3, -3], [4, -4]]
+	}
+	draw(){
+		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, "rgb(150, 20, 150)")
+	}
+}
+
+class Diamond extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[-1, 0], [0, -1], [1, 0], [0, 1]];
+	}
+	draw(){
+		var X = this.X*canvas.width;
+		var Y = this.Y*canvas.height;
+		var W = this.size*canvas.width;
+		var H = this.size*canvas.width;
+		var col = "rgb(150, 150, 20)";
+		roundedLine([X, Y-H/2], [X+W/2, Y], this.size*canvas.width*0.2, col);
+		roundedLine([X, Y+H/2], [X+W/2, Y], this.size*canvas.width*0.2, col);
+		roundedLine([X, Y+H/2], [X-W/2, Y], this.size*canvas.width*0.2, col);
+		roundedLine([X-W/2, Y], [X, Y-H/2], this.size*canvas.width*0.2, col);
+	}
+}
+
+function randPiece(X, Y, S){
+	var allPieces = [Around, VLine, HLine, Diamond];
+	return new allPieces[Math.floor(random(0, allPieces.length))](X, Y, S);
 }

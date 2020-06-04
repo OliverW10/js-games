@@ -20,7 +20,6 @@ class Particle{
 			this.age += 1;
 
 			if(this.S <= 0){
-				console.log("died");
 				this.alive = false;
 			}
 		}
