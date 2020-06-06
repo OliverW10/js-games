@@ -10,8 +10,36 @@ var welcomeSound = [new Pizzicato.Sound("./sounds/welcome.mp3", function(){welco
 var downSound = [new Pizzicato.Sound("./sounds/down.mp3", function(){downSound[1] = true}), false];
 
 var sineWave = new Pizzicato.Sound({source: 'wave', options:{frequency: 390}});
+sineWave.release(0.5);
 
-function playRally(){
+class SoundManager{
+	constructor(source){
+		this.played = 0;
+		this.loaded = false;
+		this.playingFor = 0;
+		this.pizzSound = new Pizzicato.Sound("./sounds/hit.mp3", function(){console.log(this);this.loaded = true};
+	}
+	playFor(seconds, override){
+		if(this.loaded === true){
+			if(override === true){
+				this.pizzSound.stop();
+			}
+			this.pizzSound.play();
+		}
+	}
+	play(override){
+		if(this.loaded === true){
+			if(override === true){
+				this.pizzSound.stop();
+			}
+			this.pizzSound.play();
+		}
+	}
+}
+
+
+function playRally(rally){
+	sineWave.frequency = (rally+2)*100
 	sineWave.play();
 }
 
