@@ -151,10 +151,10 @@ class CompButton extends baseButton{
 	}
 }
 
-class HelpButton extends baseButton{
-	constructor(rect){
+class CircleButton extends baseButton{
+	constructor(rect, text){
 		super(rect);
-		this.text = "?";
+		this.text = text;
 	}
 	drawButton(){
 		c.beginPath();
@@ -171,10 +171,16 @@ class HelpButton extends baseButton{
 		c.fill();
 	}
 	drawFeatures(){
-		showText(this.text+" $"+this.price, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.22, "rgba(200, 200, 200, "+this.alpha+")", true, false);
-		showText(this.text+" $"+this.price, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.22, "rgba(100, 100, 100, "+this.alpha+")", true, true);
+		showText(this.text, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.4, "rgba(200, 200, 200, "+this.alpha+")", true, false);
+		showText(this.text, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.4, "rgba(100, 100, 100, "+this.alpha+")", true, true);
 	}
 
+}
+
+class HelpButton extends CircleButton{
+	constructor(rect){
+		super(rect, "?")
+	}
 }
 
 var knockoutBoardDepth = 10;
@@ -289,6 +295,8 @@ class Competition{ // for round robbin and kockout competitons
 		}
 		this.stillGoing = true;
 		this.difficulty = difficulty;
+
+		this.infoButton = new HelpButton([0.9, 0.9, 0.075, 0.075]);
 	}
 	drawTutorial(){
 		showText("Tutorial", canvas.width*0.5, canvas.height*0.1, canvas.height*0.1);
@@ -416,16 +424,15 @@ class Competition{ // for round robbin and kockout competitons
 			}
 		}
 		this.draw();
-		showText("?", canvas.width*0.95, canvas.height*0.95, canvas.width*0.02);
-		c.lineWidth = canvas.width*0.01;
-		c.strokeStyle = "rgb(0, 0, 0)";
-		c.arc(canvas.width*0.9, canvas.heigth*0.9, canvas.width*0.02, 0, Math.PI*2);
-		c.stroke();
+		this.infoButton.draw();
 		this.playButton.draw(1);
 		if(this.playButton.update() === true && this.stillGoing === true){
 			return true
 		}else{
 			return false
+		}
+		if(this.infoButton.update() === true){
+
 		}
 	}
 	getSkill(){
@@ -765,7 +772,6 @@ class PopUp{
 		return [x, y, w, h]
 	}
 	draw(followPoint){
-		this.
 
 	}
 	update(){

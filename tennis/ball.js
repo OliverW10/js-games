@@ -53,6 +53,8 @@ class Ball{
 			// this.hsl[0] = random(0, 360);
 
 			this.rally += 1;
+
+			playRally(this.rally);
 		}
 	}
 
