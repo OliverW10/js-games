@@ -208,10 +208,8 @@ class Game{
 		*/
 		cameraPos = [0, 2.5, 0];
 		menuBackgroundOverlayAim = 0;
-		if(welcomePlayed === false){
-			if(playSound(welcomeSound) === true){
-				welcomePlayed = true;
-			}
+		if(welcomeSound.played === 0){
+			welcomeSound.play()
 		}
 		// c.fillStyle = "rgb(200, 200, 200)";
 		// c.fillRect(0, 0, canvas.width, canvas.height);
@@ -489,7 +487,7 @@ class Game{
 			}
 		}
 		if(checkKey("Space") === true && lastSpace === false){
-			playSound(downSound, true);;
+			downSound.play(true);
 			if(aimGameSpeed === 1){ 
 				aimGameSpeed = slowGameSpeed;
 			}else{
@@ -521,7 +519,7 @@ class Game{
 		this.draw(true);
 
 		if(checkKey("Space") === true && lastSpace === false){
-			playSound(downSound, true);;
+			downSound.play(true);
 			if(aimGameSpeed === 1){ 
 				aimGameSpeed = slowGameSpeed;
 			}else{

@@ -17,6 +17,8 @@ class baseButton{
 		this.clickRatio = 0.025;
 		this.shakeAmount = 0;
 		this.shakeAngle = 0;
+
+		this.colours = []; // [inside idle, inside hovered, stroke idle, stroke hovered]
 	}
 	update(){
 		if(this.shakeAmount > 0.001){
@@ -32,7 +34,7 @@ class baseButton{
 		}
 		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], this.rect) === true){
 			if(this.state === 0){
-				playSound(selectSound, true);
+				selectSound.play(true)
 			}
 			if(mouseButtons[0] === true){
 				this.state = 2;
@@ -45,9 +47,6 @@ class baseButton{
 				}
 			}
 		}else{
-			// if(this.state === 1 || this.state === 2){
-			// 	playSound(selectSound, true);
-			// }
 			this.state = 0;
 		}
 		this.updatePoints();
@@ -425,14 +424,14 @@ class Competition{ // for round robbin and kockout competitons
 		}
 		this.draw();
 		this.infoButton.draw();
+		if(this.infoButton.update() === true){
+			
+		}
 		this.playButton.draw(1);
 		if(this.playButton.update() === true && this.stillGoing === true){
 			return true
 		}else{
 			return false
-		}
-		if(this.infoButton.update() === true){
-
 		}
 	}
 	getSkill(){

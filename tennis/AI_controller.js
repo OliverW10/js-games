@@ -115,7 +115,6 @@ class AIController{
 			var vel = this.getVel(this.X, this.Y, this.Z);
 			balls[0].hit(vel, this.getSpin(vel), -1);
 			this.boost = 0;
-			playSound(hitSound);
 			this.cooldown = 10; // has to wait 10 frames between each hit
 		}
 	}
