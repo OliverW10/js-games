@@ -131,6 +131,20 @@ function showText(text, X, Y, Size, colour = "rgb(0, 0, 0)", bold = false, strok
 	}
 }
 
+class TextBlock{
+	constructor(texts, sizes, colour){
+		this.text = texts;
+		this.sizes = sizes;
+		this.lines = this.text.length;
+		this.colour = colour; // all text has to have same colour for the moment
+	}
+	draw(rect){
+		for(var i = 0; i < this.lines; i += 1){
+			showText(this.text[i], rect[0]+rect[2]/2, rect[1] + rect[3]*(i/this.lines), this.sizes[i]*canvas.width, this.colour);
+		}
+	}
+}
+
 function onScreen(X, Y, size){
 	if(X+size > 0 && X-size < canvas.width && Y+size > 0 && Y-size < canvas.width){
 		return true;

@@ -245,6 +245,84 @@ var robbinMarginTop = 0.15;
 var robbinMarginBottom = 0.25;
 var robbinMarginRight = 0.15;
 
+class BaseCompetition{
+	constructor(players, difficulty, price, playButtonPos = [0.375, 0.84, 0.25, 0.15]){
+		this.price = price;
+		this.players = players;
+		this.difficulty = difficulty;
+		this.stillGoing = true;
+		this.infoButton = new HelpButton(playButtonPos);
+	}
+	update(){
+		this.draw();
+		this.infoButton.draw();
+		if(this.infoButton.update() === true){
+			
+		}
+		this.playButton.draw(1);
+		if(this.playButton.update() === true && this.stillGoing === true){
+			return true
+		}else{
+			return false
+		}
+	}
+}
+
+class KnockoutCompetition extends BaseCompetition{
+	constructor(players, difficulty, price){
+		super(players, difficulty, price, [0.35, 0.2, 0.3, 0.2]);
+		this.maxDepth = Math.floor(Math.log2(players)-2);
+		this.progress = 0;
+		this.aimProgress = 0;
+		knockoutBoardDepth = this.maxDepth;
+		this.tree = addLayer("You");
+	}
+	draw(){
+
+	}
+}
+
+class RobbinCompetition extends BaseCompetition{
+	constructor(players, difficulty, price){
+		super(players, difficulty, price, [0.375, 0.84, 0.25, 0.15]);
+		this.points = createArray(0, players);
+		this.scores = createNdArray(false, [players, players]);
+		this.scoreSizes = createNdArray(1, [players+1, players+1]);
+		this.draw = this.drawRobbin;
+		this.skills = []; // list of player skills in order of how they are palyed
+		for(var i = 0; i < players; i +=1){
+			this.skills.push(random(difficulty-2, difficulty+5));
+		}
+		this.verses = Math.floor(random(0, players));
+		while(this.verses === this.player){
+			this.verses = Math.floor(random(0, players));
+		}
+		this.played = [this.player];
+		this.progress = 0;
+		this.fakeProgress = 0;
+	}
+	draw(){
+
+	}
+}
+
+class TutorialCompetition extends BaseCompetition{
+	constructor(){
+		super(0, 0, 0, [0.375, 0.84, 0.25, 0.15]);
+		this.buttons = [
+		new TextButton([0.1, 0.1, 0.3, 0.1], "Basics"),
+		new TextButton([0.1, 0.25, 0.3, 0.1], "Tournaments"),
+		new TextButton([0.1, 0.4, 0.3, 0.1], "Tips"),
+		new TextButton([0.1, 0.55, 0.3, 0.1], "Practise")
+		]
+		this.complete = [false, false, false, false];
+		this.selected = 0;
+	}
+	draw(){
+		
+	}
+}
+
 class Competition{ // for round robbin and kockout competitons
 	constructor(type, players, difficulty = 4, price = 5){
 		this.price = price;
@@ -252,6 +330,7 @@ class Competition{ // for round robbin and kockout competitons
 		this.player = Math.floor(random(0, players));
 		this.names[this.player] = "You";
 		this.type = type;
+		this.difficulty = difficulty;
 		if(type === "knockout"){
 			this.maxDepth = Math.floor(Math.log2(players)-2);
 			this.draw = this.drawKnockout;
@@ -293,7 +372,6 @@ class Competition{ // for round robbin and kockout competitons
 			this.selected = 0;
 		}
 		this.stillGoing = true;
-		this.difficulty = difficulty;
 
 		this.infoButton = new HelpButton([0.9, 0.9, 0.075, 0.075]);
 	}
@@ -545,6 +623,9 @@ class Competition{ // for round robbin and kockout competitons
 				return "wall";
 			}
 		}
+	}
+	finishScreen(){
+		showText("+$"+this.getWinnings, canvas.width*0.5, canvas.height*0.4, canvas.height*0.05);
 	}
 }
 
