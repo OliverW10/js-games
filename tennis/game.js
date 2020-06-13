@@ -111,12 +111,15 @@ function generateComp(currentMoney = false, type = false){
 	if(this.type === "knockout"){
 		this.players = getKnockoutPlayers(currentMoney);
 		this.icon = drawKnockoutIcon;
+		comps.push([new KnockoutCompetition(this.players, this.difficulty, this.price),
+			new CompButton(this.buttonPos, generateCompName(), this.icon, this.price)])
 	}
 	if(this.type === "robbin"){
 		this.players = getRobbinPlayers(currentMoney);
 		this.icon = drawRobbinIcon;
+		comps.push([new RobbinCompetition(this.players, this.difficulty, this.price),
+			new CompButton(this.buttonPos, generateCompName(), this.icon, this.price)])
 	}
-	comps.push([new Competition(this.type, this.players, this.difficulty, this.price), new CompButton(this.buttonPos, generateCompName(), this.icon, this.price)])
 }
 
 function deleteComp(num){
@@ -142,7 +145,7 @@ var currentButtons = [];
 var compNames = [["Newcomers", "Beginers", "Clubs", "State", "National", "International", "Galactic"],
 ["Tennis", "Open", "Invitational", ""],
 ["Tournament", "Competition", ""]]
-var comps = [[new Competition("tutorial", 0, 0, 0), new TextButton(compButtonPositions[0], "Tutorial")]]
+var comps = [[new TutorialCompetition(), new TextButton(compButtonPositions[0], "Tutorial")]]
 for(var i = 0; i < 3; i +=1){
 	generateComp(money, "robbin");
 	generateComp(money, "knockout");
@@ -241,8 +244,7 @@ class Game{
 
 	comp(){
 		menuBackgroundOverlayAim = 0;
-		/// this.menuBackground()
-		if(this.currentComp.update() === true){
+		if(this.currentComp.update() === true){ // going into match
 			score = [0, 0];
 			aimGameSpeed = 1;
 			changeSkill(this.currentComp.getSkill())
@@ -269,7 +271,8 @@ class Game{
 				transition(this.match);
 			}
 		}
-		if(this.currentComp.stillGoing === false && paidComp === false){
+
+		if(this.currentComp.stillGoing === false && paidComp === false){ // comp has finished
 			money += this.currentComp.getWinnings();
 			// this.state = this.pickComp;
 			transition(this.pickComp);	
@@ -279,6 +282,7 @@ class Game{
 			// this.currentComp = undefined;
 			paidComp = true;
 		}
+
 		if(backButton.update() === true){ // removed beacuse it uses the money but dosent make any
 			transition(this.pickComp);
 		}
