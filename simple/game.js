@@ -33,22 +33,17 @@ class Game{
 		}
 		this.board.draw();
 
+		var placed = false;
 		for(var i = 0; i < this.currentPieces.length; i += 1){
 			if( this.currentPieces[i].update() != false){
 				console.log(this.currentPieces[i])
-				this.spawnRate += 0.1
-				var toSpawn = round(random(1, this.spawnRate));
-				for(var i = 0; i < toSpawn; i += 1){
-					this.board.spawnRand(new Enemy());
-				}
-				this.multiplier -= 0.1
-				var killed = this.board.affectSquares(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
-				this.multiplier += killed * 0.15
-				this.score += killed * this.multiplier;
-				this.board.progressAll();
-				//this.currentPieces[i] = randPiece(this.currentPieces[i].startX, this.currentPieces[i].startY, this.currentPieces[i].size)
+				placed = true;
+				this.board.addAffecter(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)])
 			}
 			this.currentPieces[i].draw();
+		}
+		if(placed){
+			this.progress();
 		}
 
 		var deleted = 0;
@@ -62,6 +57,20 @@ class Game{
 			// }
 		}
 		this.gameUI();
+	}
+	progress(){
+		this.multiplier -= 0.1;
+		var killed = this.board.affectSquares();
+		this.multiplier += killed * 0.15
+		this.score += killed * this.multiplier;
+		this.board.progressAll();
+
+		this.spawnRate += 0.1
+		var toSpawn = round(random(1, this.spawnRate));
+		for(var i = 0; i < toSpawn; i += 1){
+			this.board.spawnRand(new Enemy(), this.board.toAffect);
+		}
+		this.board.resetAffects();
 	}
 	gameUI(){
 		showText("Score: "+round(this.score), canvas.width*0.9, canvas.height*0.05, canvas.width*0.015, "rgb(255, 255, 255)");

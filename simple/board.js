@@ -5,6 +5,7 @@ class Board{
 		this.array = createNdArray(false, [this.size, this.size]);// an array filled with Peices
 		this.margin = {"left": 0.2, "right": 1-0.05, "top": 0.1, "bottom": 1-0.03};
 		this.selected = [0, 1];
+		this.toAffect = [];
 	}
 
 	spawnAt(type, pos){
@@ -32,18 +33,28 @@ class Board{
 			return 1;
 		}
 	}
-	affectSquares(squares, position){
+	addAffecter(squares, offset){
 		// killes all the enmies on the squares given
 		// returns the number of enemies killed
 		var killed = 0;
 		for(var i = 0; i < squares.length; i += 1){
-			var X = squares[i][0] + position[0];
-			var Y = squares[i][1] + position[1];
+			var X = squares[i][0] + offset[0];
+			var Y = squares[i][1] + offset[1];
 			if(X >= 0 && X < this.size && Y >= 0 && Y < this.size){
-				killed += this.deleteAt(X, Y);
+				this.toAffect.push([X, Y]);
 			}
 		}
-		return killed;
+	}
+
+	affectSquares(){
+		var killed = 0;
+		for(var i = 0; i < this.toAffect.length; i += 1){
+			killed += this.deleteAt(this.toAffect[i][0], this.toAffect[i][1]);
+		}
+		return killed
+	}
+	resetAffects(){
+		this.toAffect = [];
 	}
 
 	draw(){

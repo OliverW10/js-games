@@ -128,6 +128,13 @@ class Diamond extends Draggable{
 	}
 }
 
+class Shift extends Draggable{
+	constructor(X, Y, S, dir){
+		super(X, Y, S);
+		this.dir = dir;
+	}
+}
+
 function randPiece(X, Y, S){
 	var allPieces = [Around, VLine, HLine, Diamond];
 	return new allPieces[Math.floor(random(0, allPieces.length))](X, Y, S);
