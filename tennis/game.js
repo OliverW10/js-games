@@ -441,7 +441,7 @@ class Game{
 		}
 		if(this.tutorialStage === 4){
 			flashText("Done", [0, 100, 200]);
-			transition(this.comp);
+			this.state = this.comp;
 			this.currentComp.complete[0] = true;
 		}
 		this.overlay();
