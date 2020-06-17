@@ -18,6 +18,7 @@ class SoundManager{
 				this.pizzSound.stop();
 			}
 			this.pizzSound.play();
+			this.played += 1;
 		}
 	}
 	play(override = false){
@@ -26,6 +27,7 @@ class SoundManager{
 				this.pizzSound.stop();
 			}
 			this.pizzSound.play();
+			this.played += 1;
 		}
 	}
 }
@@ -34,7 +36,8 @@ var welcomePlayed = false;
 
 var selectSound = new SoundManager("./sounds/select.wav");
 selectSound.pizzSound.volume = 0.5;
-selectSound.pizzSound.release = 1;
+selectSound.pizzSound.release = 0.9;
+selectSound.pizzSound.attack = 0;
 var welcomeSound = new SoundManager("./sounds/welcome.mp3");
 var downSound = new SoundManager("./sounds/down.mp3");
 

@@ -256,18 +256,28 @@ class BaseCompetition{
 		this.names = getNames(players);
 		this.player = Math.floor(random(0, players));
 		this.names[this.player] = "You";
+		this.popupScreen = undefined;
+		this.popup = false;
 	}
 	update(){
 		this.draw();
 		this.infoButton.draw();
-		if(this.infoButton.update() === true){
-			
-		}
 		this.playButton.draw(1);
-		if(this.playButton.update() === true && this.stillGoing === true){
-			return true
+
+		if(this.popup === false){
+			if(this.infoButton.update() === true){
+				
+			}
+			if(this.playButton.update() === true && this.stillGoing === true){
+				return true
+			}else{
+				return false
+			}
 		}else{
-			return false
+			this.popupScreen.draw();
+			if(mouseButtons[0] === true){
+				this.popup = false;
+			}
 		}
 	}
 	getSkill(){
@@ -351,35 +361,15 @@ class BaseCompetition{
 		}
 	}
 	getWinnings(){
-		if(this.type === "knockout"){
-			return knockoutRatios[(this.maxDepth-this.aimProgress)+1];
-		}
-		if(this.type === "robbin"){
-			var playerScore = this.points[this.player];
-			console.log(playerScore);
-			var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
-			console.log(place);
-			console.log((1-place/this.names.length)*1.75);
-			return (1-place/this.names.length)*1.75
-		}
+		console.log("base class getWinnings called for some reason");
 	}
-	tutorialType(){
-		if(this.type === "tutorial"){ // should only be called if this is tutorial but have to make sure
-			if(this.selected === 0){
-				return "gameplay";
-			}
-			if(this.selected === 1){
-				return "tournaments";
-			}
-			if(this.selected === 2){
-				return "tips";
-			}
-			if(this.selected === 3){
-				return "wall";
-			}
-		}
+	setPopup(screen){
+		this.popupScreen = screen;
+		this.popupScreen.compObject = this;
+		this.popup = true;
 	}
 }
+
 
 class KnockoutCompetition extends BaseCompetition{
 	constructor(players, difficulty, price){
@@ -392,15 +382,28 @@ class KnockoutCompetition extends BaseCompetition{
 
 		this.type = "knockout"; // so it works with old stuff for now
 	}
+	getWinnings(){
+		this.winnings = knockoutRatios[(this.maxDepth-this.aimProgress)+1];
+		return this.winnings;
+	}
 	draw(){
+		knockoutBoardDepth = this.maxDepth;
+		if(this.progress > this.aimProgress){
+			this.progress -= 0.01;
+		}if(this.progress < this.aimProgress){
+			this.progress += 0.01;
+		}
+		if(this.progress > this.maxDepth+1){
+			this.stillGoing = false;
+		}
 		nameCounter = 0;
 		showText("Knock-out competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
 		if(this.progress < this.maxDepth){
 			drawSplit(canvas.width*0.4, canvas.height*0.6, canvas.width*0.175, 1, this.tree[2], this.progress);
 			drawSplit(canvas.width*0.6, canvas.height*0.6, canvas.width*0.175, -1, this.tree[3], this.progress);
 		}else{
-			showText(this.tree[0], canvas.width*0.6, canvas.height*0.5, canvas.width*0.1, "rgb(0, 0, 0)", this.tree[0] === "You");
-			showText(this.tree[1], canvas.width*0.4, canvas.height*0.5, canvas.width*0.1, "rgb(0, 0, 0)", this.tree[1] === "You");
+			showText(this.tree[0], canvas.width*0.6, canvas.height*0.5, canvas.width*0.07, "rgb(0, 0, 0)", this.tree[0] === "You");
+			showText(this.tree[1], canvas.width*0.4, canvas.height*0.5, canvas.width*0.07, "rgb(0, 0, 0)", this.tree[1] === "You");
 		}
 		c.beginPath();
 		c.strokeStyle = "rgb(150, 150, 150)";
@@ -418,6 +421,7 @@ class KnockoutCompetition extends BaseCompetition{
 		// showText("Next Prize: "+round(knockoutRatios[(this.maxDepth-this.aimProgress)-1]*this.price), canvas.width*(1+this.progress%1*0.333), canvas.height*0.9, canvas.width*0.02);
 	}
 }
+
 
 class RobbinCompetition extends BaseCompetition{
 	constructor(players, difficulty, price){
@@ -438,6 +442,15 @@ class RobbinCompetition extends BaseCompetition{
 		this.fakeProgress = 0;
 
 		this.type = "robbin"; // so it works with old stuff for now
+	}
+	getWinnings(){
+		var playerScore = this.points[this.player];
+		console.log(playerScore);
+		var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
+		console.log(place);
+		console.log((1-place/this.names.length)*1.75);
+		this.winnings = (1-place/this.names.length)*1.75;
+		return this.winnings
 	}
 	draw(){
 		showText("Round Robbin competition", canvas.width/2, canvas.height*0.08, canvas.height*0.1, true, true);
@@ -508,6 +521,7 @@ class RobbinCompetition extends BaseCompetition{
 	}
 }
 
+
 class TutorialCompetition extends BaseCompetition{
 	constructor(){
 		super(0, 0, 0, [0.375, 0.84, 0.25, 0.15]);
@@ -543,7 +557,22 @@ class TutorialCompetition extends BaseCompetition{
 		c.stroke();
 		showText(this.selected, canvas.width*0.7, canvas.height*0.5, canvas.height*0.05);
 	}
+	tutorialType(){
+		if(this.selected === 0){
+			return "gameplay";
+		}
+		if(this.selected === 1){
+			return "tournaments";
+		}
+		if(this.selected === 2){
+			return "tips";
+		}
+		if(this.selected === 3){
+			return "wall";
+		}
+	}
 }
+
 
 function drawKnockoutIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	c.beginPath();
@@ -754,23 +783,39 @@ class Tutorial{
 }
 
 
-class PopUp{
-	constructor(attachTo, text){
-		this.button = attachTo;
-		this.texts = text;
-		this.alpha = 0;
-		this.rect = []
-		this.textWidth;
+class EndScreen{ // is a class so it can do animation independantly
+	constructor(){
+		this.progress = 0; // time since reset
 	}
-	getRect(follow){
-		// updates and returns the rect
-		var x = this.button.X;
-		return [x, y, w, h]
+	draw(){
+		this.progress += 1/60;
+		this.drawUnique();
 	}
-	draw(followPoint){
+	drawUnique(){
 
 	}
-	update(){
-
+	reset(){
+		this.progress = 0;
 	}
 }
+
+class VictoryScreen extends EndScreen{
+	constructor(){
+		super();
+		this.compObject = undefined;
+	}
+	drawUnique(){
+		c.beginPath();
+		c.fillStyle = "rgba(255, 255, 255, 0.5)";
+		c.fillRect(0, 0, canvas.width, canvas.height);
+
+		showText("Victory", canvas.width*0.5, canvas.height*0.2, canvas.width*0.1);
+		showText("Click to continue", canvas.width*0.5, canvas.height*0.4, canvas.width*0.03);
+
+		if(this.compObject !== undefined){
+			showText(`You earned; $${this.compObject.winnings}`, canvas.width*0.5, canvas.height*0.7, canvas.width*0.07);
+		}
+	}
+}
+
+var testVictoryScreen = new VictoryScreen();
