@@ -256,7 +256,6 @@ class BaseCompetition{
 		this.names = getNames(players);
 		this.player = Math.floor(random(0, players));
 		this.names[this.player] = "You";
-		this.popupScreen = undefined;
 		this.popup = false;
 	}
 	update(){
@@ -274,9 +273,9 @@ class BaseCompetition{
 				return false
 			}
 		}else{
-			this.popupScreen.draw();
+			this.endScreen();
 			if(mouseButtons[0] === true){
-				this.popup = false;
+				this.stillGoing = false;
 			}
 		}
 	}
@@ -298,7 +297,7 @@ class BaseCompetition{
 			this.scoreSizes[this.verses][this.player] = 5;
 			this.played.push(this.verses);
 			if(this.played.length === this.names.length){
-				this.stillGoing = false;
+				this.finish();
 			}else{
 				this.verses = round(random(0, this.names.length-1)); // picks a new opponent that you havent already played
 				while(this.played.includes(this.verses) === true){
@@ -319,9 +318,13 @@ class BaseCompetition{
 			if(score[0] > score[1]){
 				this.aimProgress += 1;
 			}else{
-				this.stillGoing = false;
+				this.finish();
 			}
 		}
+	}
+	finish(){
+		this.popup = true;
+		this.getWinnings();
 	}
 	fakeMatch(){ // returns false if there is no more matches to play
 		// used to progress the robbin scoreboard
@@ -362,11 +365,20 @@ class BaseCompetition{
 	}
 	getWinnings(){
 		console.log("base class getWinnings called for some reason");
+		this.winnings = "nope"
 	}
-	setPopup(screen){
-		this.popupScreen = screen;
-		this.popupScreen.compObject = this;
-		this.popup = true;
+	endScreen(){
+		c.beginPath();
+		c.fillStyle = "rgba(255, 255, 255, 0.5)";
+		c.fillRect(0, 0, canvas.width, canvas.height);
+
+		showText("Completed", canvas.width*0.5, canvas.height*0.2, canvas.width*0.1);
+		showText("Click to continue", canvas.width*0.5, canvas.height*0.4, canvas.width*0.03);
+
+		showText(`You earned; $${this.winnings}`, canvas.width*0.5, canvas.height*0.7, canvas.width*0.07);
+		if(mouseButtons[0] === true){
+			this.complete = true;
+		}
 	}
 }
 
@@ -394,7 +406,7 @@ class KnockoutCompetition extends BaseCompetition{
 			this.progress += 0.01;
 		}
 		if(this.progress > this.maxDepth+1){
-			this.stillGoing = false;
+			this.finish();
 		}
 		nameCounter = 0;
 		showText("Knock-out competition", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
@@ -781,41 +793,3 @@ class Tutorial{
 		}
 	}
 }
-
-
-class EndScreen{ // is a class so it can do animation independantly
-	constructor(){
-		this.progress = 0; // time since reset
-	}
-	draw(){
-		this.progress += 1/60;
-		this.drawUnique();
-	}
-	drawUnique(){
-
-	}
-	reset(){
-		this.progress = 0;
-	}
-}
-
-class VictoryScreen extends EndScreen{
-	constructor(){
-		super();
-		this.compObject = undefined;
-	}
-	drawUnique(){
-		c.beginPath();
-		c.fillStyle = "rgba(255, 255, 255, 0.5)";
-		c.fillRect(0, 0, canvas.width, canvas.height);
-
-		showText("Victory", canvas.width*0.5, canvas.height*0.2, canvas.width*0.1);
-		showText("Click to continue", canvas.width*0.5, canvas.height*0.4, canvas.width*0.03);
-
-		if(this.compObject !== undefined){
-			showText(`You earned; $${this.compObject.winnings}`, canvas.width*0.5, canvas.height*0.7, canvas.width*0.07);
-		}
-	}
-}
-
-var testVictoryScreen = new VictoryScreen();

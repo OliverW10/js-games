@@ -274,12 +274,8 @@ class Game{
 
 		if(this.currentComp.stillGoing === false && paidComp === false){ // comp has finished
 			money += this.currentComp.getWinnings();
-			// this.state = this.pickComp;
-			transition(this.pickComp);	
-			// console.log(comps[this.currentCompNum][1])
+			transition(this.pickComp);
 			comps[this.currentCompNum][1].fadeOut(function(){deleteComp(main.currentCompNum)});
-			// this.currentCompNum = undefined;
-			// this.currentComp = undefined;
 			paidComp = true;
 		}
 
@@ -498,9 +494,9 @@ class Game{
 				aimGameSpeed = 1;
 			}
 		}
-		if(checkKey("Escape") || checkKey("KeyP")){
-			transition(this.comp);
-		}
+		// if(checkKey("Escape") || checkKey("KeyP")){
+		// 	transition(this.comp);
+		// }
 		lastSpace = checkKey("Space");
 		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		this.overlay();
