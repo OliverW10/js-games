@@ -414,7 +414,7 @@ class BaseCompetition{
 		showText("Completed", canvas.width*0.5, canvas.height*0.2, canvas.width*0.1);
 		showText("Click to continue", canvas.width*0.5, canvas.height*0.4, canvas.width*0.03);
 
-		showText(`You earned; $${this.winnings}`, canvas.width*0.5, canvas.height*0.7, canvas.width*0.07);
+		showText(`You earned: $${this.winnings}`, canvas.width*0.5, canvas.height*0.7, canvas.width*0.07);
 		if(mouseButtons[0] === true){
 			this.complete = true;
 		}
@@ -434,7 +434,7 @@ class KnockoutCompetition extends BaseCompetition{
 		this.type = "knockout"; // so it works with old stuff for now
 	}
 	getWinnings(){
-		this.winnings = knockoutRatios[(this.maxDepth-this.aimProgress)+1];
+		this.winnings = knockoutRatios[(this.maxDepth-this.aimProgress)+1] * this.price;
 		return this.winnings;
 	}
 	draw(){
@@ -500,7 +500,7 @@ class RobbinCompetition extends BaseCompetition{
 		var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
 		console.log(place);
 		console.log((1-place/this.names.length)*1.75);
-		this.winnings = (1-place/this.names.length)*1.75;
+		this.winnings = (1-place/this.names.length)*1.75 * this.price;
 		return this.winnings
 	}
 	draw(){
@@ -533,7 +533,7 @@ class RobbinCompetition extends BaseCompetition{
 					if(this.scores[x][y] === false){
 						showText("-", xPos+xSize/2, yPos+ySize*0.7, xSize/2);
 					}else{
-						showText(this.scores[x][y], xPos+xSize/2, yPos+ySize*0.7, (xSize/2)*this.scoreSizes[x][y]);
+						showText(this.scores[x][y], xPos+xSize/2, yPos+ySize*0.7, (xSize/2)*this.scoreSizes[x][y], "rgb(0, 0, 0)", this.names[x] === "You");
 					}
 				}else{
 					showText(this.points[y], xPos+xSize/2, yPos+ySize*0.7, xSize/2);
