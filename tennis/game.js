@@ -164,7 +164,7 @@ var lastSpace = false;
 var lastMousePos = {"x":0, "y":0};
 
 var tutorialShotsIn = 0;
-var wallController = new WallController()
+var wallController = new WallController(8);
 
 var birds = [];
 for(var i = 0; i < 25; i += 1){
@@ -311,7 +311,6 @@ class Game{
 			getScores();
 		}
 		if(helpButton.update() === true){
-			transition(this.help);
 		}
 		if(settingsButton.update() === true){
 			transition(this.settings)
@@ -320,7 +319,6 @@ class Game{
 		for(var i = 0; i<comps.length; i += 1){
 			comps[i][1].draw();
 		}
-		c.filter = "none";
 
 		settingsButton.draw();
 		helpButton.draw();
@@ -720,24 +718,11 @@ class Game{
 			leaderboardPage -= 1
 		}
 		setTextBoxPos(canvas.width*0.5, canvas.height*0.8);
-		if(localStorage.getItem("name") === null){
-			textBox.readonly = false;
-		}else{
-			textBox.readonly = true;
-			setBoxText(localStorage.name);
-		}
-		if(leaderboardSubmitButton.update() === true){ // currently this logic is a bit messy
-			if(localStorage.getItem("name") !== null){
-				sendScore(money, localStorage.name);
-				flashText("Used old name: "+localStorage.name)
-			}else{
-				if(getBoxText != ""){
-					localStorage["name"] = getBoxText();
-					sendScore(money, localStorage.name);
-					flashText("Score Submitted under: "+getBoxText());
-				}else{
-					flashText("No name entered");
-				}
+		if(leaderboardSubmitButton.update() === true){
+			var submitName = getLeaderboardName()
+			if(submitName !== false){
+				saveMoney();
+				sendScore(money, submitName);
 			}
 		}
 		leaderboardSubmitButton.draw()

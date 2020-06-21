@@ -169,11 +169,12 @@ function drawRacquet(X, Y, Z, a = false, trans = 1){
 }
 
 class WallController{
-	constructor(){
-
+	constructor(speed = 13){
+		this.speed = speed;
+		//this.yVel = 
 	}
 	update(){
-		if(balls[0].Z > 3){
+		if(balls[0].Z > 2.9){
 			balls[0].hit(this.getVel(balls[0].X, balls[0].Y, balls[0].Z), this.getSpin(), -1)
 		}
 	}
@@ -182,9 +183,9 @@ class WallController{
 
 		this.angle = Math.atan2(this.target[0]-balls[0].X, this.target[2]-balls[0].Z)+Math.PI/2;
 
-		this.shotPower = dist(X, Z, this.target[0], this.target[2])*gravity*13;
+		this.shotPower = dist(X, Z, this.target[0], this.target[2])*gravity*this.speed;
 
-		return [-this.shotPower*Math.cos(this.angle), 0.05, this.shotPower*Math.sin(this.angle)];
+		return [-this.shotPower*Math.cos(this.angle), scaleNumber(random(this.speed-3, this.speed+1), 13, 8, 0.05, 0.07), this.shotPower*Math.sin(this.angle)]
 	}
 	getSpin(){
 		return [random(-0.1, 0.1), 0.2]
