@@ -3,13 +3,14 @@ enemies spawn and evolve every turn
 you place peices that clense one or multiple squares
 some have more powerful movesets that other like chess pieces
 */
+var lastSpawn = false;
 
 class Game{
 	constructor(){
 		this.state = this.main;
 		this.board = new Board(4);
 		this.board.spawnRand(new Enemy())
-		this.currentPieces = [randPiece(0.1, 0.1, 0.05), randPiece(0.1, 0.25, 0.05), randPiece(0.1, 0.4, 0.05), randPiece(0.1, 0.55, 0.05)];
+		this.currentPieces = [];
 		this.score = 0;
 		this.multiplier = 1;
 		this.spawnRate = 1.3;
@@ -57,6 +58,11 @@ class Game{
 			// }
 		}
 		this.gameUI();
+
+		if(lastSpawn === true && checkKey("KeyH") === false){
+			this.currentPieces.push(randPiece(0.1, 1-(this.currentPieces.length/10), 0.03))
+		}
+		lastSpawn = checkKey("KeyH");
 	}
 	progress(){
 		this.multiplier -= 0.1;

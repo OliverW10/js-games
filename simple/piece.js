@@ -20,7 +20,7 @@ class Enemy{
 }
 
 class Draggable{
-	constructor(X, Y, S){
+	constructor(X, Y, S, fall = true){
 		this.active = true; // able to be dragged
 		this.held = false; // current held
 		this.startX = X;
@@ -28,27 +28,45 @@ class Draggable{
 		this.X = X;
 		this.Y = Y;
 		this.size = S;
+		this.falling = fall;
+		this.fallPos = -S;
+		this.fallVel = 0;
 	}
 	update(){ // returns true when it has been placed
-		// c.beginPath();
-		// c.fillStyle = "rgb(255, 255, 255, 0.5)";
-		// c.fillRect(this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height - this.size*canvas.height, this.size*canvas.width*2, this.size*canvas.height*2)
-		if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], [this.X-this.size, this.Y-this.size, this.size*2, this.size*2]) === true && mouseButtons[0] === true && this.held === false){
-			this.held = true;
-		}
-		if(this.held == true){
-			this.X = mousePos.x/canvas.width;
-			this.Y = mousePos.y/canvas.height;
-			if(mouseButtons[0] === false){
-				this.held = false;
-				return true
+		if(this.falling === false){
+			if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], [this.X-this.size, this.Y-this.size, this.size*2, this.size*2]) === true && mouseButtons[0] === true && this.held === false){
+				this.held = true;
+			}
+			if(this.held == true){
+				this.X = mousePos.x/canvas.width;
+				this.Y = mousePos.y/canvas.height;
+				if(mouseButtons[0] === false){
+					this.held = false;
+					return true
+				}
+			}
+			if(this.held === false){
+				this.X = this.startX;
+				this.Y = this.startY;
+			}
+		}else{
+			this.Y = this.fallPos;
+			this.fallVel += 0.01;
+			this.fallPos += this.fallVel;
+			if(this.fallPos >= this.startY){
+				this.falling = false;
+				this.Y = this.startY;
 			}
 		}
-		if(this.held === false){
-			this.X = this.startX;
-			this.Y = this.startY;
-		}
 		return false
+	}
+	setBasePos(X, Y){
+		if(X !== false){
+			this.startX	= X;
+		}
+		if(Y !== false){
+			this.startY = Y;
+		}
 	}
 }
 
@@ -138,4 +156,25 @@ class Shift extends Draggable{
 function randPiece(X, Y, S){
 	var allPieces = [Around, VLine, HLine, Diamond];
 	return new allPieces[Math.floor(random(0, allPieces.length))](X, Y, S);
+}
+
+class PieceManager{
+	constructor(slots){
+		this.pieces = [];
+		this.slots = slots;
+	}
+	add(){
+
+	}
+	draw(){ // draw all the pieces
+		for(x in this.pieces){
+			x.draw();
+		}
+	}
+	update(){ // update all the pieces
+		for(var i = 0; i < this.pieces.length; i += 1){
+			this.pieces[i].update();
+			this.pieces[i].setBasePos(false, 1-i/this.slots);
+		}
+	}
 }
