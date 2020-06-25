@@ -67,4 +67,27 @@ function hideTextBox(){
 	textBox.style.visibility = "hidden";
 }
 
+function getLeaderboardName(){
+	if(localStorage.getItem("name") === null){
+		textBox.readonly = false;
+	}else{
+		textBox.readonly = true;
+		setBoxText(localStorage.name);
+	}
+
+	if(localStorage.getItem("name") !== null){
+		flashText("Used old name: "+localStorage.name)
+		return localStorage.name
+	}else{
+		if(getBoxText() !== ""){
+			localStorage["name"] = getBoxText();
+			flashText("Score Submitted under: "+getBoxText());
+			return localStorage.name
+		}else{
+			flashText("No name entered");
+			return false
+		}
+	}
+}
+
 hideTextBox();

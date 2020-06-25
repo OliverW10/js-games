@@ -5,10 +5,6 @@ class baseButton{
 	*/
 	constructor(rect){
 		// drawFunc can be either a function to draw the button or a string for the basic button
-		this.X = rect[0]*canvas.width;
-		this.Y = rect[1]*canvas.height;
-		this.W = rect[2]*canvas.width;
-		this.H = rect[3]*canvas.height;
 		this.rect = rect; // save both beacuse ease later
 		this.state = 0; // 0 is none, 1 is hovered, 2 is pressed
 		this.fading = false;
@@ -17,8 +13,11 @@ class baseButton{
 		this.clickRatio = 0.025;
 		this.shakeAmount = 0;
 		this.shakeAngle = 0;
+		this.disabled = false;
 
 		this.colours = []; // [inside idle, inside hovered, stroke idle, stroke hovered]
+
+		this.updatePoints();
 	}
 	update(){
 		if(this.shakeAmount > 0.001){
@@ -36,14 +35,16 @@ class baseButton{
 			if(this.state === 0){
 				selectSound.play(true)
 			}
-			if(mouseButtons[0] === true){
-				this.state = 2;
-			}else{
-				if(this.state === 2){
-					this.state = 0;
-					return true
+			if(this.disabled === false){
+				if(mouseButtons[0] === true){
+					this.state = 2;
 				}else{
-					this.state = 1;
+					if(this.state === 2){
+						this.state = 0;
+						return true
+					}else{
+						this.state = 1;
+					}
 				}
 			}
 		}else{
@@ -87,6 +88,12 @@ class baseButton{
 	}
 	drawFeatures(){
 
+	}
+	disable(){
+		this.disabled = true;
+	}
+	enable(){
+		this.disabled = false;
 	}
 }
 
@@ -135,18 +142,50 @@ class BothButton extends baseButton{
 	}
 }
 
+class RemoveButton extends baseButton{
+	constructor(parentButton){
+		super([parentButton.rect[0]+parentButton.rect[2] - parentButton.rect[3]*0.25, parentButton.rect[1]+parentButton.rect[3]*0.05, parentButton.rect[3]*0.2, parentButton.rect[3]*0.2])
+		this.parent = parentButton;
+		this.infoAlpha = 0;
+	}
+	drawFeatures(){
+		if(this.state === 0){
+			this.parent.enable();
+		}else{
+			this.parent.disable();
+		}
+		this.alpha = this.alpha*0.9 + this.parent.state*0.1;
+		this.infoAlpha = this.infoAlpha*0.9 + this.state*0.1;
+
+		roundedLine([this.X+this.W*0.1, this.Y+this.H*0.1], [this.X+this.W*0.9, this.Y+this.H*0.9], canvas.height*0.005, `rgba(50, 50, 50, ${this.alpha})`);
+		roundedLine([this.X+this.W*0.9, this.Y+this.H*0.1], [this.X+this.W*0.1, this.Y+this.H*0.9], canvas.height*0.005, `rgba(50, 50, 50, ${this.alpha})`);
+
+		c.beginPath();
+		c.fillStyle = `rgba(250, 250, 250, ${this.infoAlpha})`;
+		c.fillRect(this.X - this.W * 3.1, this.Y - this.H*0.5, this.W*3, this.H*2);
+		showText("Remove this competition", this.X-this.W*1.55, this.Y+this.H*0.5, this.H*0.35, `rgba(50, 50, 50, ${this.infoAlpha})`);
+	}
+}
+
 class CompButton extends baseButton{
 	constructor(rect, text, icon, price){
 		super(rect);
 		this.text = text;
 		this.icon = icon;
 		this.price = price;
+		this.removeButton = new RemoveButton(this);
+		this.toGo = false;
 	}
 	drawFeatures(){
 		showText(this.text+" $"+this.price, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.22, "rgba(200, 200, 200, "+this.alpha+")", true, false);
 		showText(this.text+" $"+this.price, this.X+this.W*0.55, this.Y+this.H/2, this.H*0.22, "rgba(100, 100, 100, "+this.alpha+")", true, true);
 
 		this.icon(this.X+this.W*0.05, this.Y+this.H*0.5, this.H*0.3);
+
+		if(this.removeButton.update() === true){
+			this.toGo = true;
+		}
+		this.removeButton.draw();
 	}
 }
 
@@ -375,7 +414,7 @@ class BaseCompetition{
 		showText("Completed", canvas.width*0.5, canvas.height*0.2, canvas.width*0.1);
 		showText("Click to continue", canvas.width*0.5, canvas.height*0.4, canvas.width*0.03);
 
-		showText(`You earned; $${this.winnings}`, canvas.width*0.5, canvas.height*0.7, canvas.width*0.07);
+		showText(`You earned: $${this.winnings}`, canvas.width*0.5, canvas.height*0.7, canvas.width*0.07);
 		if(mouseButtons[0] === true){
 			this.complete = true;
 		}
@@ -395,7 +434,7 @@ class KnockoutCompetition extends BaseCompetition{
 		this.type = "knockout"; // so it works with old stuff for now
 	}
 	getWinnings(){
-		this.winnings = knockoutRatios[(this.maxDepth-this.aimProgress)+1];
+		this.winnings = knockoutRatios[(this.maxDepth-this.aimProgress)+1] * this.price;
 		return this.winnings;
 	}
 	draw(){
@@ -461,7 +500,7 @@ class RobbinCompetition extends BaseCompetition{
 		var place = this.points.sort(function(a, b){return b - a}).indexOf(playerScore); // will overwrite but thats fine beacuse it redefined every time and getWinnings is only called after its over
 		console.log(place);
 		console.log((1-place/this.names.length)*1.75);
-		this.winnings = (1-place/this.names.length)*1.75;
+		this.winnings = (1-place/this.names.length)*1.75 * this.price;
 		return this.winnings
 	}
 	draw(){
@@ -494,7 +533,7 @@ class RobbinCompetition extends BaseCompetition{
 					if(this.scores[x][y] === false){
 						showText("-", xPos+xSize/2, yPos+ySize*0.7, xSize/2);
 					}else{
-						showText(this.scores[x][y], xPos+xSize/2, yPos+ySize*0.7, (xSize/2)*this.scoreSizes[x][y]);
+						showText(this.scores[x][y], xPos+xSize/2, yPos+ySize*0.7, (xSize/2)*this.scoreSizes[x][y], "rgb(0, 0, 0)", this.names[x] === "You");
 					}
 				}else{
 					showText(this.points[y], xPos+xSize/2, yPos+ySize*0.7, xSize/2);
