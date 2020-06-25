@@ -33,6 +33,10 @@ class Draggable{
 		this.fallVel = 0;
 	}
 	update(){ // returns true when it has been placed
+		if(this.fallPos >= this.startY){
+			this.falling = false;
+			this.Y = this.startY;
+		}
 		if(this.falling === false){
 			if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], [this.X-this.size, this.Y-this.size, this.size*2, this.size*2]) === true && mouseButtons[0] === true && this.held === false){
 				this.held = true;
@@ -53,10 +57,6 @@ class Draggable{
 			this.Y = this.fallPos;
 			this.fallVel += 0.01;
 			this.fallPos += this.fallVel;
-			if(this.fallPos >= this.startY){
-				this.falling = false;
-				this.Y = this.startY;
-			}
 		}
 		return false
 	}
@@ -67,6 +67,58 @@ class Draggable{
 		if(Y !== false){
 			this.startY = Y;
 		}
+		this.falling = true;
+	}
+}
+
+class LLine extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[-1, 0], [-2, 0], [-3, 0], [-4, 0]]
+		this.colour = "rgb(20, 150, 20)";
+	}
+	draw(){
+		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width - this.size*canvas.width*0.2, this.Y*canvas.height - this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width - this.size*canvas.width*0.2, this.Y*canvas.height + this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
+	}
+}
+
+class RLine extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[1, 0], [2, 0], [3, 0], [4, 0]];
+		this.colour = "rgb(20, 20, 150)";
+	}
+	draw(){
+		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width*0.2, this.Y*canvas.height - this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width*0.2, this.Y*canvas.height + this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
+	}
+}
+
+class ULine extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[0, -1], [0, -2], [0, -3], [0, -4]];
+		this.colour = "rgb(150, 150, 20)";
+	}
+	draw(){
+		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width + this.size*canvas.width*0.5, this.Y*canvas.height - this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width - this.size*canvas.width*0.5, this.Y*canvas.height - this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
+	}
+}
+class DLine extends Draggable{
+	constructor(X, Y, S){
+		super(X, Y, S);
+		this.affects = [[0, 1], [0, 2], [0, 3], [0, 4]];
+		this.colour = "rgb(150, 20, 150)";
+	}
+	draw(){
+		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], [this.X*canvas.width + this.size*canvas.width*0.5, this.Y*canvas.height + this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
+		roundedLine([this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], [this.X*canvas.width - this.size*canvas.width*0.5, this.Y*canvas.height + this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
 	}
 }
 
@@ -153,28 +205,25 @@ class Shift extends Draggable{
 	}
 }
 
-function randPiece(X, Y, S){
-	var allPieces = [Around, VLine, HLine, Diamond];
-	return new allPieces[Math.floor(random(0, allPieces.length))](X, Y, S);
+var allPieces = [LLine, RLine, ULine, DLine];
+
+function newBag(){
+	var spawnerBag = [];
+	for(var i = 0; i< allPieces.length; i += 1){
+		spawnerBag.push(i)
+	}
+	return spawnerBag
 }
 
-class PieceManager{
-	constructor(slots){
-		this.pieces = [];
-		this.slots = slots;
-	}
-	add(){
+var spawnerBag = newBag();
 
+function randPiece(X, Y, S){
+	if(spawnerBag.length === 0){
+		spawnerBag = newBag();
+		console.log("replenished bag");
 	}
-	draw(){ // draw all the pieces
-		for(x in this.pieces){
-			x.draw();
-		}
-	}
-	update(){ // update all the pieces
-		for(var i = 0; i < this.pieces.length; i += 1){
-			this.pieces[i].update();
-			this.pieces[i].setBasePos(false, 1-i/this.slots);
-		}
-	}
+	var indx = Math.floor(random(0, spawnerBag.length))
+	var output = new allPieces[spawnerBag[indx]](X, Y, S);
+	spawnerBag.splice(indx, 1);
+	return output
 }

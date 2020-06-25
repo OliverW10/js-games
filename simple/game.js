@@ -10,10 +10,11 @@ class Game{
 		this.state = this.main;
 		this.board = new Board(4);
 		this.board.spawnRand(new Enemy())
-		this.currentPieces = [];
+		this.currentPieces = [randPiece(0.1, 1, 0.02), randPiece(0.1, 1, 0.02)];
 		this.score = 0;
 		this.multiplier = 1;
 		this.spawnRate = 1.3;
+		this.slots = 15;
 	}
 	execute(){
 		this.state();
@@ -36,10 +37,17 @@ class Game{
 
 		var placed = false;
 		for(var i = 0; i < this.currentPieces.length; i += 1){
-			if( this.currentPieces[i].update() != false){
+			if( this.currentPieces[i].update() === true){
 				console.log(this.currentPieces[i])
 				placed = true;
-				this.board.addAffecter(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)])
+				this.board.addAffecter(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
+				this.currentPieces.splice(i, 1);
+				i-= 1;
+				if(this.currentPieces.length === 0){
+					break
+				}
+			}else{
+				this.currentPieces[i].setBasePos(0.1, 1-((i+0.5)/this.slots));
 			}
 			this.currentPieces[i].draw();
 		}
@@ -48,19 +56,20 @@ class Game{
 		}
 
 		var deleted = 0;
-		for(var i = 0; i < particles.length-deleted; i += 1){
-			particles[i].update();
-			particles[i].draw();
-			// if(particles[i].alive === false){
-			// 	console.log("removed "+deleted)
-			// 	particles.splice(i, 0);
-			// 	deleted += 1;
-			// }
+		for(var x of particles){
+			x.update();
+			x.draw();
+		}
+		for(var i = 0; i < particles.length; i += 1){
+			if(particles[i].alive === false){
+				particles.splice(i, 0);
+				break
+			}
 		}
 		this.gameUI();
 
 		if(lastSpawn === true && checkKey("KeyH") === false){
-			this.currentPieces.push(randPiece(0.1, 1-(this.currentPieces.length/10), 0.03))
+			this.currentPieces.push(randPiece(0.1, 1, 0.02))
 		}
 		lastSpawn = checkKey("KeyH");
 	}
@@ -77,6 +86,8 @@ class Game{
 			this.board.spawnRand(new Enemy(), this.board.toAffect);
 		}
 		this.board.resetAffects();
+
+		this.currentPieces.push(randPiece(0.1, 1, 0.02));
 	}
 	gameUI(){
 		showText("Score: "+round(this.score), canvas.width*0.9, canvas.height*0.05, canvas.width*0.015, "rgb(255, 255, 255)");
