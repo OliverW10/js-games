@@ -126,9 +126,9 @@ function deleteComp(num){
 	/*
 	deletes the comp with the given index in the comps array
 	*/
-	compButtonPositions[compButtonPositions.indexOf(comps[num][1].rect)][4] = false;
-	comps.splice(num, 1);
-	generateComp();
+	compButtonPositions[compButtonPositions.indexOf(comps[num][1].rect)][4] = false; // set the position as avaliable
+	comps.splice(num, 1); // deletes button
+	generateComp(); // generates new one
 }
 
 var compButtonPositions = [
@@ -198,6 +198,7 @@ class Game{
 		this.tutorialStage = 0;
 		this.currentComp = false;
 		this.currentCompNum = undefined;
+		this.justDeleted = undefined;
 	}
 
 	execute(){
@@ -302,8 +303,12 @@ class Game{
 					money -= comps[i][0].price;
 					paidComp = false;
 				}else{
-					comps[i][1].shake()
+					comps[i][1].shake();
 				}
+			}
+			if(comps[i][1].toGo === true){
+				main.justDeleted = i;
+				comps[i][1].fadeOut(function(){deleteComp(main.justDeleted)})
 			}
 		}
 		if(onlineButton.update() === true){
