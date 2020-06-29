@@ -20,7 +20,7 @@ class Enemy{
 }
 
 class Draggable{
-	constructor(X, Y, S, fall = true){
+	constructor(X, Y, S = 0.03, fall = true){
 		this.active = true; // able to be dragged
 		this.held = false; // current held
 		this.startX = X;

@@ -13,13 +13,20 @@ class Board{
 		var Y = pos[1];
 		this.array[X][Y] = type;
 	}
+
 	spawnRand(type, exclude = []){
 		var X = round(random(0, this.size-1));
 		var Y = round(random(0, this.size-1));
-		while(this.array[X][Y] !== false && X === exclude[0] && Y === exclude[1]){
+		console.log(exclude)
+		console.log([X, Y]);
+		var sameX = (element) => element[0] === X;
+		var sameY = (element) => element[1] === Y;
+		while(this.array[X][Y] !== false || (exclude.some(sameX) === true && exclude.some(sameY))){
 			X = round(random(0, this.size-1));
 			Y = round(random(0, this.size-1));
+			console.log([X, Y]);
 		}
+		console.log("found \n")
 		this.array[X][Y] = type;
 	}
 
@@ -91,7 +98,7 @@ class Board{
 		}
 	}
 
-	// all of these return the screen coordinates of their square
+	// converts from square to pixel
 	getSquareW(){
 		return (this.margin.right-this.margin.left)/this.size * canvas.width;
 	}
@@ -106,7 +113,7 @@ class Board{
 	}
 
 
-	// all these return the board square nearest to coordinate
+	// converts form pixel to square
 	getPosX(X){
 		return clip(Math.floor(scaleNumber(X/canvas.width, this.margin.left, this.margin.right, 0, this.size)), 0, this.size-1);
 	}

@@ -10,11 +10,14 @@ class Game{
 		this.state = this.main;
 		this.board = new Board(4);
 		this.board.spawnRand(new Enemy())
-		this.currentPieces = [randPiece(0.1, 1, 0.02), randPiece(0.1, 1, 0.02)];
+		this.currentPieces = [];
 		this.score = 0;
 		this.multiplier = 1;
 		this.spawnRate = 1.3;
-		this.slots = 15;
+		this.slots = 6;
+		this.minPieces = 1;
+		this.maxPieces = 3;
+		this.progress();
 	}
 	execute(){
 		this.state();
@@ -37,13 +40,12 @@ class Game{
 
 		var placed = false;
 		for(var i = 0; i < this.currentPieces.length; i += 1){
-			if( this.currentPieces[i].update() === true){
+			if( this.currentPieces[i].update() === true && this.board.getOver(mousePos.x, mousePos.y) === true){
 				console.log(this.currentPieces[i])
 				placed = true;
 				this.board.addAffecter(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
 				this.currentPieces.splice(i, 1);
-				i-= 1;
-				if(this.currentPieces.length === 0){
+				if(i >= this.currentPieces.length){
 					break
 				}
 			}else{
@@ -69,7 +71,7 @@ class Game{
 		this.gameUI();
 
 		if(lastSpawn === true && checkKey("KeyH") === false){
-			this.currentPieces.push(randPiece(0.1, 1, 0.02))
+			this.currentPieces.push(randPiece(0.1, 1))
 		}
 		lastSpawn = checkKey("KeyH");
 	}
@@ -87,7 +89,11 @@ class Game{
 		}
 		this.board.resetAffects();
 
-		this.currentPieces.push(randPiece(0.1, 1, 0.02));
+		if(this.currentPieces.length <= this.minPieces){
+			for(var i = 0; i < this.maxPieces; i ++){
+				this.currentPieces.push(randPiece(0.1, 1));
+			}
+		}
 	}
 	gameUI(){
 		showText("Score: "+round(this.score), canvas.width*0.9, canvas.height*0.05, canvas.width*0.015, "rgb(255, 255, 255)");
