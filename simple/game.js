@@ -83,7 +83,7 @@ class Game{
 		this.board.progressAll();
 
 		this.spawnRate += 0.1
-		var toSpawn = round(random(1, this.spawnRate));
+		var toSpawn = round(this.spawnRate);
 		for(var i = 0; i < toSpawn; i += 1){
 			this.board.spawnRand(new Enemy(), this.board.toAffect);
 		}

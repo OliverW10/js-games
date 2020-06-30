@@ -3,19 +3,29 @@ class Enemy{
 		this.progress = 1
 		this.alive = true
 		this.colour = "rgb(150, 20, 20)"
+		this.won = false;
 	}
 	draw(X, Y, S){
-		c.beginPath();
-		c.strokeStyle = this.colour;
-		c.lineWidth = S*0.2;
-		c.arc(X, Y, S*this.progress/3, 0, Math.PI*2);
-		c.stroke();
+		var circles = Math.floor(this.progress / 3) + 1;
+		for(var i = 0; i < circles; i += 1){
+			c.beginPath();
+			c.strokeStyle = this.colour;
+			c.lineWidth = S*0.2;
+			c.arc(X, Y, S*(this.progress - i*3)/3, 0, Math.PI*2);
+			c.stroke();
+		}
 	}
 	develop(){
 		this.progress += 1;
+		if(this.progress >= 4){
+			this.won = true;
+		}
 	}
-	kill(){
-		this.alive = false;
+	damage(){
+		this.progress -= 3;
+		if(this.progress <= 0){
+			this.alive = false;
+		}
 	}
 }
 
@@ -205,7 +215,7 @@ class Shift extends Draggable{
 	}
 }
 
-var allPieces = [LLine, RLine, ULine, DLine];
+var allPieces = [LLine, RLine, ULine, DLine, RDiag, LDiag];
 
 function newBag(){
 	var spawnerBag = [];

@@ -6,6 +6,7 @@ class Board{
 		this.margin = {"left": 0.2, "right": 1-0.05, "top": 0.1, "bottom": 1-0.03};
 		this.selected = [0, 1];
 		this.toAffect = [];
+		this.ended = false;
 	}
 
 	spawnAt(type, pos){
@@ -15,18 +16,24 @@ class Board{
 	}
 
 	spawnRand(type, exclude = []){
-		var X = round(random(0, this.size-1));
-		var Y = round(random(0, this.size-1));
+		var tries = 0;
 		console.log(exclude)
-		console.log([X, Y]);
-		var sameX = (element) => element[0] === X;
-		var sameY = (element) => element[1] === Y;
-		while(this.array[X][Y] !== false || (exclude.some(sameX) === true && exclude.some(sameY))){
-			X = round(random(0, this.size-1));
-			Y = round(random(0, this.size-1));
+		
+		while(true){
+			var X = round(random(0, this.size-1));
+			var Y = round(random(0, this.size-1));
 			console.log([X, Y]);
+			tries += 1;
+			// loops 10000 times trying to find a square that is not either already filled or just been affected
+			if( this.array[X][Y] === false && exclude.some((element) => JSON.stringify(element) === JSON.stringify([X, Y])) ){
+				console.log("found \n")
+				break
+			}
+			// after 10000 loops it gives up on excluding the ones that were just effected
+			if(tries > 10 && this.array[X][Y] === false){
+				break
+			}
 		}
-		console.log("found \n")
 		this.array[X][Y] = type;
 	}
 
@@ -36,7 +43,11 @@ class Board{
 			return 0;
 		}else{
 			explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), this.array[X][Y].colour, 15);
-			this.array[X][Y] = false; //.progress -= 2;
+
+			this.array[X][Y].damage()
+			if(this.array[X][Y].alive = false){
+				this.array[X][Y] = false;
+			}
 			return 1;
 		}
 	}
