@@ -7,6 +7,7 @@ class Board{
 		this.selected = [0, 1];
 		this.toAffect = [];
 		this.ended = false;
+		this.toSpawn = [];
 	}
 
 	spawnAt(type, pos){
@@ -17,20 +18,23 @@ class Board{
 
 	spawnRand(type, exclude = []){
 		var tries = 0;
-		console.log(exclude)
 		
 		while(true){
 			var X = round(random(0, this.size-1));
 			var Y = round(random(0, this.size-1));
-			console.log([X, Y]);
+			//console.log([X, Y]);
 			tries += 1;
 			// loops 10000 times trying to find a square that is not either already filled or just been affected
-			if( this.array[X][Y] === false && exclude.some((element) => JSON.stringify(element) === JSON.stringify([X, Y])) ){
-				console.log("found \n")
+			if( this.array[X][Y] === false && exclude.some((element) => JSON.stringify(element) === JSON.stringify([X, Y])) === false ){
+				console.log("found")
 				break
 			}
 			// after 10000 loops it gives up on excluding the ones that were just effected
-			if(tries > 10 && this.array[X][Y] === false){
+			if(tries > 1000 && this.array[X][Y] === false){
+				break
+			}
+			if(tries > 100000){ // after 100000 loops chances are there are no more square to place enemies
+				this.ended = true;
 				break
 			}
 		}
@@ -44,11 +48,25 @@ class Board{
 		}else{
 			explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), this.array[X][Y].colour, 15);
 
-			this.array[X][Y].damage()
+			this.array[X][Y].damage();
 			if(this.array[X][Y].alive = false){
 				this.array[X][Y] = false;
 			}
 			return 1;
+		}
+	}
+	shift(direction){ // direction is movement
+		for(var i = 0; i < 10; i +=1){ // go over board a few times
+			for(var x = 0; x < this.size; x += 1){
+				for(var y = 0; y < this.size; y += 1){
+					if( x+direction[0] >= 0 && x+direction[0] < this.size && y+direction[1] >= 0 && y+direction[1] < this.size){ // square to move to is on the board
+
+					}
+					if( this.array[x+direction[0]][y+direction[1]] === false ){
+
+					}
+				}
+			}
 		}
 	}
 	addAffecter(squares, offset){

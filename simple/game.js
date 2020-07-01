@@ -15,9 +15,10 @@ class Game{
 		this.multiplier = 1;
 		this.spawnRate = 1.3;
 		this.slots = 6;
-		this.minPieces = 1;
-		this.maxPieces = 3;
+		this.minPieces = 3;
+		this.maxPieces = 6;
 		this.progress();
+		this.debugUI = true;
 	}
 	execute(){
 		this.state();
@@ -41,7 +42,6 @@ class Game{
 		var placed = false;
 		for(var i = 0; i < this.currentPieces.length; i += 1){
 			if( this.currentPieces[i].update() === true && this.board.getOver(mousePos.x, mousePos.y) === true){
-				console.log(this.currentPieces[i])
 				placed = true;
 				this.board.addAffecter(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
 				this.currentPieces.splice(i, 1);
@@ -78,11 +78,11 @@ class Game{
 	progress(){
 		this.multiplier -= 0.1;
 		var killed = this.board.affectSquares();
-		this.multiplier += killed * 0.15
+		this.multiplier += killed * 0.9;
 		this.score += killed * this.multiplier;
 		this.board.progressAll();
 
-		this.spawnRate += 0.1
+		this.spawnRate += 0.05;
 		var toSpawn = round(this.spawnRate);
 		for(var i = 0; i < toSpawn; i += 1){
 			this.board.spawnRand(new Enemy(), this.board.toAffect);
@@ -96,6 +96,8 @@ class Game{
 		}
 	}
 	gameUI(){
-		showText("Score: "+round(this.score), canvas.width*0.9, canvas.height*0.05, canvas.width*0.015, "rgb(255, 255, 255)");
+		showText(`Score: ${round(this.score)}`, canvas.width*0.9, canvas.height*0.05, canvas.width*0.015, "rgb(255, 255, 255)");
+		showText(`Multiplier: ${this.multiplier}`, canvas.width*0.9, canvas.height*0.1, canvas.width*0.015, "rgb(255, 255, 255)")
+		showText(`Spawnrate: ${this.spawnRate}`, canvas.width*0.9, canvas.height*0.15, canvas.width*0.015, "rgb(255, 255, 255)")
 	}
 }

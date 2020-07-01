@@ -213,9 +213,12 @@ class Shift extends Draggable{
 		super(X, Y, S);
 		this.dir = dir;
 	}
+	draw(){
+		
+	}
 }
 
-var allPieces = [LLine, RLine, ULine, DLine, RDiag, LDiag];
+var allPieces = [LLine, RLine, ULine, DLine, RDiag, LDiag, VLine, HLine, Diamond, Around];
 
 function newBag(){
 	var spawnerBag = [];
