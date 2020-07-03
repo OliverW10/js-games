@@ -335,3 +335,29 @@ function shuffle(arra1) { // https://www.w3resource.com/javascript-exercises/jav
     }
     return arra1;
 }
+
+function drawLines(lines, width, colour, rounded = true, perc = true){ // takes an array of lines and draws them all
+	// if perc is true it will assume the values for lines are percentages of canvas size
+	// dont know if this works
+	var pos1 = [];
+	var pos2 = [];
+	for(var l = 0; l < lines.length; l+=1){
+		if(perc === true){
+			pos1 = [lines[l][0][0] * canvas.width, lines[l][0][1] * canvas.height]
+			pos2 = [lines[l][1][0] * canvas.width, lines[l][1][1] * canvas.height];
+		}else{
+			pos1 = lines[l][0];
+			pos2 = lines[l][1];
+		}
+		if(rounded === true){
+			roundedLine(pos1, pos2, width, colour);
+		}else{
+			c.beginPath();
+			c.strokeStyle = colour;
+			c.lineWidth = width;
+			c.moveTo(pos1[0], pos1[1]);
+			c.lineTo(pos2[0], pos2[1]);
+			c.stroke();
+		}
+	}
+}

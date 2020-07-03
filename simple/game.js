@@ -9,16 +9,18 @@ class Game{
 	constructor(){
 		this.state = this.main;
 		this.board = new Board(4);
+		this.board.spawnRand(new Enemy());
 		this.board.spawnRand(new Enemy())
 		this.currentPieces = [];
 		this.score = 0;
 		this.multiplier = 1;
-		this.spawnRate = 1.3;
+		this.spawnRate = 1.4;
 		this.slots = 6;
-		this.minPieces = 3;
+		this.minPieces = 2;
 		this.maxPieces = 6;
 		this.progress();
 		this.debugUI = true;
+		this.bin = new Bin(0.95, 0.9, 0.03);
 	}
 	execute(){
 		this.state();
@@ -49,14 +51,18 @@ class Game{
 					break
 				}
 			}else{
-				this.currentPieces[i].setBasePos(0.1, 1-((i+0.5)/this.slots));
+				this.currentPieces[i].setBasePos(0.07, 1-((i+0.5)/this.slots));
 			}
 			this.currentPieces[i].draw();
 		}
-		if(placed){
+		// progress everything is you have placed an object this frame
+		if(placed === true){
 			this.progress();
 		}
+		this.bin.draw();
+		//this.bin.hovering(mousePos.x, mousePos.y);
 
+		// deleting particles that are dead
 		var deleted = 0;
 		for(var x of particles){
 			x.update();
@@ -69,21 +75,18 @@ class Game{
 			}
 		}
 		this.gameUI();
-
-		if(lastSpawn === true && checkKey("KeyH") === false){
-			this.currentPieces.push(randPiece(0.1, 1))
-		}
-		lastSpawn = checkKey("KeyH");
 	}
 	progress(){
-		this.multiplier -= 0.1;
+		this.multiplier -= 1;
 		var killed = this.board.affectSquares();
-		this.multiplier += killed * 0.9;
+		console.log(killed);
+		this.multiplier += killed * 0.7;
+		this.multiplier = clip(this.multiplier, 1, 10);
 		this.score += killed * this.multiplier;
 		this.board.progressAll();
 
-		this.spawnRate += 0.05;
-		var toSpawn = round(this.spawnRate);
+		this.spawnRate += 0.025;
+		var toSpawn = round(random(this.spawnRate-1, this.spawnRate));
 		for(var i = 0; i < toSpawn; i += 1){
 			this.board.spawnRand(new Enemy(), this.board.toAffect);
 		}
@@ -91,13 +94,21 @@ class Game{
 
 		if(this.currentPieces.length <= this.minPieces){
 			for(var i = 0; i < this.maxPieces; i ++){
-				this.currentPieces.push(randPiece(0.1, 1));
+				this.currentPieces.push(randPiece(0.07, 1));
 			}
 		}
 	}
 	gameUI(){
-		showText(`Score: ${round(this.score)}`, canvas.width*0.9, canvas.height*0.05, canvas.width*0.015, "rgb(255, 255, 255)");
-		showText(`Multiplier: ${this.multiplier}`, canvas.width*0.9, canvas.height*0.1, canvas.width*0.015, "rgb(255, 255, 255)")
-		showText(`Spawnrate: ${this.spawnRate}`, canvas.width*0.9, canvas.height*0.15, canvas.width*0.015, "rgb(255, 255, 255)")
+		showText(`Score: ${round(this.score)}`, canvas.width*0.5, canvas.height*0.075, canvas.width*0.03, "rgb(230, 230, 230)");
+		if(this.debugUI === true){
+			showText(`Multiplier: ${this.multiplier}`, canvas.width*0.9, canvas.height*0.1, canvas.width*0.015, "rgb(255, 255, 255)");
+			showText(`Spawnrate: ${this.spawnRate}`, canvas.width*0.9, canvas.height*0.15, canvas.width*0.015, "rgb(255, 255, 255)");
+		}
+		var grd = c.createRadialGradient(canvas.width*0.5, canvas.height*0.5, 5, canvas.width*0.5, canvas.height*0.5, canvas.width*0.7);
+		grd.addColorStop(1, "rgba(0, 0, 0, 0.7)");
+		grd.addColorStop(0, "rgba(50, 50, 50, 0.3)");
+
+		c.fillStyle = grd;
+		c.fillRect(0, 0, canvas.width, canvas.height);
 	}
 }

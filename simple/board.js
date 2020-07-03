@@ -3,11 +3,14 @@ class Board{
 	constructor(size){
 		this.size = size;
 		this.array = createNdArray(false, [this.size, this.size]);// an array filled with Peices
-		this.margin = {"left": 0.2, "right": 1-0.05, "top": 0.1, "bottom": 1-0.03};
+		this.margin = {"left": 0.15, "right": 1-0.15, "top": 0.15, "bottom": 1-0.03};
 		this.selected = [0, 1];
+		this.selectedRect = [0, 0, 0, 0];
+		this.selectedSpeed = 0.7; // how much the selected rect moves towards where is should be each frame
 		this.toAffect = [];
 		this.ended = false;
 		this.toSpawn = [];
+		this.enemies = 0;
 	}
 
 	spawnAt(type, pos){
@@ -22,11 +25,9 @@ class Board{
 		while(true){
 			var X = round(random(0, this.size-1));
 			var Y = round(random(0, this.size-1));
-			//console.log([X, Y]);
 			tries += 1;
 			// loops 10000 times trying to find a square that is not either already filled or just been affected
 			if( this.array[X][Y] === false && exclude.some((element) => JSON.stringify(element) === JSON.stringify([X, Y])) === false ){
-				console.log("found")
 				break
 			}
 			// after 10000 loops it gives up on excluding the ones that were just effected
@@ -39,6 +40,7 @@ class Board{
 			}
 		}
 		this.array[X][Y] = type;
+		this.enemies += 1;
 	}
 
 	deleteAt(X, Y){
@@ -49,8 +51,9 @@ class Board{
 			explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), this.array[X][Y].colour, 15);
 
 			this.array[X][Y].damage();
-			if(this.array[X][Y].alive = false){
+			if(this.array[X][Y].alive === false){
 				this.array[X][Y] = false;
+				this.enemies -= 1;
 			}
 			return 1;
 		}
@@ -157,9 +160,49 @@ class Board{
 		this.selected = [X, Y];
 	}
 	drawSelected(){
+		this.selectedRect[0] = this.getSquareX(this.selected[0])*this.selectedSpeed + this.selectedRect[0] * (1-this.selectedSpeed);
+		this.selectedRect[1] = this.getSquareY(this.selected[1])*this.selectedSpeed + this.selectedRect[1] * (1-this.selectedSpeed);
+		this.selectedRect[2] = this.getSquareW();
+		this.selectedRect[3] = this.getSquareH();
 		c.beginPath();
-		c.fillStyle = "rgb(255, 255, 255, 0.2)";
-		c.rect(this.getSquareX(this.selected[0]), this.getSquareY(this.selected[1]), this.getSquareW(), this.getSquareH());
+		var outerSize = dist(mousePos.x, mousePos.y, this.selectedRect[0] + this.selectedRect[2]/2, this.selectedRect[1]+this.selectedRect[3]/2)
+		var selPos = [this.selectedRect[0] + this.selectedRect[2]/2, this.selectedRect[1]+this.selectedRect[3]/2];
+		var grd = c.createRadialGradient(selPos[0], selPos[1], 0, selPos[0], selPos[1], this.selectedRect[2]/2);
+		grd.addColorStop(1, "rgba(0, 0, 0, 0.7)");
+		grd.addColorStop(0, "rgba(50, 50, 50)");
+
+		c.fillStyle = grd;
+		//c.rect(this.selectedRect[0], this.selectedRect[1], this.selectedRect[2], this.selectedRect[3]);
+		c.rect(0, 0, canvas.width, canvas.height);
 		c.fill();
 	}
+}
+
+class Bin{
+	constructor(X, Y, S){
+		this.Xp = X;
+		this.Yp = Y;
+		this.Sp = S;
+		this.scale = 1;
+	}
+	updatePos(){
+		this.scale = this.scale*0.4 + this.scaleAim * 0.6;
+		this.X = this.Xp*canvas.width;
+		this.Y = this.Yp*canvas.height;
+		this.S = this.Sp*canvas.width*this.scale;
+	}
+	draw(){
+		this.updatePos();
+		roundedLine([this.X-this.S, this.Y-this.S], [this.X+this.S, this.Y-this.S], this.S*0.1, "rgb(200, 200, 200)");
+		roundedLine([this.X-this.S*0.5, this.Y+this.S], [this.X+this.S*0.5, this.Y+this.S], this.S*0.1, "rgb(200, 200, 200)");
+		roundedLine([this.X-this.S, this.Y-this.S], [this.X-this.S*0.5, this.Y+this.S], this.S*0.1, "rgb(200, 200, 200)");
+		roundedLine([this.X+this.S, this.Y-this.S], [this.X+this.S*0.5, this.Y+this.S], this.S*0.1, "rgb(200, 200, 200)");
+	}
+	// hovering(X, Y){ // checks if the mouse is hovering over the bin
+	// 	if(collidePoint([X, Y], [this.X-this.S, this.Y-this.S, this.S*2, this.S*2])){
+	// 		//this.scaleAim = 1.5;
+	// 	}else{
+	// 		//this.scaleAim = 1;
+	// 	}
+	// }
 }
