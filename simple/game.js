@@ -14,13 +14,14 @@ class Game{
 		this.currentPieces = [];
 		this.score = 0;
 		this.multiplier = 1;
-		this.spawnRate = 1.4;
+		this.spawnRate = 1.49;
 		this.slots = 6;
-		this.minPieces = 2;
+		this.minPieces = 3;
 		this.maxPieces = 6;
 		this.progress();
 		this.debugUI = true;
 		this.bin = new Bin(0.95, 0.9, 0.03);
+		this.toSpawn = 1;
 	}
 	execute(){
 		this.state();
@@ -43,12 +44,19 @@ class Game{
 
 		var placed = false;
 		for(var i = 0; i < this.currentPieces.length; i += 1){
-			if( this.currentPieces[i].update() === true && this.board.getOver(mousePos.x, mousePos.y) === true){
-				placed = true;
-				this.board.addAffecter(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
-				this.currentPieces.splice(i, 1);
-				if(i >= this.currentPieces.length){
-					break
+			if( this.currentPieces[i].update() === true){
+				if(this.board.getOver(mousePos.x, mousePos.y) === true){
+					placed = true;
+					this.board.addAffecter(this.currentPieces[i].affects, [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]);
+					this.currentPieces.splice(i, 1);
+					if(i >= this.currentPieces.length){
+						break
+					}
+				}else if(this.bin.hovering(mousePos.x, mousePos.y) === true){
+					this.currentPieces.splice(i, 1);
+					if(i >= this.currentPieces.length){
+						break
+					}
 				}
 			}else{
 				this.currentPieces[i].setBasePos(0.07, 1-((i+0.5)/this.slots));
@@ -60,7 +68,7 @@ class Game{
 			this.progress();
 		}
 		this.bin.draw();
-		//this.bin.hovering(mousePos.x, mousePos.y);
+		this.bin.hovering(mousePos.x, mousePos.y); // also sets size
 
 		// deleting particles that are dead
 		var deleted = 0;
@@ -86,23 +94,24 @@ class Game{
 		this.board.progressAll();
 
 		this.spawnRate += 0.025;
-		var toSpawn = round(random(this.spawnRate-1, this.spawnRate));
-		for(var i = 0; i < toSpawn; i += 1){
+		for(var i = 0; i < this.toSpawn; i += 1){
 			this.board.spawnRand(new Enemy(), this.board.toAffect);
 		}
 		this.board.resetAffects();
 
 		if(this.currentPieces.length <= this.minPieces){
-			for(var i = 0; i < this.maxPieces; i ++){
+			while(this.currentPieces.length < this.maxPieces){
 				this.currentPieces.push(randPiece(0.07, 1));
 			}
 		}
+		this.toSpawn = round(random(this.spawnRate-1, this.spawnRate)); // sets for next turn
 	}
 	gameUI(){
 		showText(`Score: ${round(this.score)}`, canvas.width*0.5, canvas.height*0.075, canvas.width*0.03, "rgb(230, 230, 230)");
 		if(this.debugUI === true){
 			showText(`Multiplier: ${this.multiplier}`, canvas.width*0.9, canvas.height*0.1, canvas.width*0.015, "rgb(255, 255, 255)");
 			showText(`Spawnrate: ${this.spawnRate}`, canvas.width*0.9, canvas.height*0.15, canvas.width*0.015, "rgb(255, 255, 255)");
+			showText(`toSpawn: ${this.toSpawn}`, canvas.width*0.9, canvas.height*0.2, canvas.width*0.015, "rgb(255, 255, 255)");
 		}
 		var grd = c.createRadialGradient(canvas.width*0.5, canvas.height*0.5, 5, canvas.width*0.5, canvas.height*0.5, canvas.width*0.7);
 		grd.addColorStop(1, "rgba(0, 0, 0, 0.7)");

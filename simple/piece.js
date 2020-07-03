@@ -65,7 +65,7 @@ class Draggable{
 			}
 		}else{
 			this.Y = this.fallPos;
-			this.fallVel += 0.01;
+			this.fallVel += 0.005;
 			this.fallPos += this.fallVel;
 		}
 		return false
