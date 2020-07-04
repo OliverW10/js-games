@@ -12,80 +12,50 @@
 	</script>
 
 	<title>Olikat Games</title>
-	<style type="text/css">
-		/*
-		https://coolors.co/223843-eff1f3-dbd3d8-d8b4a0-d77a61
-		*/
-		body {
-			margin: 0px;
-			background-color: #223843;
-		}
-		.links{
-			color: rgb(60, 60, 40);/*#D77A61;*/
-			background-color: rgb(200, 190, 50);
-			position: relative;
-			border-style: solid;
-			border-color: rgb(100, 90, 10);
-			border-width: 3px;
-			float: left;
-			left: 450px;
-			top: -10px;
-		}
-		.games{
-			position: absolute;
-			text-align: center;
-			display: block
-			z-index: 10000;
-			right: 10px;
-			top: 150px;
-		}
-		.desc{
-			position: relative;
-			color: white;
-			top: -20px;
-		}
-		#logo{
-			position: relative;
-			display: block;
-			margin: auto;
-			width: 115px;
-			right: 0%;
-			align-content: center
-		}
-		#topBar{
-			background-color: #304f5e;
-		}
-		#sourceLink{
-			
-		}
-	</style>
+	<link rel='stylesheet' type='text/css' href='style.css'>
 </head>
 <body>
 	<div id="topBar">
 		<div id="logo">
-			<img src="images/logo.png">
+			<a href="index.html">
+				<img src="images/logo.png">
+			</a>
 		</div>
-		<div id="">
+		<div id="barLinks">
 			<a class="links" id="sourceLink" href="https://github.com/OliverW10/OliverW10.github.io"><h3>Source code</h3></a>
+			<a class="links" id="aboutLink" href="about.html"><h3>About</h3></a>
+			<a class="links" id="contactLink" href="contact.html"><h3>Contact</h3></a>
 		</div>
 	</div>
 	<div class="games">
-		<a href="tennis/index.html" id="tennisButton">
-			<img src="images/tennis_thumb.png" width="400" height="300">
-			<p class="desc">Play tennis in this weird black and white <br> heavan-like place (with nice brids and mountains)</p>
-		</a>
-		<a href="simple/index.html" id="simpleButton">
-			<img src="images/simple_thumb.png" width="400" height="300">
-			<p class="desc">New game, dosent have name yet</p>
-		</a>
-		<a href="racer/race.html" id="racerButton">
-			<img src="images/racer_thumb.png" width="400" height="300">
-			<p class="desc">Race a car around a track as fast as <br> possible, beat your times and get gold!</p>
-		</a>
-		<a href="https://olikat.itch.io/" id="itchButton">
-			<img src="images/itch.png" width="400" height="300">
-			<p class="desc">Some of my older games on itch.io</p>
-		</a>
+		<div id="tonnis" class="game">
+			<a href="tennis/index.html" id="tennisButton">
+				<img src="images/tennis_thumb.png" width="400" height="300" class="imageLink">
+				<h2 class="gameTitles">Tönnis</h2>
+				<p class="desc">Play tennis in this weird monochrome <br> heavan-like place (with nice brids and mountains)</p>
+			</a>
+		</div>
+		<div id="simple" class="game">
+			<a href="simple/index.html" id="simpleButton">
+				<img src="images/simple_thumb.png" width="400" height="300" class="imageLink">
+				<h2 class="gameTitles">Needs name</h2>
+				<p class="desc">New game, dosent have name yet</p>
+			</a>
+		</div>
+		<div id="racer" class="game">
+			<a href="racer/race.html" id="racerButton">
+				<img src="images/racer_thumb.png" width="400" height="300" class="imageLink">
+				<h2 class="gameTitles">Time Trials racing</h2>
+				<p class="desc">Race a car around a track as fast as <br> possible, beat your times and get gold!</p>
+			</a>
+		</div>
+		<div id="itch" class="game">
+			<a href="https://olikat.itch.io/" id="itchButton">
+				<img src="images/itch.png" width="400" height="300" class="imageLink">
+				<h2 class="gameTitles">Ithc.io link</h2>
+				<p class="desc">Some of my older games on itch.io</p>
+			</a>
+		</div>
 	</div>
 	<script src="animations.js"></script>
 </body>
