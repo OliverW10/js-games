@@ -1,12 +1,12 @@
 // a class to store a state of a board
 class Board{
 	constructor(sizes){
-		this.size = [sizes, sizes+1];
+		this.size = [sizes[0], sizes[1]];
 		this.array = createNdArray(false, [this.size[1], this.size[0]]);// an array filled with Peices
 		this.margin = {"left": 0.15, "right": 1-0.15, "top": 0.15, "bottom": 1-0.03};
 		this.selected = [0, 1];
 		this.selectedRect = [0, 0, 0, 0];
-		this.selectedSpeed = 0.7; // how much the selected rect moves towards where is should be each frame
+		this.selectedSpeed = 1; // how much the selected rect moves towards where is should be each frame
 		this.toAffect = [];
 		this.ended = false;
 		this.toSpawn = [];
@@ -106,7 +106,7 @@ class Board{
 		for(var i = 1; i < this.size[0]; i += 1){ //vertical lines
 			roundedLine([this.getSquareX(i), this.getSquareY(0)], [this.getSquareX(i), this.getSquareY(this.size[1])], canvas.width*0.01, "rgb(50, 50, 50)");
 		}
-		for(var i = 0; i < this.size[1]; i += 1){ // horizontal lines
+		for(var i = 1; i < this.size[1]; i += 1){ // horizontal lines
 			roundedLine([this.getSquareX(0), this.getSquareY(i)], [this.getSquareX(this.size[0]), this.getSquareY(i)], canvas.width*0.01, "rgb(50, 50, 50)");
 		}
 	}
