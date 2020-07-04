@@ -202,6 +202,9 @@ class Game{
 	}
 
 	execute(){
+		c.beginPath();
+		c.fillStyle = "rgb(255, 255, 255)";
+		c.fillRect(0, 0, canvas.width, canvas.height);
 		this.state();
 		lastMousePos = {"x":mousePos.x, "y":mousePos.y};
 	}
