@@ -19,7 +19,7 @@ class Game{
 		this.minPieces = 3;
 		this.maxPieces = 6;
 		this.progress();
-		this.debugUI = true;
+		this.debugUI = false;
 		this.bin = new Bin(0.95, 0.9, 0.03);
 		this.toSpawn = 1;
 	}
