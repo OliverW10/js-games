@@ -9,8 +9,8 @@ class Board{
 		this.selectedSpeed = 1; // how much the selected rect moves towards where is should be each frame
 		this.toAffect = [];
 		this.ended = false;
-		this.toSpawn = [];
 		this.enemies = 0;
+		this.toSpawnPos = [] // stored as [X, Y, axisToShow]
 	}
 
 	spawnAt(type, pos){
@@ -100,6 +100,7 @@ class Board{
 	draw(){
 		this.drawBoard();
 		this.drawPieces();
+		this.drawUpcoming();
 	}
 
 	drawBoard(){
@@ -120,6 +121,16 @@ class Board{
 					this.array[x][y].draw(this.getSquareX(x)+this.getSquareW()/2, this.getSquareY(y)+this.getSquareH()/2, Math.min(this.getSquareW(), this.getSquareH())/3);
 				}
 			}
+		}
+	}
+
+	drawUpcoming(){
+		for(var i = 0; i < this.toSpawnPos.length; i += 1){
+			var X = this.getSquareX(this.toSpawnPos[i][0]);
+			var Y = this.getSquareY(this.toSpawnPos[i][1]);
+			var W = this.getSquareW();
+			var H = this.getSquareH();
+			drawGlow(X+W/2, Y+H/2, W*0.6, 0.4, [150, 20, 20])
 		}
 	}
 
@@ -175,9 +186,38 @@ class Board{
 		grd.addColorStop(0, "rgba(50, 50, 50)");
 
 		c.fillStyle = grd;
-		//c.rect(this.selectedRect[0], this.selectedRect[1], this.selectedRect[2], this.selectedRect[3]);
-		c.rect(0, 0, canvas.width, canvas.height);
+		c.rect(this.selectedRect[0], this.selectedRect[1], this.selectedRect[2], this.selectedRect[3]);
 		c.fill();
+	}
+
+	pickNextSpawns(num){ // chooses where the enemies will spawn on next turn
+		this.toSpawnPos = [];
+		var X = 0;
+		var Y = 0;
+		for(var i = 0; i < num; i += 1){
+			X = Math.floor(random(0, this.size[0]));
+			Y = Math.floor(random(0, this.size[1]));
+			var tries = 0;
+			while(true){ // simplifies logic doing it this way for my dumb brain
+				X = Math.floor(random(0, this.size[0]));
+				Y = Math.floor(random(0, this.size[1]));
+				tries += 1;
+				if(this.array[X][Y] === false && this.toSpawnPos.some((element) => JSON.stringify(element) === JSON.stringify([X, Y])) === false ){ // have to jsonify beacuse [] == [] is false 
+					this.toSpawnPos.push([X, Y, round(random(0, 1))]);
+					break
+				}
+				if(tries >= 10000){
+					this.ended = true;
+					break
+				}
+			}
+		}
+	}
+	spawn(type){
+		for(var i = 0; i < this.toSpawnPos.length; i += 1){
+			this.array[this.toSpawnPos[i][0]][this.toSpawnPos[i][1]] = type;
+			this.enemies += 1;
+		}
 	}
 }
 

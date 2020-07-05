@@ -296,7 +296,7 @@ function drawGlow(X, Y, size, brightness, col=[255, 255, 255]){
 	c.beginPath();
 	var glow = c.createRadialGradient(X, Y, 0, X, Y, size);
 	glow.addColorStop(0, "rgba("+col[0]+", "+col[1]+","+col[2]+","+brightness+")")
-	glow.addColorStop(1, "rgba("+255+", "+255+","+255+", 0)")
+	glow.addColorStop(1, "rgba("+col[0]+", "+col[1]+","+col[2]+",0)")
 	c.fillStyle = glow;
 	c.fillRect(X-size, Y-size, size*2, size*2);
 }
