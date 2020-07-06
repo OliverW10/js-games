@@ -100,7 +100,7 @@ class Board{
 	draw(){
 		this.drawBoard();
 		this.drawPieces();
-		this.drawUpcoming();
+		//this.drawUpcoming();
 	}
 
 	drawBoard(){
@@ -131,6 +131,15 @@ class Board{
 			var W = this.getSquareW();
 			var H = this.getSquareH();
 			drawGlow(X+W/2, Y+H/2, W*0.6, 0.4, [150, 20, 20])
+			// c.beginPath();
+			// c.strokeStyle = "rgb(150, 20, 20)";
+			// c.lineWidth = W*0.1;
+			// if(this.toSpawnPos[i][2] === 1){
+			// 	c.arc(this.getSquareX(this.size[0]+1)+W/2, Y+H/2, W*0.4, 0, Math.PI*2);
+			// }else{
+			// 	c.arc(X+W/2, this.getSquareY(this.size[1]+1)+H/2, W*0.4, 0, Math.PI*2);
+			// }
+			// c.stroke();
 		}
 	}
 
@@ -192,6 +201,28 @@ class Board{
 
 	pickNextSpawns(num){ // chooses where the enemies will spawn on next turn
 		this.toSpawnPos = [];
+		var X = 0;
+		var Y = 0;
+		for(var i = 0; i < num; i += 1){
+			X = Math.floor(random(0, this.size[0]));
+			Y = Math.floor(random(0, this.size[1]));
+			var tries = 0;
+			while(true){ // simplifies logic doing it this way for my dumb brain
+				X = Math.floor(random(0, this.size[0]));
+				Y = Math.floor(random(0, this.size[1]));
+				tries += 1;
+				if(this.array[X][Y] === false && this.toSpawnPos.some((element) => JSON.stringify(element) === JSON.stringify([X, Y])) === false ){ // have to jsonify beacuse [] == [] is false 
+					this.toSpawnPos.push([X, Y, round(random(0, 1))]);
+					break
+				}
+				if(tries >= 10000){
+					this.ended = true;
+					break
+				}
+			}
+		}
+	}
+	addNextSpawn(num){
 		var X = 0;
 		var Y = 0;
 		for(var i = 0; i < num; i += 1){

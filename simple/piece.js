@@ -42,13 +42,15 @@ class Draggable{
 		this.fallPos = -S;
 		this.fallVel = 0;
 	}
-	update(){ // returns true when it has been placed
+	update(cantPickup = true){ // returns true when it has been placed
 		if(this.fallPos >= this.startY){
 			this.falling = false;
 			this.Y = this.startY;
 		}
 		if(this.falling === false){
-			if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], [this.X-this.size, this.Y-this.size, this.size*2, this.size*2]) === true && mouseButtons[0] === true && this.held === false){
+			if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], [this.X-this.size, this.Y-this.size, this.size*2, this.size*2]) === true
+				&& mouseButtons[0] === true && this.held === false
+				&& cantPickup === false){
 				this.held = true;
 			}
 			if(this.held == true){
@@ -239,4 +241,9 @@ function randPiece(X, Y, S){
 	var output = new allPieces[spawnerBag[indx]](X, Y, S);
 	spawnerBag.splice(indx, 1);
 	return output
+}
+
+
+class Piece{ // a container to that holds one or more draggable's 
+
 }
