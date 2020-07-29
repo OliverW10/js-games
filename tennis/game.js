@@ -730,7 +730,11 @@ class Game{
 			var submitName = getLeaderboardName()
 			if(submitName !== false){
 				saveMoney();
-				sendScore(money, submitName);
+				if(money >= 10000){
+					window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+				}else{
+					sendScore(money, submitName);
+				}
 			}
 		}
 		leaderboardSubmitButton.draw()

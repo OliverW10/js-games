@@ -624,6 +624,29 @@ class TutorialCompetition extends BaseCompetition{
 	}
 }
 
+class accuracyCompetition extends BaseCompetition{
+	constructor(players, difficulty, price){
+		super(players, difficulty, price, [0.35, 0.2, 0.3, 0.2]);
+		this.progress = 0;
+		this.aimProgress = 0;
+		this.type = "accuracy"; // so it works with old stuff for now
+		this.points = 0
+	}
+	getWinnings(){
+		this.winnings = this.points * this.price;
+		return this.winnings;
+	}
+	draw(){
+		showText("Accuracy Test", canvas.width/2, canvas.height*0.1, canvas.height*0.1, true, true);
+
+		showText("Current Prize: "+round(knockoutRatios[(this.maxDepth-this.aimProgress)+1]*this.price), canvas.width*0.333, canvas.height*0.9, canvas.width*0.02);
+
+		showText("Next Prize: "+round(knockoutRatios[(this.maxDepth-this.aimProgress)]*this.price), canvas.width*0.666, canvas.height*0.9, canvas.width*0.02); // *(0.666+this.progress%1*0.333)
+
+		// showText("Next Prize: "+round(knockoutRatios[(this.maxDepth-this.aimProgress)-1]*this.price), canvas.width*(1+this.progress%1*0.333), canvas.height*0.9, canvas.width*0.02);
+	}
+}
+
 
 function drawKnockoutIcon(X, Y, S, colour = "rgb(100, 100, 100)"){
 	c.beginPath();
