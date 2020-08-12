@@ -130,16 +130,16 @@ class Board{
 			var Y = this.getSquareY(this.toSpawnPos[i][1]);
 			var W = this.getSquareW();
 			var H = this.getSquareH();
-			drawGlow(X+W/2, Y+H/2, W*0.6, 0.4, [150, 20, 20])
-			// c.beginPath();
-			// c.strokeStyle = "rgb(150, 20, 20)";
-			// c.lineWidth = W*0.1;
-			// if(this.toSpawnPos[i][2] === 1){
-			// 	c.arc(this.getSquareX(this.size[0]+1)+W/2, Y+H/2, W*0.4, 0, Math.PI*2);
-			// }else{
-			// 	c.arc(X+W/2, this.getSquareY(this.size[1]+1)+H/2, W*0.4, 0, Math.PI*2);
-			// }
-			// c.stroke();
+			c.beginPath();
+			c.strokeStyle = "rgb(150, 20, 20)";
+			c.lineWidth = W*0.025;
+			if(this.toSpawnPos[i][2] === 1){
+				c.arc(this.getSquareX(this.size[0]+0.5), Y+H/2, W*0.1, 0, Math.PI*2);
+			}else{
+				c.arc(X+W/2, this.getSquareY(this.size[1]+0.5), W*0.1, 0, Math.PI*2);
+			}
+			
+			c.stroke();
 		}
 	}
 
@@ -212,7 +212,7 @@ class Board{
 				Y = Math.floor(random(0, this.size[1]));
 				tries += 1;
 				if(this.array[X][Y] === false && this.toSpawnPos.some((element) => JSON.stringify(element) === JSON.stringify([X, Y])) === false ){ // have to jsonify beacuse [] == [] is false 
-					this.toSpawnPos.push([X, Y, round(random(0, 1))]);
+					this.toSpawnPos.push([X, Y, round(1)]);
 					break
 				}
 				if(tries >= 10000){

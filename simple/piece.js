@@ -9,9 +9,15 @@ class Enemy{
 		var circles = Math.floor(this.progress / 3) + 1;
 		for(var i = 0; i < circles; i += 1){
 			c.beginPath();
-			c.strokeStyle = this.colour;
+			c.strokeStyle = blendCols(this.colour, "rgb(0, 0, 0)", 0.5);
 			c.lineWidth = S*0.2;
 			c.arc(X, Y, S*(this.progress - i*3)/3, 0, Math.PI*2);
+			c.stroke();
+
+			c.beginPath();
+			c.strokeStyle = this.colour;
+			c.lineWidth = S*0.2;
+			c.arc(X-canvas.width*0.003, Y-canvas.height*0.003, S*(this.progress - i*3)/3, 0, Math.PI*2);
 			c.stroke();
 		}
 	}
@@ -38,17 +44,20 @@ class Draggable{
 		this.X = X;
 		this.Y = Y;
 		this.size = S;
+		this.baseSize = S;
 		this.falling = fall;
 		this.fallPos = -S;
 		this.fallVel = 0;
+		this.hovered = false;
 	}
 	update(cantPickup = true){ // returns true when it has been placed
+		this.hovered = collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], [this.X-this.size, this.Y-this.size, this.size*2, this.size*2])
 		if(this.fallPos >= this.startY){
 			this.falling = false;
 			this.Y = this.startY;
 		}
 		if(this.falling === false){
-			if(collidePoint([mousePos.x/canvas.width, mousePos.y/canvas.height], [this.X-this.size, this.Y-this.size, this.size*2, this.size*2]) === true
+			if(this.hovered === true
 				&& mouseButtons[0] === true && this.held === false
 				&& cantPickup === false){
 				this.held = true;
@@ -83,148 +92,102 @@ class Draggable{
 	}
 }
 
-class LLine extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[-1, 0], [-2, 0], [-3, 0], [-4, 0]]
-		this.colour = "rgb(20, 150, 20)";
+class Piece extends Draggable{
+	constructor(data, pos = [0, 0]){ // type as false for random
+		super(...pos);
+		this.lines = data.lines;
+		this.affects = data.affects;
+		this.colour = data.colour;
+		this.colours = [data.colour]
+		this.scale = 1;
+		this.scaleAim = 1;
 	}
-	draw(){
-		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width - this.size*canvas.width*0.2, this.Y*canvas.height - this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width - this.size*canvas.width*0.2, this.Y*canvas.height + this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
+	toData(){
+		return {"affects":this.affects, "colour":this.colour, "lines":this.lines, "chance":10}
 	}
-}
-
-class RLine extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[1, 0], [2, 0], [3, 0], [4, 0]];
-		this.colour = "rgb(20, 20, 150)";
-	}
-	draw(){
-		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width*0.2, this.Y*canvas.height - this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width*0.2, this.Y*canvas.height + this.size*canvas.width*0.5], this.size*canvas.width*0.2, this.colour);
-	}
-}
-
-class ULine extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[0, -1], [0, -2], [0, -3], [0, -4]];
-		this.colour = "rgb(150, 150, 20)";
-	}
-	draw(){
-		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width + this.size*canvas.width*0.5, this.Y*canvas.height - this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width - this.size*canvas.width*0.5, this.Y*canvas.height - this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
-	}
-}
-class DLine extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[0, 1], [0, 2], [0, 3], [0, 4]];
-		this.colour = "rgb(150, 20, 150)";
-	}
-	draw(){
-		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], [this.X*canvas.width + this.size*canvas.width*0.5, this.Y*canvas.height + this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
-		roundedLine([this.X*canvas.width, this.Y*canvas.height + this.size*canvas.width], [this.X*canvas.width - this.size*canvas.width*0.5, this.Y*canvas.height + this.size*canvas.width*0.2], this.size*canvas.width*0.2, this.colour);
-	}
-}
-
-class HLine extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[-1, 0], [-2, 0], [-3, 0], [-4, 0], [1, 0], [2, 0], [3, 0], [4, 0]]
-	}
-	draw(){
-		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height], [this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height], this.size*canvas.width*0.2, "rgb(20, 150, 20)")
-	}
-}
-
-class VLine extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[0, -1], [0, -2], [0, -3], [0, -4], [0, 1], [0, 2], [0, 3], [0, 4]]
-	}
-	draw(){
-		roundedLine([this.X*canvas.width, this.Y*canvas.height - this.size*canvas.height], [this.X*canvas.width, this.Y*canvas.height + this.size*canvas.height], this.size*canvas.width*0.2, "rgb(20, 20, 150)")
-	}
-}
-
-class Around extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
-	}
-	draw(){
+	drawLines(offset = [0, 0], colourOffset = 0){
+		if(this.hovered === true){
+			this.scaleAim = 1.25;
+		}else{
+			this.scaleAim = 1;
+		}
+		this.scale = this.scale*0.7 + this.scaleAim*0.3;
+		this.size = this.baseSize * this.scale;
 		var X = this.X*canvas.width;
 		var Y = this.Y*canvas.height;
-		var W = this.size*canvas.width;
-		var H = this.size*canvas.width;
-		var col = "rgb(150, 150, 150)";
-		roundedLine([X-W/2, Y-H/2], [X+W/2, Y-H/2], this.size*canvas.width*0.2, col);
-		roundedLine([X+W/2, Y-H/2], [X+W/2, Y+H/2], this.size*canvas.width*0.2, col);
-		roundedLine([X+W/2, Y+H/2], [X-W/2, Y+H/2], this.size*canvas.width*0.2, col);
-		roundedLine([X-W/2, Y-H/2], [X-W/2, Y+H/2], this.size*canvas.width*0.2, col);
-	}
-}
-
-class RDiag extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[-1, -1], [-2, -2], [-3, -3], [-4, -4], [1, 1], [2, 2], [3, 3], [4, 4]]
+		var S = this.size*canvas.width;
+		for(var i = 0; i < this.lines.length; i += 1){
+			roundedLine([X + S*this.lines[i][0]+offset[0], Y + S*this.lines[i][1]+offset[1]], [X + S*this.lines[i][2]+offset[0], Y + S*this.lines[i][3]+offset[1]], S*0.2, blendCols(this.colour, "rgb(0, 0, 0)", colourOffset));
+		}
 	}
 	draw(){
-		roundedLine([this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, "rgb(20, 150, 150)")
+		this.drawLines([canvas.width*0.003, canvas.height*0.003], 0.5);
+		this.drawLines();
+	}
+	merge(data){
+		this.lines.push(data.lines);
+		this.affects.push(data.affects);
+		this.colours.push(data.colour);
+		this.colour = avgCols(this.colours);
+		console.log(this.colours, this.colour)
 	}
 }
 
-class LDiag extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[-1, 1], [-2, 2], [-3, 3], [-4, 4], [1, -1], [2, -2], [3, -3], [4, -4]]
-	}
-	draw(){
-		roundedLine([this.X*canvas.width + this.size*canvas.width, this.Y*canvas.height - this.size*canvas.width], [this.X*canvas.width - this.size*canvas.width, this.Y*canvas.height + this.size*canvas.width], this.size*canvas.width*0.2, "rgb(150, 20, 150)")
-	}
-}
+var pieceData = {};
 
-class Diamond extends Draggable{
-	constructor(X, Y, S){
-		super(X, Y, S);
-		this.affects = [[-1, 0], [0, -1], [1, 0], [0, 1]];
-	}
-	draw(){
-		var X = this.X*canvas.width;
-		var Y = this.Y*canvas.height;
-		var W = this.size*canvas.width;
-		var H = this.size*canvas.width;
-		var col = "rgb(150, 150, 20)";
-		roundedLine([X, Y-H/2], [X+W/2, Y], this.size*canvas.width*0.2, col);
-		roundedLine([X, Y+H/2], [X+W/2, Y], this.size*canvas.width*0.2, col);
-		roundedLine([X, Y+H/2], [X-W/2, Y], this.size*canvas.width*0.2, col);
-		roundedLine([X-W/2, Y], [X, Y-H/2], this.size*canvas.width*0.2, col);
-	}
-}
+pieceData.LLine = {"affects":[[-1, 0], [-2, 0], [-3, 0], [-4, 0]],
+"colour":"rgb(20, 150, 20)",
+"lines":[[-1, 0, 1, 0], [-1, 0, -0.2, -0.5], [-1, 0, -0.2, 0.5]],
+"chance":10}
 
-class Shift extends Draggable{
-	constructor(X, Y, S, dir){
-		super(X, Y, S);
-		this.dir = dir;
-	}
-	draw(){
-		
-	}
-}
+pieceData.RLine = {"affects":[[1, 0], [2, 0], [3, 0], [4, 0]],
+"colour":"rgb(20, 20, 150)",
+"lines":[[1, 0, -1, 0], [1, 0, 0.2, -0.5], [1, 0, 0.2, 0.5]],
+"chance": 10}
 
-var allPieces = [LLine, RLine, ULine, DLine, RDiag, LDiag, VLine, HLine, Diamond, Around];
+pieceData.ULine = {"affects":[[0, -1], [0, -2], [0, -3], [0, -4]],
+"colour": "rgb(150, 150, 20)",
+"lines":[[0, -1, 0, 1], [0, -1, 0.5, -0.2], [0, -1, -0.5, -0.2]],
+"chance":10}
+
+pieceData.DLine = {"affects":[[0, 1], [0, 2], [0, 3], [0, 4]],
+"colour" : "rgb(150, 20, 150)",
+"lines":[[0, -1, 0, 1], [0, 1, 0.5, 0.2], [0, 1, -0.5, 0.2]],
+"chance":10}
+
+pieceData.HLine = {"affects":[[-1, 0], [-2, 0], [-3, 0], [-4, 0], [1, 0], [2, 0], [3, 0], [4, 0]],
+"colour":"rgb(20, 150, 20)",
+"lines":[[-1, 0, 1, 0]],
+"chance":10}
+
+pieceData.VLine = {"affects":[[0, -1], [0, -2], [0, -3], [0, -4], [0, 1], [0, 2], [0, 3], [0, 4]],
+"colour":"rgb(20, 20, 150)",
+"lines":[[0, -1, 0, 1]],
+"chance":10}
+
+pieceData.Around = {"affects":[[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]],
+"colour":"rgb(150, 150, 150)",
+"lines":[[-0.5, -0.5, 0.5, -0.5], [0.5, -0.5, 0.5, 0.5], [0.5, 0.5, -0.5, 0.5], [-0.5, -0.5, -0.5, 0.5]],
+"chance":10}
+
+pieceData.RDiag = {"affects":[[-1, -1], [-2, -2], [-3, -3], [-4, -4], [1, 1], [2, 2], [3, 3], [4, 4]],
+"colour":"rgb(20, 150, 150)",
+"lines":[[-1, -1, 1, 1]],
+"chance": 10}
+
+pieceData.LDiag = {"affects":[[-1, 1], [-2, 2], [-3, 3], [-4, 4], [1, -1], [2, -2], [3, -3], [4, -4]],
+"colour":"rgb(150, 20, 150)",
+"lines":[[1, -1, -1, 1]],
+"chance":10}
+
+pieceData.Diamond = {"affects":[[-1, 0], [0, -1], [1, 0], [0, 1]],
+"colour":"rgb(150, 150, 20)",
+"lines":[[0, -0.5, 0.5, 0], [0, 0.5, 0.5, 0], [0, 0.5, -0.5, 0], [-0.5, 0, 0, -0.5]],
+"chance":10}
 
 function newBag(){
 	var spawnerBag = [];
-	for(var i = 0; i< allPieces.length; i += 1){
+	for(var i = 0; i< Object.keys(pieceData).length; i += 1){
 		spawnerBag.push(i)
 	}
 	return spawnerBag
@@ -238,12 +201,7 @@ function randPiece(X, Y, S){
 		console.log("replenished bag");
 	}
 	var indx = Math.floor(random(0, spawnerBag.length))
-	var output = new allPieces[spawnerBag[indx]](X, Y, S);
+	var output = new Piece(pieceData[Object.keys(pieceData)[spawnerBag[indx]]], [X, Y, S]);//new allPieces[spawnerBag[indx]](X, Y, S);
 	spawnerBag.splice(indx, 1);
 	return output
-}
-
-
-class Piece{ // a container to that holds one or more draggable's 
-
 }

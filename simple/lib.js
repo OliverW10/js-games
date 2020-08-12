@@ -85,14 +85,32 @@ function collideRect(rect1, rect2){
 	}
 }
 
-function blendCols(col1, col2, per){
-	var R = col1[0] + (col2[0] - col1[0])*per;
-	var G = col1[1] + (col2[1] - col1[1])*per;
-	var B = col1[2] + (col2[2] - col1[2])*per;
-	return [R, G, B];
+document.documentElement.style.setProperty('image-rendering', 'pixelated');
+
+function blendCols(c1, c2, per, returnType = 0){
+	var col1 = c1.match(/\d+/g);
+	var col2 = c2.match(/\d+/g);
+	var R = Number(col1[0]) + (Number(col2[0]) - Number(col1[0]))*per;
+	var G = Number(col1[1]) + (Number(col2[1]) - Number(col1[1]))*per;
+	var B = Number(col1[2]) + (Number(col2[2]) - Number(col1[2]))*per;
+	if(returnType === 0){
+		return `rgb(${R}, ${G}, ${B})`
+	}
+	if(returnType === 1){
+		return [R, G, B];
+	}
 }
 
-document.documentElement.style.setProperty('image-rendering', 'pixelated');
+function avgCols(allCols){
+	// evenly averages all the colours in the list
+	var totals = [0, 0, 0];
+	for(var i = 0; i < allCols.legth; i++){
+		totals[0] += allCols[i][0];
+		totals[1] += allCols[i][1];
+		totals[2] += allCols[i][2];
+	}
+	return `rgb(${totals[0]}, ${totals[1]}, ${totals[2]})`
+}
 
 function midPoint(point1, point2, per){
 	var x = point1[0] + (point2[0] - point1[0])*per;
@@ -299,10 +317,6 @@ function drawGlow(X, Y, size, brightness, col=[255, 255, 255]){
 	glow.addColorStop(1, "rgba("+col[0]+", "+col[1]+","+col[2]+",0)")
 	c.fillStyle = glow;
 	c.fillRect(X-size, Y-size, size*2, size*2);
-}
-
-function fairRandom(min, max, number){
-
 }
 
 function guasianRandom(min, max, amount = 2){

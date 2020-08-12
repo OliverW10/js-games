@@ -5,6 +5,9 @@ some have more powerful movesets that other like chess pieces
 */
 var lastSpawn = false;
 
+function sumHovered(total, obj){
+	return total + obj.hovered;
+}
 class Game{
 	constructor(){
 		this.state = this.main;
@@ -58,13 +61,27 @@ class Game{
 							break
 						}
 					}
-				}else if(this.bin.hovering(mousePos.x, mousePos.y) === true){
+				}else if(this.bin.hovering(mousePos.x, mousePos.y) === true){ // or its over the bin
 					this.currentPieces.splice(i, 1);
 					this.toSpawn += 1;
 					this.board.addNextSpawn(1);
 					this.checkSlots();
 					if(i >= this.currentPieces.length){
 						break
+					}
+				}else if(this.currentPieces.reduce(sumHovered, 0) >= 2){ // or its over another piece
+					for(var j = 0; j < this.currentPieces.length; j ++){
+						if(i != j && this.currentPieces[j].hovered === true){
+							this.currentPieces[j].merge(this.currentPieces[i].toData());
+
+							this.currentPieces.splice(i, 1);
+							this.toSpawn += 1;
+							this.board.addNextSpawn(1);
+							this.checkSlots();
+							if(i >= this.currentPieces.length){
+								break
+							}
+						}
 					}
 				}
 			}else{
@@ -99,7 +116,6 @@ class Game{
 	progress(){
 		this.multiplier -= 1;
 		var killed = this.board.affectSquares();
-		console.log(killed);
 		this.multiplier += killed * 0.7;
 		this.multiplier = clip(this.multiplier, 1, 10);
 		this.score += killed * this.multiplier;
@@ -149,5 +165,8 @@ class Game{
 
 		c.fillStyle = grd;
 		c.fillRect(0, 0, canvas.width, canvas.height);
+	}
+	tutorial(){
+		
 	}
 }
