@@ -26,6 +26,10 @@ class Game{
 		this.toSpawn = 1;
 		this.dragging = false;
 
+		this.shakeSpeed = 0.1;
+		this.shakeAngle = 0;
+		this.shakeMagnitude = 0;
+
 		this.progress();
 	}
 	execute(){
@@ -42,10 +46,12 @@ class Game{
 		c.fillRect(0, 0, canvas.width, canvas.height);
 
 		if(this.board.getOver(mousePos.x, mousePos.y) === true){
-			this.board.updateSelected(this.board.getPosX(mousePos.x), this.board.getPosY(mousePos.y));
+			this.board.updateSelected(this.board.getPosX(mousePos.x), this.board.getPosY(mousePos.y))
 			this.board.drawSelected();
 		}
-		this.board.draw();
+		this.board.draw([Math.sin(this.shakeAngle)*this.shakeMagnitude*canvas.width, 0]);
+		this.shakeAngle += this.shakeSpeed;
+		this.shakeMagnitude *= 0.97;
 
 		var placed = false;
 		for(var i = 0; i < this.currentPieces.length; i += 1){
@@ -60,6 +66,9 @@ class Game{
 						if(i >= this.currentPieces.length){
 							break
 						}
+					}else{ // the square isnt empty
+						this.shakeMagnitude = 0.2;
+						this.shakeAngle = 0;
 					}
 				}else if(this.bin.hovering(mousePos.x, mousePos.y) === true){ // or its over the bin
 					this.currentPieces.splice(i, 1);

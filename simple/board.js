@@ -98,28 +98,28 @@ class Board{
 		this.toAffect = [];
 	}
 
-	draw(){
-		this.drawBoard();
-		this.drawPieces();
+	draw(offset){
+		this.drawBoard(offset);
+		this.drawPieces(offset);
 		//this.drawUpcoming();
 	}
 
-	drawBoard(){
+	drawBoard(offset){
 		for(var i = 1; i < this.size[0]; i += 1){ //vertical lines
-			roundedLine([this.getSquareX(i), this.getSquareY(0)], [this.getSquareX(i), this.getSquareY(this.size[1])], canvas.width*0.01, "rgb(50, 50, 50)");
+			roundedLine([this.getSquareX(i)+offset[0], this.getSquareY(0)+offset[1]], [this.getSquareX(i)+offset[0], this.getSquareY(this.size[1])+offset[1]], canvas.width*0.01, "rgb(50, 50, 50)");
 		}
 		for(var i = 1; i < this.size[1]; i += 1){ // horizontal lines
-			roundedLine([this.getSquareX(0), this.getSquareY(i)], [this.getSquareX(this.size[0]), this.getSquareY(i)], canvas.width*0.01, "rgb(50, 50, 50)");
+			roundedLine([this.getSquareX(0)+offset[0], this.getSquareY(i)+offset[1]], [this.getSquareX(this.size[0])+offset[0], this.getSquareY(i)+offset[1]], canvas.width*0.01, "rgb(50, 50, 50)");
 		}
 	}
 
-	drawPieces(){
+	drawPieces(offset){
 		for(var x = 0; x < this.size[0]; x += 1){
 			for(var y = 0; y < this.size[1]; y += 1){
 				if(this.selected[0] == x && this.selected[1] == y){
 				}
 				if(this.array[x][y] != false){
-					this.array[x][y].draw(this.getSquareX(x)+this.getSquareW()/2, this.getSquareY(y)+this.getSquareH()/2, Math.min(this.getSquareW(), this.getSquareH())/3);
+					this.array[x][y].draw(this.getSquareX(x)+this.getSquareW()/2+offset[0], this.getSquareY(y)+this.getSquareH()/2+offset[1], Math.min(this.getSquareW(), this.getSquareH())/3);
 				}
 			}
 		}
@@ -181,7 +181,12 @@ class Board{
 	}
 
 	updateSelected(X, Y){
-		this.selected = [X, Y];
+		if(this.array[X][Y] == false){
+			this.selected = [X, Y];
+			return true;
+		}else{
+			return false;
+		}
 	}
 	drawSelected(){
 		this.selectedRect[0] = this.getSquareX(this.selected[0])*this.selectedSpeed + this.selectedRect[0] * (1-this.selectedSpeed);
@@ -250,6 +255,17 @@ class Board{
 			this.array[this.toSpawnPos[i][0]][this.toSpawnPos[i][1]] = type;
 			this.enemies += 1;
 		}
+	}
+	checkFull(){
+		var hasEmpty = false;
+		for(var i = 0; i < this.array.length; i+=1){
+			for(var j = 0; j < this.array.length; j += 1){
+				if(this.array[i][j] !== false){
+					hasEmpty = true;
+				}
+			}
+		}
+		return hasEmpty;
 	}
 }
 
