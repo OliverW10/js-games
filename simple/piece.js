@@ -92,13 +92,26 @@ class Draggable{
 	}
 }
 
+function multiDimensionalUnique(arr) {
+    var uniques = [];
+    var itemsFound = {};
+    for(var i = 0, l = arr.length; i < l; i++) {
+        var stringified = JSON.stringify(arr[i]);
+        if(itemsFound[stringified]) { continue; }
+        uniques.push(arr[i]);
+        itemsFound[stringified] = true;
+    }
+    return uniques;
+}
+
 class Piece extends Draggable{
 	constructor(data, pos = [0, 0]){ // type as false for random
 		super(...pos);
-		this.lines = data.lines;
-		this.affects = data.affects;
-		this.colour = data.colour;
-		this.colours = [data.colour]
+		this.data = JSON.parse(JSON.stringify(data));
+		this.lines = this.data.lines;
+		this.affects = this.data.affects;
+		this.colour = this.data.colour;
+		this.colours = [this.data.colour];
 		this.scale = 1;
 		this.scaleAim = 1;
 	}
@@ -125,11 +138,12 @@ class Piece extends Draggable{
 		this.drawLines();
 	}
 	merge(data){
-		this.lines.push(data.lines);
-		this.affects.push(data.affects);
+		this.lines.push(...data.lines);
+		this.lines = multiDimensionalUnique(this.lines);
+		this.affects.push(...data.affects);
+		this.affects = multiDimensionalUnique(this.affects);
 		this.colours.push(data.colour);
 		this.colour = avgCols(this.colours);
-		console.log(this.colours, this.colour)
 	}
 }
 

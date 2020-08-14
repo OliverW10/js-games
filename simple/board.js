@@ -87,6 +87,7 @@ class Board{
 	}
 
 	affectSquares(){
+		console.log(this.toAffect, this.array)
 		var killed = 0;
 		for(var i = 0; i < this.toAffect.length; i += 1){
 			killed += this.deleteAt(this.toAffect[i][0], this.toAffect[i][1]);

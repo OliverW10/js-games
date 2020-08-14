@@ -104,11 +104,13 @@ function blendCols(c1, c2, per, returnType = 0){
 function avgCols(allCols){
 	// evenly averages all the colours in the list
 	var totals = [0, 0, 0];
-	for(var i = 0; i < allCols.legth; i++){
-		totals[0] += allCols[i][0];
-		totals[1] += allCols[i][1];
-		totals[2] += allCols[i][2];
+	for(var i = 0; i < allCols.length; i+=1){
+		var c = allCols[i].match(/\d+/g);
+		totals[0] += Number(c[0]);
+		totals[1] += Number(c[1]);
+		totals[2] += Number(c[2]);
 	}
+	totals = totals.map(x => x/allCols.length);
 	return `rgb(${totals[0]}, ${totals[1]}, ${totals[2]})`
 }
 
