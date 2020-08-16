@@ -50,6 +50,8 @@ var menuTextOffset = [0, 0];
 var menuPlayButton = new TextButton([0.25, 0.4, 0.5, 0.3], "Play");
 var menuFade = 1;
 
+var accPoints = 0
+
 var score = [0, 0];
 var scoreLegend = {0:"0", 1:"1", 2:"2", 3:"3", 4:"4", 5:"5", 6:"6", 7:"7"};
 
@@ -507,7 +509,31 @@ class Game{
 		gameSpeed = aimGameSpeed*gameSpeedAlpha + gameSpeed*(1-gameSpeedAlpha);
 		this.overlay();
 	}
+	accuracy(){
+		// camera movement
+		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
+			cameraPosAim = [-balls[0].X, 1, -0.4]
+		}
+		FOV = scaleNumber(balls[0].Z, 1, 3, 1.3, 0.9);
 
+		cameraPos[0] = cameraPosAim[0]*cameraPosAlpha + cameraPos[0]*(1 - cameraPosAlpha);
+		cameraPos[1] = cameraPosAim[1]*cameraPosAlpha + cameraPos[1]*(1 - cameraPosAlpha);
+		cameraPos[2] = cameraPosAim[2]*cameraPosAlpha + cameraPos[2]*(1 - cameraPosAlpha);
+
+		if(playerRacquetController.update() === true){ // whenever it hits the ball
+			comRacquetController.speedUp();
+		}
+		comRacquetController.update();
+
+		// drawing
+		this.background();
+		this.drawReflections();
+		this.draw();
+
+		showText("Points: "+accPoints, canvas.width/2, canvas.height*0.1, 40, "rgb(0, 0, 0)", true, true);
+
+		// if(ball)
+	}
 	wall(){
 		if(balls[0].stopped === false){ // if you arent grabbing the ball tries to frame the ball
 			cameraPosAim = [-balls[0].X, 1, -0.4];
