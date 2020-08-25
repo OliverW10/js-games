@@ -251,17 +251,14 @@ function createArray(fill, size){
 
 function createNdArray(fill, sizes){
 	var temp_array = []
-	if(sizes.length === 2){
-		for(var i = 0; i<sizes[0]; i+=1){
-			temp_array.push(createArray(fill, sizes[0]));
-		}
-		return temp_array
-	}else{
+	if(sizes.length >= 2){
 		for(var i = 0; i<sizes[0]; i+=1){
 			temp_array.push(createNdArray(fill, sizes.slice(1, sizes.length)));
 		}
+		return temp_array
+	}else{
+		return createArray(fill, sizes[0])
 	}
-	return temp_array
 }
 
 

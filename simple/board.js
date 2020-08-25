@@ -2,7 +2,7 @@
 class Board{
 	constructor(sizes){
 		this.size = [sizes[0], sizes[1]];
-		this.array = createNdArray(false, [this.size[1], this.size[0]]);// an array filled with Peices
+		this.array = createNdArray(false, [this.size[0], this.size[1]]);// an array filled with Peices
 		this.margin = {"left": 0.15, "right": 1-0.15, "top": 0.15, "bottom": 1-0.03};
 		this.selected = [0, 1];
 		this.selectedRect = [0, 0, 0, 0];
@@ -43,59 +43,32 @@ class Board{
 		this.enemies += 1;
 	}
 
-	deleteAt(X, Y){
-		if(this.array[X][Y] === false){
-			explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), "rgb(255, 255, 255)", 15);
-			return 0;
-		}else{
-			explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), this.array[X][Y].colour, 15);
+	damageAt(X, Y){
+		if(X < this.size[0] && Y < this.size[1] && X >= 0 && Y >= 0){
+			if(this.array[X][Y] === false){
+				explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), "rgb(255, 255, 255)", 15);
+			}else{
+				explotion(this.getSquareX(X+0.5), this.getSquareY(Y+0.5), this.array[X][Y].colour, 15);
 
-			this.array[X][Y].damage();
-			if(this.array[X][Y].alive === false){
-				this.array[X][Y] = false;
-				this.enemies -= 1;
-			}
-			return 1;
-		}
-	}
-	shift(direction){ // direction is movement
-		// hasnt been converted to non-square
-		for(var i = 0; i < 10; i +=1){ // go over board a few times
-			for(var x = 0; x < this.size; x += 1){
-				for(var y = 0; y < this.size; y += 1){
-					if( x+direction[0] >= 0 && x+direction[0] < this.size && y+direction[1] >= 0 && y+direction[1] < this.size){ // square to move to is on the board
-
-					}
-					if( this.array[x+direction[0]][y+direction[1]] === false ){
-
-					}
+				this.array[X][Y].damage();
+				if(this.array[X][Y].alive === false){
+					this.array[X][Y] = false;
+					this.enemies -= 1;
 				}
+				return 1;
 			}
 		}
+		return 0;
 	}
-	addAffecter(squares, offset){
-		// killes all the enmies on the squares given
-		// returns the number of enemies killed
+
+	affectSquares(squares, offset){
 		var killed = 0;
 		for(var i = 0; i < squares.length; i += 1){
 			var X = squares[i][0] + offset[0];
 			var Y = squares[i][1] + offset[1];
-			if(X >= 0 && X < this.size[0] && Y >= 0 && Y < this.size[1]){
-				this.toAffect.push([X, Y]);
-			}
-		}
-	}
-
-	affectSquares(){
-		console.log(this.toAffect, this.array)
-		var killed = 0;
-		for(var i = 0; i < this.toAffect.length; i += 1){
-			killed += this.deleteAt(this.toAffect[i][0], this.toAffect[i][1]);
+			killed += this.damageAt(X, Y);
 		}
 		return killed
-	}
-	resetAffects(){
-		this.toAffect = [];
 	}
 
 	draw(offset){
@@ -185,6 +158,7 @@ class Board{
 			this.selected = [X, Y];
 			return true;
 		}else{
+			this.selected = [-10, -10]
 			return false;
 		}
 	}

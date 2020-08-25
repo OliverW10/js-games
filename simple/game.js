@@ -3,6 +3,9 @@ enemies spawn and evolve every turn
 you place peices that clense one or multiple squares
 some have more powerful movesets that other like chess pieces
 */
+if(localStorage.highscore == undefined){
+	localStorage.highscore = 0;
+}
 var lastSpawn = false;
 
 function sumHovered(total, obj){
@@ -30,7 +33,7 @@ class Game{
 		this.shakeAngle = 0;
 		this.shakeMagnitude = 0;
 
-		this.progress();
+		this.progress(0);
 	}
 	execute(){
 		this.state();
@@ -61,8 +64,9 @@ class Game{
 					var placedPos = [this.board.getPosX(this.currentPieces[i].X*canvas.width), this.board.getPosY(this.currentPieces[i].Y*canvas.height)]
 					if(this.board.array[placedPos[0]][placedPos[1]] === false){ // and the square is empty
 						placed = true;
-						this.board.addAffecter(this.currentPieces[i].affects, placedPos);
+						var killed = this.board.affectSquares(this.currentPieces[i].affects, placedPos);
 						this.currentPieces.splice(i, 1);
+						this.progress(killed);
 						if(i >= this.currentPieces.length){
 							break
 						}
@@ -101,10 +105,6 @@ class Game{
 				this.dragging = true;
 			}
 		}
-		// progress everything is you have placed one or more objects this frame
-		if(placed === true){
-			this.progress();
-		}
 		this.bin.draw();
 		this.bin.hovering(mousePos.x, mousePos.y); // also sets size
 
@@ -122,12 +122,14 @@ class Game{
 		}
 		this.gameUI();
 	}
-	progress(){
+	progress(killed){
 		this.multiplier -= 1;
-		var killed = this.board.affectSquares();
 		this.multiplier += killed * 0.7;
 		this.multiplier = clip(this.multiplier, 1, 10);
 		this.score += killed * this.multiplier;
+		if(this.score >= localStorage.highscore){
+			localStorage.highscore = this.score;
+		}
 		this.board.progressAll();
 
 		this.spawnRate += 0.025;
@@ -135,7 +137,6 @@ class Game{
 		// 	this.board.spawnRand(new Enemy(), this.board.toAffect);
 		// }
 		this.board.spawn(new Enemy);
-		this.board.resetAffects();
 
 		this.checkSlots();
 		this.toSpawn = round(random(this.spawnRate-1, this.spawnRate)); // sets for next turn
