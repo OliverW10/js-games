@@ -384,8 +384,8 @@ class explotion{
 	}
 	draw(){
 		this.age += 1;
-		this.frame = Math.floor(this.age/10);
-		if(this.frame >= 3){
+		this.frame = Math.floor(this.age/1.5);
+		if(this.frame >= 25){
 			this.dead = true;
 			//explotionImg[2].drawImg((this.X-25)*scale, (this.Y-25)*scale, 50*scale, 50*scale, 0.95);
 		}else{
@@ -550,11 +550,14 @@ function loadingScreen(){
 // LOADING IMAGES
 var loadingSoundTotal = 5;
 var loadCountSounds = 0;
-var loadingTotal = 40;
+var loadingTotal = 60;
 var loadCounter = 0;
 //var adImg = new image("ad.jpg");
 var skinButton = new button(720*0.05, 512*0.9, 720*0.15, 512*0.075, new image("skin.png"));
-var explotionImg = [new image("explotion1.png"), new image("explotion2.png"), new image("explotion3.png")];
+var explotionImg = [];
+for(var i = 0; i < 25; i++){
+	explotionImg.push(new image(`explotion${i}.png`))
+}
 var vingetteImg = new image("vingette.jpg");
 var dotsImg = new image("dots.png");
 var thumbs = {"holiday":new image("tracks/thumbs/series1.png"), "series2":new image("tracks/thumbs/series2.png"), "series3":new image("tracks/thumbs/series3.png"), "series4":new image("tracks/thumbs/series4.png")};
@@ -870,6 +873,10 @@ function update(){
 
 		colTemp = tracks[currentSeries][currentTrack].collisionArray[Math.floor(carPos[1] - Math.sin(carAngle)*15)][Math.floor(carPos[0] - Math.cos(carAngle)*15)];
 		if(colTemp === true){
+			for(var i = 0; i < 5; i+=1){
+				smokeList.push(new smoke(carPos[0] - Math.cos(carAngle)*7, carPos[1] - Math.sin(carAngle)*7, 40));
+			}
+			explotionList.push(new explotion(carPos[0], carPos[1], carAngle));
 			reset();
 		}
 
