@@ -1,0 +1,70 @@
+body {
+	margin: 0px;
+	background-color: #223843;
+}
+.links{
+	color: rgb(60, 60, 40);/*#D77A61;*/
+	background-color: rgb(200, 190, 50);
+	border-style: solid;
+	border-color: rgb(100, 90, 10);
+	border-width: 3px;
+	float: left;
+}
+.games{
+	position: absolute;
+	text-align: center;
+	display: block
+	z-index: 10000;
+	left: 5%;
+	right: 5%;
+	top: 150px;
+}
+.game{
+	position: relative;
+	left: 5%;
+	right: 5%;
+	height: 300px;
+}
+.desc{
+	color: white;
+	position: relative;
+}
+.gameTitles{
+	color: white;
+	position: relative;
+}
+.imageLink{
+	position: relative;
+	float: left;
+}
+#logo{
+	position: relative;
+	left: 45%;
+	width: 20%;
+}
+#topBar{
+	background-color: #304f5e;
+}
+#barLinks{
+	position: relative;
+	left: 40%;
+	width: 40%;
+	top: -15px;
+}
+#aboutText{
+	position: relative;
+	margin-top: 10%;
+	color: white;
+}
+canvas {
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -webkit-crisp-edges;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	border : 1px solid black;
+}
+#canvasTag{
+	margin-top: 3%;
+	position: relative;
+	align-content: center;
+}
