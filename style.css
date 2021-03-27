@@ -36,47 +36,6 @@ body{
     filter: blur(0px);
     transition: 500ms;
 }
-#db-desc{
-    background-image: url("images/DB.jpg");
-}
-body{
-    background-color: red;
-}
-#div1{
-    background-color: green;
-    padding: 10px;
-}
-.seconds{
-    /*background-color: blue;*/
-    height: 20%;
-    vertical-align: middle;
-}
-#db-div{
-    
-}
-.text2{
-    color: #dddddd;
-    position: relative;
-    top: 42.5%;
-    z-index: 2;
-    text-align: center;
-}
-.thirds{
-    top: -22.5%;
-    position: relative;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: blur(8px);
-    transition: 500ms;
-    height: 100%;
-    width: 100%;
-    z-index: 0;
-}
-.thirds:hover{
-    filter: blur(0px);
-    transition: 500ms;
-}
-#div3{
+#db-inner{
     background-image: url("images/DB.jpg");
 }
