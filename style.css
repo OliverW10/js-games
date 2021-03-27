@@ -1,11 +1,15 @@
 body{
     background-color: #1f1f23;
     padding: 1%;
+    font-family: Arial, Helvetica, sans-serif;
 }
 h1{
 	color: #BBBBBB;
 	text-shadow: 2px 2px 20px #222222;
 	font-size: 250%;
+}
+a{
+	text-decoration: none;
 }
 #projects-outer{
     background-color: #333337;
