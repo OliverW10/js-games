@@ -1,73 +1,82 @@
-/*
-https://coolors.co/223843-eff1f3-dbd3d8-d8b4a0-d77a61
-*/
-body {
-	margin: 0px;
-	background-color: #223843;
+body{
+    background-color: red;
 }
-.links{
-	color: rgb(60, 60, 40);/*#D77A61;*/
-	background-color: rgb(200, 190, 50);
-	border-style: solid;
-	border-color: rgb(100, 90, 10);
-	border-width: 3px;
-	float: left;
+#projects-outer{
+    background-color: green;
+    padding: 10px;
 }
-.games{
-	position: absolute;
-	text-align: center;
-	display: block
-	z-index: 10000;
-	left: 5%;
-	right: 5%;
-	top: 150px;
+.projects{
+    /*background-color: blue;*/
+    height: 20%;
+    vertical-align: middle;
 }
-.game{
-	position: relative;
-	left: 5%;
-	right: 5%;
-	height: 300px;
+#db-div{
+    
 }
-.desc{
-	color: white;
-	position: relative;
+.project-titles{
+    color: #dddddd;
+    position: relative;
+    top: 42.5%;
+    z-index: 2;
+    text-align: center;
 }
-.gameTitles{
-	color: white;
-	position: relative;
+.projects-inner{
+    top: -22.5%;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(8px);
+    transition: 500ms;
+    height: 100%;
+    width: 100%;
+    z-index: 0;
 }
-.imageLink{
-	position: relative;
-	float: left;
+.projects-inner:hover{
+    filter: blur(0px);
+    transition: 500ms;
 }
-#logo{
-	position: relative;
-	left: 45%;
-	width: 20%;
+#db-desc{
+    background-image: url("images/DB.jpg");
 }
-#topBar{
-	background-color: #304f5e;
+body{
+    background-color: red;
 }
-#barLinks{
-	position: relative;
-	left: 40%;
-	width: 40%;
-	top: -15px;
+#div1{
+    background-color: green;
+    padding: 10px;
 }
-#aboutText{
-	position: relative;
-	margin-top: 10%;
-	color: white;
+.seconds{
+    /*background-color: blue;*/
+    height: 20%;
+    vertical-align: middle;
 }
-canvas {
-	image-rendering: -moz-crisp-edges;
-	image-rendering: -webkit-crisp-edges;
-	image-rendering: pixelated;
-	image-rendering: crisp-edges;
-	border : 1px solid black;
+#db-div{
+    
 }
-#canvasTag{
-	margin-top: 3%;
-	position: relative;
-	align-content: center;
+.text2{
+    color: #dddddd;
+    position: relative;
+    top: 42.5%;
+    z-index: 2;
+    text-align: center;
+}
+.thirds{
+    top: -22.5%;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(8px);
+    transition: 500ms;
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+}
+.thirds:hover{
+    filter: blur(0px);
+    transition: 500ms;
+}
+#div3{
+    background-image: url("images/DB.jpg");
 }
