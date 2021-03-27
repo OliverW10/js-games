@@ -14,10 +14,12 @@ a{
 #projects-outer{
     background-color: #333337;
     padding: 1%;
+    border-radius: 1%;
 }
 .projects{
     height: 20%;
     vertical-align: middle;
+    border-radius: 2%;
 }
 #db-div{
     
@@ -42,6 +44,7 @@ a{
     height: 100%;
     width: 100%;
     z-index: 0;
+    border-radius: 2%;
 }
 .projects-inner:hover{
     filter: blur(0px);
@@ -55,5 +58,7 @@ a{
 }
 #games-inner{
 	background-image: url(images/tennis_thumb.png);
-	background-position: top 100%;
+}
+#gh-inner{
+	background-image: url("images/gh.png");
 }
