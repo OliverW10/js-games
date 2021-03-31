@@ -8,6 +8,12 @@ h1{
 	text-shadow: 2px 2px 20px #222222;
 	font-size: 250%;
 }
+#projects-title{
+    text-shadow: 3px 3px #000000;
+    margin-left: 3%;
+    margin-bottom: 1%;
+    margin-top: 2%;
+}
 a{
 	text-decoration: none;
 }
@@ -35,8 +41,7 @@ a{
 }
 .project-titles:hover ~ .projects-inner{
 	filter: blur(0px);
-	transition: 500ms;
-	color: blue;
+	transition: 200ms;
 }
 .projects-inner{
     top: -22.5%;
@@ -53,7 +58,7 @@ a{
 }
 .projects-inner:hover{
     filter: blur(0px);
-    transition: 500ms;
+    transition: 200ms;
 }
 #db-inner{
     background-image: url("images/DB.png");
